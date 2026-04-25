@@ -14,6 +14,50 @@ The product must feel like a real polished app, not a prototype, throwaway demo,
 * Do not write changes into the codebase yourself.
 * Always return proposed changes for manual application by the developer.
 
+## Code organization rules
+
+- Keep files short and focused.
+- Prefer splitting code into small, purpose-specific files instead of large multi-responsibility files.
+- Avoid files that mix screen logic, business logic, data mapping, UI components, and styling unless there is a strong reason.
+- Extract duplicated logic immediately when duplication appears across screens, features, or components.
+- Prefer shared helpers, hooks, mappers, constants, and UI primitives over copy-paste reuse.
+- Do not create abstractions preemptively; only extract when reuse or clarity is real.
+- Prefer feature-local organization first, then shared modules only when multiple features truly need them.
+- Do not leave React Native template files, placeholder files, or dead scaffolding in the repository.
+
+## UI and styling rules
+
+- The UI must feel custom, polished, and visually distinctive.
+- Avoid generic default mobile UI, default React Native starter styling, and common dark/light blue template aesthetics.
+- Prefer a deliberate visual identity with strong contrast, intentional color choices, clear hierarchy, strong spacing, and memorable surfaces.
+- Use a shared global theme and shared design tokens for colors, spacing, typography, radius, elevation, and motion values.
+- Keep screen-specific styles close to the screen unless those styles are reused.
+- Shared styles, tokens, and theme logic should live in dedicated global styling files.
+- Reusable UI components should own their own local styles when appropriate.
+- If a style pattern repeats, extract it instead of duplicating it.
+
+## Internationalization rules
+
+- Do not hard-code user-facing strings in components or screens.
+- Use a proper internationalization structure for all user-facing text.
+- Existing locale support must not remain Finland-only.
+- Dates, numbers, currencies, labels, actions, validation text, empty states, and system messages must be prepared for localization.
+- Prefer translation keys organized by feature or domain.
+- Keep locale-sensitive formatting separate from presentation where possible.
+
+## Asset readiness rules
+
+- Keep the app ready for custom branded assets such as app icon, splash assets, tab icons, button icons, onboarding illustrations, and other feature-relevant assets.
+- When assets are missing and a screen clearly benefits from them, explicitly recommend the required asset files and their intended usage.
+- If a feature would materially benefit from custom visual assets, ask for them or define clear placeholders and naming conventions for future replacement.
+- Do not invent unnecessary assets for screens that do not benefit from them.
+
+## Onboarding and UX rules
+
+- Do not keep onboarding flows that add no real value.
+- If onboarding only redirects to auth choices that can be handled inside auth, prefer simplifying or removing it.
+- Keep entry flows intentional, minimal, and product-like.
+
 ## Required output format
 
 When asked to implement, refactor, or add features, return only:
