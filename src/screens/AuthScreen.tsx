@@ -129,7 +129,7 @@ export function AuthScreen({ theme }: { theme: Theme }) {
           <Button
             theme={theme}
             label="Continue"
-            onPress={() => void handleSubmit()}
+            onPress={() => handleSubmit().catch(() => undefined)}
           />
           <Text style={styles.helper}>
             Demo credentials already seeded: `owner@northcircle.app` / `1234`.

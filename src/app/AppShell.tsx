@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Pressable,
   StatusBar,
   StyleSheet,
   Text,
@@ -12,7 +11,7 @@ import { AppTab } from '../store/models';
 import { getCurrentGroup, getCurrentProfile } from '../store/selectors';
 import { AppStoreProvider, useAppStore } from '../store/store';
 import { getTheme } from '../theme/theme';
-import { AppTabBar, Avatar } from '../ui/primitives';
+import { AppTabBar, Avatar, Button } from '../ui/primitives';
 import { AuthScreen } from '../screens/AuthScreen';
 import { AppLockScreen } from '../screens/AppLockScreen';
 import { CalendarScreen } from '../screens/CalendarScreen';
@@ -79,7 +78,7 @@ function AppChrome() {
         <OnboardingScreen
           theme={theme}
           onContinue={modeValue => {
-            void completeOnboarding(modeValue);
+            completeOnboarding(modeValue).catch(() => undefined);
           }}
         />
       );
@@ -107,14 +106,14 @@ function AppChrome() {
                 colorKey={getCurrentProfile(snapshot)?.colorKey ?? 'blue'}
               />
             ) : null}
-            <Pressable
+            <Button
+              theme={theme}
+              label="Lock"
+              kind="secondary"
               onPress={() => {
-                void lockApp();
+                lockApp().catch(() => undefined);
               }}
-              style={styles.lockButton}
-            >
-              <Text style={styles.lockButtonText}>Lock</Text>
-            </Pressable>
+            />
           </View>
         </View>
         <View style={styles.content}>{renderMainScreen()}</View>
@@ -181,19 +180,6 @@ const createStyles = (theme: ReturnType<typeof getTheme>) =>
       flexDirection: 'row',
       alignItems: 'center',
       gap: 10,
-    },
-    lockButton: {
-      backgroundColor: theme.surface,
-      borderColor: theme.border,
-      borderWidth: 1,
-      borderRadius: 14,
-      paddingHorizontal: 12,
-      paddingVertical: 10,
-    },
-    lockButtonText: {
-      color: theme.text,
-      fontSize: 14,
-      fontWeight: '800',
     },
     content: {
       flex: 1,

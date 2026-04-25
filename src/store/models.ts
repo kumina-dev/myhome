@@ -240,9 +240,12 @@ export interface AddTaskInput {
   dueAt?: string;
 }
 
-export interface UpdateSettingsInput extends Partial<AppSettings> {
+export type UpdateSettingsInput = Omit<
+  Partial<AppSettings>,
+  'notifications'
+> & {
   notifications?: Partial<NotificationPreferences>;
-}
+};
 
 export interface AuthRepository {
   bootstrap(): Promise<AppSnapshot>;

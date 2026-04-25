@@ -36,7 +36,9 @@ export function HomeScreen({ theme }: { theme: Theme }) {
   const scoreboard = getScoreboard(snapshot);
   const upcoming = getUpcomingEvents(snapshot).slice(0, 3);
   const leader = scoreboard.currentScores[0];
-  const leaderProfile = profiles.find(item => item.member.userId === leader?.userId)?.profile;
+  const leaderProfile = profiles.find(
+    item => item.member.userId === leader?.userId,
+  )?.profile;
   const monthlyTotal = formatCurrency(
     snapshot.expenses
       .filter(expense => expense.groupId === group.id)
@@ -68,7 +70,9 @@ export function HomeScreen({ theme }: { theme: Theme }) {
                   colorKey={item.profile.colorKey}
                 />
                 <View style={styles.memberText}>
-                  <Text style={styles.memberName}>{item.profile.displayName}</Text>
+                  <Text style={styles.memberName}>
+                    {item.profile.displayName}
+                  </Text>
                   <Text style={styles.memberRole}>{item.member.role}</Text>
                 </View>
               </View>
@@ -77,38 +81,42 @@ export function HomeScreen({ theme }: { theme: Theme }) {
         </Card>
       </Section>
 
-      <Section theme={theme} title='Overview'>
+      <Section theme={theme} title="Overview">
         <StatCard
           theme={theme}
-          label='This month'
+          label="This month"
           value={monthlyTotal}
-          hint='Shared spending for the current month'
+          hint="Shared spending for the current month"
         />
         <StatCard
           theme={theme}
-          label='Pinned notes'
+          label="Pinned notes"
           value={String(pinnedNotes.length)}
-          hint='Visible priorities for everyone'
+          hint="Visible priorities for everyone"
         />
         <StatCard
           theme={theme}
           label="Cycle leader"
           value={leaderProfile?.displayName ?? 'No score yet'}
-          hint={leader ? `${leader.points} points this cycle` : 'Complete tasks to start'}
+          hint={
+            leader
+              ? `${leader.points} points this cycle`
+              : 'Complete tasks to start'
+          }
         />
       </Section>
 
       <Section
         theme={theme}
-        title='Notifications'
+        title="Notifications"
         action={
           unread.length ? (
             <Button
               theme={theme}
-              label='Mark all read'
-              kind='secondary'
+              label="Mark all read"
+              kind="secondary"
               onPress={() => {
-                void markAllNotificationsRead();
+                markAllNotificationsRead().catch(() => undefined);
               }}
             />
           ) : undefined
@@ -132,20 +140,24 @@ export function HomeScreen({ theme }: { theme: Theme }) {
         )}
       </Section>
 
-      <Section theme={theme} title='Upcoming'>
+      <Section theme={theme} title="Upcoming">
         {upcoming.length ? (
           upcoming.map(event => (
             <Card key={event.id} theme={theme}>
               <Text style={styles.cardTitle}>{event.title}</Text>
-              <Text style={styles.bodyMuted}>{formatDateTime(event.startsAt)}</Text>
-              {event.notes ? <Text style={styles.meta}>{event.notes}</Text> : null}
+              <Text style={styles.bodyMuted}>
+                {formatDateTime(event.startsAt)}
+              </Text>
+              {event.notes ? (
+                <Text style={styles.meta}>{event.notes}</Text>
+              ) : null}
             </Card>
           ))
         ) : (
           <EmptyState
             theme={theme}
             title="No upcoming events"
-            body='Add plans, reminders, or important dates to keep the group coordinated.'
+            body="Add plans, reminders, or important dates to keep the group coordinated."
           />
         )}
       </Section>

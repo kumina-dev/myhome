@@ -18,6 +18,14 @@ export function AppLockScreen({ theme }: { theme: Theme }) {
 
   if (!snapshot) return null;
 
+  function handleBiometricChange(value: boolean) {
+    updateAppLockSettings({ biometricEnabled: value }).catch(() => undefined);
+  }
+
+  function handleSignOut() {
+    signOut().catch(() => undefined);
+  }
+
   async function handleUnlock() {
     try {
       await unlockApp(pin);
@@ -51,20 +59,18 @@ export function AppLockScreen({ theme }: { theme: Theme }) {
             theme={theme}
             label="Biometric unlock"
             value={snapshot.appLockSettings.biometricEnabled}
-            onValueChange={value =>
-              void updateAppLockSettings({ biometricEnabled: value })
-            }
+            onValueChange={handleBiometricChange}
           />
           <Button
             theme={theme}
             label="Unlock"
-            onPress={() => void handleUnlock()}
+            onPress={() => handleUnlock().catch(() => undefined)}
           />
           <Button
             theme={theme}
             label="Sign out"
             kind="secondary"
-            onPress={() => void signOut()}
+            onPress={handleSignOut}
           />
           <Text style={styles.helper}>
             In a full device build, biometric unlock would be wired to native

@@ -7,6 +7,7 @@ import {
   getActiveGroupProfiles,
   getExpenseSummary,
 } from '../store/selectors';
+import { AppSnapshot } from '../store/models';
 import { Theme } from '../theme/theme';
 import {
   Avatar,
@@ -26,6 +27,24 @@ export function ExpensesScreen({ theme }: { theme: Theme }) {
 
   if (!snapshot) return null;
 
+  return (
+    <ExpensesScreenContent
+      theme={theme}
+      snapshot={snapshot}
+      addExpense={addExpense}
+    />
+  );
+}
+
+function ExpensesScreenContent({
+  theme,
+  snapshot,
+  addExpense,
+}: {
+  theme: Theme;
+  snapshot: AppSnapshot;
+  addExpense: ReturnType<typeof useAppStore>['addExpense'];
+}) {
   const styles = createStyles(theme);
   const summary = getExpenseSummary(snapshot);
   const memberProfiles = getActiveGroupProfiles(snapshot);
@@ -49,6 +68,10 @@ export function ExpensesScreen({ theme }: { theme: Theme }) {
     [memberProfiles],
   );
 
+  function handleSubmitPress() {
+    submit().catch(() => undefined);
+  }
+
   async function submit() {
     const amountNumber = Number(amount.replace(',', '.'));
 
@@ -58,7 +81,7 @@ export function ExpensesScreen({ theme }: { theme: Theme }) {
     }
 
     await addExpense({
-      buyerUserId: buyerUserId ?? snapshot?.sessionState.session?.userId ?? '',
+      buyerUserId: buyerUserId ?? snapshot.sessionState.session?.userId ?? '',
       title: title.trim(),
       amountCents: Math.round(amountNumber * 100),
       purchasedAt,
@@ -136,7 +159,7 @@ export function ExpensesScreen({ theme }: { theme: Theme }) {
           <Button
             theme={theme}
             label="Add expense"
-            onPress={() => void submit()}
+            onPress={handleSubmitPress}
           />
         </Card>
       </Section>

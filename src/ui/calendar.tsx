@@ -43,8 +43,8 @@ export function CalendarMonthView({
       <Text style={styles.monthTitle}>{monthHeading(visibleMonth)}</Text>
       <View style={styles.weekHeader}>
         {(snapshot.settings.weekStartsOn === 'monday'
-          ? ['M', 'T', 'W', 'T', 'F', 'S', 'S']
-          : ['S', 'M', 'T', 'W', 'T', 'F', 'S']
+          ? ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
+          : ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
         ).map(value => (
           <Text key={value} style={styles.weekLabel}>
             {value}

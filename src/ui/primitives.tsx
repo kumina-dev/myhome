@@ -5,7 +5,6 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Switch,
   Text,
   TextInput,
   View,
@@ -19,6 +18,61 @@ import {
 import { Theme } from '../theme/theme';
 
 type ItemKey = string | number;
+
+export function AppText({
+  theme,
+  children,
+  variant = 'body',
+}: {
+  theme: Theme;
+  children: React.ReactNode;
+  variant?: 'title' | 'subtitle' | 'body' | 'muted' | 'kicker';
+}) {
+  const styles = createStyles(theme);
+  const style =
+    variant === 'title'
+      ? styles.appTextTitle
+      : variant === 'subtitle'
+      ? styles.appTextSubtitle
+      : variant === 'muted'
+      ? styles.bodyMuted
+      : variant === 'kicker'
+      ? styles.kicker
+      : styles.bodyText;
+
+  return <Text style={style}>{children}</Text>;
+}
+
+export function Stack({ children }: { children: React.ReactNode }) {
+  const styles = createStylesFallback;
+  return <View style={styles.stack}>{children}</View>;
+}
+
+export function Inline({ children }: { children: React.ReactNode }) {
+  const styles = createStylesFallback;
+  return <View style={styles.inline}>{children}</View>;
+}
+
+export function ActionTextButton({
+  theme,
+  label,
+  onPress,
+  danger,
+}: {
+  theme: Theme;
+  label: string;
+  onPress: () => void;
+  danger?: boolean;
+}) {
+  const styles = createStyles(theme);
+  return (
+    <Pressable onPress={onPress} style={styles.actionTextButton}>
+      <Text style={danger ? styles.actionTextDanger : styles.actionText}>
+        {label}
+      </Text>
+    </Pressable>
+  );
+}
 
 export function Screen({
   theme,
@@ -247,10 +301,12 @@ export function ToggleRow({
   const styles = createStyles(theme);
 
   return (
-    <View style={styles.toggleRow}>
+    <Pressable onPress={() => onValueChange(!value)} style={styles.toggleRow}>
       <Text style={styles.bodyText}>{label}</Text>
-      <Switch value={value} onValueChange={onValueChange} />
-    </View>
+      <View style={value ? styles.toggleTrackOn : styles.toggleTrack}>
+        <View style={value ? styles.toggleThumbOn : styles.toggleThumb} />
+      </View>
+    </Pressable>
   );
 }
 
@@ -470,6 +526,16 @@ const createStyles = (theme: Theme) =>
       padding: 16,
       paddingBottom: 32,
     },
+    appTextTitle: {
+      color: theme.text,
+      fontSize: 22,
+      fontWeight: '900',
+    },
+    appTextSubtitle: {
+      color: theme.textMuted,
+      fontSize: 13,
+      lineHeight: 18,
+    },
     section: {
       marginBottom: 24,
     },
@@ -496,12 +562,14 @@ const createStyles = (theme: Theme) =>
     },
     card: {
       backgroundColor: theme.surface,
-      borderColor: theme.border,
+      borderColor: theme.accentSoft,
       borderWidth: 1,
-      borderRadius: 20,
+      borderLeftWidth: 5,
+      borderRadius: 16,
       padding: 16,
       marginBottom: 12,
       gap: 10,
+      elevation: 2,
     },
     statCard: {
       backgroundColor: theme.surface,
@@ -647,6 +715,50 @@ const createStyles = (theme: Theme) =>
       paddingVertical: 6,
       gap: 12,
     },
+    toggleTrack: {
+      width: 52,
+      height: 30,
+      borderRadius: 999,
+      borderWidth: 1,
+      borderColor: theme.border,
+      backgroundColor: theme.surfaceMuted,
+      padding: 3,
+      alignItems: 'flex-start',
+    },
+    toggleTrackOn: {
+      width: 52,
+      height: 30,
+      borderRadius: 999,
+      borderWidth: 1,
+      borderColor: theme.accent,
+      backgroundColor: theme.accent,
+      padding: 3,
+      alignItems: 'flex-end',
+    },
+    toggleThumb: {
+      width: 22,
+      height: 22,
+      borderRadius: 11,
+      backgroundColor: theme.textMuted,
+    },
+    toggleThumbOn: {
+      width: 22,
+      height: 22,
+      borderRadius: 11,
+      backgroundColor: theme.inverseText,
+    },
+    actionTextButton: {
+      paddingHorizontal: 8,
+      paddingVertical: 6,
+    },
+    actionText: {
+      color: theme.accent,
+      fontWeight: '900',
+    },
+    actionTextDanger: {
+      color: theme.danger,
+      fontWeight: '900',
+    },
     listRow: {
       flexDirection: 'row',
       justifyContent: 'space-between',
@@ -790,3 +902,14 @@ const createStyles = (theme: Theme) =>
       fontWeight: '800',
     },
   });
+
+const createStylesFallback = StyleSheet.create({
+  stack: {
+    gap: 12,
+  },
+  inline: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+});

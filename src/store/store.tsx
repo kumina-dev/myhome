@@ -232,15 +232,15 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
           repositoriesRef.current.settingsRepository.updateSettings(input),
         );
       },
-      addExpenseCategory: async value => {
+      addExpenseCategory: async categoryName => {
         await run(() =>
-          repositoriesRef.current.settingsRepository.addExpenseCategory(value),
+          repositoriesRef.current.settingsRepository.addExpenseCategory(categoryName),
         );
       },
-      removeExpenseCategory: async value => {
+      removeExpenseCategory: async categoryName => {
         await run(() =>
           repositoriesRef.current.settingsRepository.removeExpenseCategory(
-            value,
+            categoryName,
           ),
         );
       },

@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, Text, View } from 'react-native';
 import { Theme } from '../theme/theme';
 import { useAppStore } from '../store/store';
+import { AppSnapshot } from '../store/models';
 import {
   formatDateTime,
   getActiveGroupProfiles,
   getPinnedNotes,
 } from '../store/selectors';
 import {
+  ActionTextButton,
   Avatar,
   Button,
   Card,
@@ -23,12 +25,37 @@ export function NotesScreen({ theme }: { theme: Theme }) {
 
   if (!snapshot) return null;
 
+  return (
+    <NotesScreenContent
+      theme={theme}
+      snapshot={snapshot}
+      addNote={addNote}
+      toggleNotePinned={toggleNotePinned}
+    />
+  );
+}
+
+function NotesScreenContent({
+  theme,
+  snapshot,
+  addNote,
+  toggleNotePinned,
+}: {
+  theme: Theme;
+  snapshot: AppSnapshot;
+  addNote: ReturnType<typeof useAppStore>['addNote'];
+  toggleNotePinned: ReturnType<typeof useAppStore>['toggleNotePinned'];
+}) {
   const styles = createStyles(theme);
   const notes = getPinnedNotes(snapshot);
   const memberProfiles = getActiveGroupProfiles(snapshot);
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [isPinned, setIsPinned] = useState(false);
+
+  function handleSubmitPress() {
+    submit().catch(() => undefined);
+  }
 
   async function submit() {
     if (!title.trim() || !body.trim()) {
@@ -79,15 +106,17 @@ export function NotesScreen({ theme }: { theme: Theme }) {
           <Button
             theme={theme}
             label="Save note"
-            onPress={() => void submit()}
+            onPress={handleSubmitPress}
           />
         </Card>
       </Section>
 
-      <Section theme={theme} title='Current notes'>
+      <Section theme={theme} title="Current notes">
         {notes.length ? (
           notes.map(note => {
-            const profile = memberProfiles.find(item => item.member.userId === note.authorUserId)?.profile;
+            const profile = memberProfiles.find(
+              item => item.member.userId === note.authorUserId,
+            )?.profile;
 
             return (
               <Card key={note.id} theme={theme}>
@@ -103,15 +132,18 @@ export function NotesScreen({ theme }: { theme: Theme }) {
                     <View style={styles.authorText}>
                       <Text style={styles.cardTitle}>{note.title}</Text>
                       <Text style={styles.meta}>
-                        {profile?.displayName ?? 'Unknown'} · {formatDateTime(note.updatedAt)}
+                        {profile?.displayName ?? 'Unknown'} ·{' '}
+                        {formatDateTime(note.updatedAt)}
                       </Text>
                     </View>
                   </View>
-                  <Pressable onPress={() => void toggleNotePinned(note.id)}>
-                    <Text style={styles.pinAction}>
-                      {note.isPinned ? 'Unpin' : 'Pin'}
-                    </Text>
-                  </Pressable>
+                  <ActionTextButton
+                    theme={theme}
+                    label={note.isPinned ? 'Unpin' : 'Pin'}
+                    onPress={() =>
+                      toggleNotePinned(note.id).catch(() => undefined)
+                    }
+                  />
                 </View>
                 <Text style={styles.body}>{note.body}</Text>
               </Card>
@@ -154,10 +186,6 @@ const createStyles = (theme: Theme) =>
     meta: {
       color: theme.textMuted,
       fontSize: 12,
-    },
-    pinAction: {
-      color: theme.accent,
-      fontWeight: '800',
     },
     body: {
       color: theme.text,

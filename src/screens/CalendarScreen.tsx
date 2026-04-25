@@ -25,13 +25,34 @@ import {
   EventColorField,
   TimeField,
 } from '../ui/pickers';
-import { CalendarEvent } from '../store/models';
+import { AppSnapshot, CalendarEvent } from '../store/models';
 
 export function CalendarScreen({ theme }: { theme: Theme }) {
   const { snapshot, addEvent, updateSettings } = useAppStore();
 
   if (!snapshot) return null;
 
+  return (
+    <CalendarScreenContent
+      theme={theme}
+      snapshot={snapshot}
+      addEvent={addEvent}
+      updateSettings={updateSettings}
+    />
+  );
+}
+
+function CalendarScreenContent({
+  theme,
+  snapshot,
+  addEvent,
+  updateSettings,
+}: {
+  theme: Theme;
+  snapshot: AppSnapshot;
+  addEvent: ReturnType<typeof useAppStore>['addEvent'];
+  updateSettings: ReturnType<typeof useAppStore>['updateSettings'];
+}) {
   const styles = createStyles(theme);
   const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().slice(0, 10),
@@ -52,6 +73,14 @@ export function CalendarScreen({ theme }: { theme: Theme }) {
   const agendaGroups = useMemo(() => getAgendaGroups(snapshot), [snapshot]);
   const dayEvents = getEventsForDate(snapshot, selectedDate);
   const viewMode = snapshot.settings.calendarDefaultView;
+
+  function handleCalendarViewChange(next: 'month' | 'agenda') {
+    updateSettings({ calendarDefaultView: next }).catch(() => undefined);
+  }
+
+  function handleSubmitPress() {
+    submit().catch(() => undefined);
+  }
 
   async function submit() {
     if (!title.trim()) {
@@ -98,9 +127,7 @@ export function CalendarScreen({ theme }: { theme: Theme }) {
           <CalendarViewField
             theme={theme}
             value={viewMode}
-            onChange={next => {
-              void updateSettings({ calendarDefaultView: next });
-            }}
+            onChange={handleCalendarViewChange}
           />
           <Text style={styles.helperText}>
             Current group: {getCurrentGroup(snapshot).groupName}
@@ -260,11 +287,7 @@ export function CalendarScreen({ theme }: { theme: Theme }) {
           placeholder="Optional reminder context"
           multiline
         />
-        <Button
-          theme={theme}
-          label="Save event"
-          onPress={() => void submit()}
-        />
+        <Button theme={theme} label="Save event" onPress={handleSubmitPress} />
       </ModalSheet>
 
       <ModalSheet

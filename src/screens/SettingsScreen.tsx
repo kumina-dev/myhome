@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Alert, StyleSheet, Text, View } from 'react-native';
 import { Theme } from '../theme/theme';
 import {
+  AppSnapshot,
   CalendarViewMode,
   EventColorKey,
   MemberRole,
@@ -58,6 +59,58 @@ export function SettingsScreen({ theme }: { theme: Theme }) {
 
   if (!snapshot) return null;
 
+  return (
+    <SettingsScreenContent
+      theme={theme}
+      snapshot={snapshot}
+      settingsTab={settingsTab}
+      setSettingsTab={setSettingsTab}
+      updateSettings={updateSettings}
+      addExpenseCategory={addExpenseCategory}
+      removeExpenseCategory={removeExpenseCategory}
+      inviteMember={inviteMember}
+      revokeInvite={revokeInvite}
+      updateMemberRole={updateMemberRole}
+      removeMember={removeMember}
+      updateAppLockSettings={updateAppLockSettings}
+      signOut={signOut}
+    />
+  );
+}
+
+function SettingsScreenContent({
+  theme,
+  snapshot,
+  settingsTab,
+  setSettingsTab,
+  updateSettings,
+  addExpenseCategory,
+  removeExpenseCategory,
+  inviteMember,
+  revokeInvite,
+  updateMemberRole,
+  removeMember,
+  updateAppLockSettings,
+  signOut,
+}: {
+  theme: Theme;
+  snapshot: AppSnapshot;
+  settingsTab: SettingsTab;
+  setSettingsTab: (tab: SettingsTab) => void;
+  updateSettings: ReturnType<typeof useAppStore>['updateSettings'];
+  addExpenseCategory: ReturnType<typeof useAppStore>['addExpenseCategory'];
+  removeExpenseCategory: ReturnType<
+    typeof useAppStore
+  >['removeExpenseCategory'];
+  inviteMember: ReturnType<typeof useAppStore>['inviteMember'];
+  revokeInvite: ReturnType<typeof useAppStore>['revokeInvite'];
+  updateMemberRole: ReturnType<typeof useAppStore>['updateMemberRole'];
+  removeMember: ReturnType<typeof useAppStore>['removeMember'];
+  updateAppLockSettings: ReturnType<
+    typeof useAppStore
+  >['updateAppLockSettings'];
+  signOut: ReturnType<typeof useAppStore>['signOut'];
+}) {
   const styles = createStyles(theme);
   const group = getCurrentGroup(snapshot);
   const profile = getCurrentProfile(snapshot);
@@ -102,7 +155,7 @@ export function SettingsScreen({ theme }: { theme: Theme }) {
             theme={theme}
             label="Sign out"
             kind="secondary"
-            onPress={() => void signOut()}
+            onPress={() => signOut().catch(() => undefined)}
           />
         </Card>
       </Section>
@@ -119,7 +172,7 @@ export function SettingsScreen({ theme }: { theme: Theme }) {
               label="Group name"
               value={snapshot.settings.groupName}
               onChangeText={value => {
-                void updateSettings({ groupName: value });
+                updateSettings({ groupName: value }).catch(() => undefined);
               }}
               helper="Covers family, flatmates, close friends, and other sane private groups."
             />
@@ -145,12 +198,12 @@ export function SettingsScreen({ theme }: { theme: Theme }) {
                         }
                         kind="secondary"
                         onPress={() =>
-                          void updateMemberRole(
+                          updateMemberRole(
                             item.member.id,
                             item.member.role === 'member'
                               ? ('owner' as MemberRole)
                               : ('member' as MemberRole),
-                          )
+                          ).catch(() => undefined)
                         }
                       />
                       <Button
@@ -167,7 +220,9 @@ export function SettingsScreen({ theme }: { theme: Theme }) {
                                 text: 'Remove',
                                 style: 'destructive',
                                 onPress: () => {
-                                  void removeMember(item.member.id);
+                                  removeMember(item.member.id).catch(
+                                    () => undefined,
+                                  );
                                 },
                               },
                             ],
@@ -204,7 +259,9 @@ export function SettingsScreen({ theme }: { theme: Theme }) {
                   theme={theme}
                   label="Create invite"
                   onPress={() => {
-                    void inviteMember(inviteEmail, inviteName);
+                    inviteMember(inviteEmail, inviteName).catch(
+                      () => undefined,
+                    );
                     setInviteEmail('');
                     setInviteName('');
                   }}
@@ -224,7 +281,9 @@ export function SettingsScreen({ theme }: { theme: Theme }) {
                     theme={theme}
                     label="Revoke invite"
                     kind="danger"
-                    onPress={() => void revokeInvite(invite.id)}
+                    onPress={() =>
+                      revokeInvite(invite.id).catch(() => undefined)
+                    }
                   />
                 </Card>
               ))}
@@ -244,9 +303,9 @@ export function SettingsScreen({ theme }: { theme: Theme }) {
             label="Event reminders"
             value={snapshot.settings.notifications.eventReminders}
             onValueChange={value =>
-              void updateSettings({
+              updateSettings({
                 notifications: { eventReminders: value },
-              })
+              }).catch(() => undefined)
             }
           />
           <ToggleRow
@@ -254,9 +313,9 @@ export function SettingsScreen({ theme }: { theme: Theme }) {
             label="Task reminders"
             value={snapshot.settings.notifications.taskReminders}
             onValueChange={value =>
-              void updateSettings({
+              updateSettings({
                 notifications: { taskReminders: value },
-              })
+              }).catch(() => undefined)
             }
           />
           <ToggleRow
@@ -264,9 +323,9 @@ export function SettingsScreen({ theme }: { theme: Theme }) {
             label="Shared note alerts"
             value={snapshot.settings.notifications.noteAlerts}
             onValueChange={value =>
-              void updateSettings({
+              updateSettings({
                 notifications: { noteAlerts: value },
-              })
+              }).catch(() => undefined)
             }
           />
           <ToggleRow
@@ -274,9 +333,9 @@ export function SettingsScreen({ theme }: { theme: Theme }) {
             label="Expense activity"
             value={snapshot.settings.notifications.expenseAlerts}
             onValueChange={value =>
-              void updateSettings({
+              updateSettings({
                 notifications: { expenseAlerts: value },
-              })
+              }).catch(() => undefined)
             }
           />
           <ToggleRow
@@ -284,9 +343,9 @@ export function SettingsScreen({ theme }: { theme: Theme }) {
             label="Shared task broadcasts"
             value={snapshot.settings.notifications.sharedTaskBroadcasts}
             onValueChange={value =>
-              void updateSettings({
+              updateSettings({
                 notifications: { sharedTaskBroadcasts: value },
-              })
+              }).catch(() => undefined)
             }
           />
         </Card>
@@ -308,7 +367,9 @@ export function SettingsScreen({ theme }: { theme: Theme }) {
             ]}
             selected={snapshot.settings.themeMode}
             onSelect={next =>
-              void updateSettings({ themeMode: next as ThemeMode })
+              updateSettings({ themeMode: next as ThemeMode }).catch(
+                () => undefined,
+              )
             }
           />
           <Text style={styles.kicker}>Default tab</Text>
@@ -323,7 +384,9 @@ export function SettingsScreen({ theme }: { theme: Theme }) {
               { key: 'settings', label: 'Settings' },
             ]}
             selected={snapshot.settings.defaultTab}
-            onSelect={next => void updateSettings({ defaultTab: next })}
+            onSelect={next =>
+              updateSettings({ defaultTab: next }).catch(() => undefined)
+            }
           />
         </Card>
       </Section>
@@ -343,9 +406,9 @@ export function SettingsScreen({ theme }: { theme: Theme }) {
             ]}
             selected={snapshot.settings.calendarDefaultView}
             onSelect={next =>
-              void updateSettings({
+              updateSettings({
                 calendarDefaultView: next as CalendarViewMode,
-              })
+              }).catch(() => undefined)
             }
           />
           <Text style={styles.kicker}>Week starts on</Text>
@@ -356,7 +419,9 @@ export function SettingsScreen({ theme }: { theme: Theme }) {
               { key: 'sunday', label: 'Sunday' },
             ]}
             selected={snapshot.settings.weekStartsOn}
-            onSelect={next => void updateSettings({ weekStartsOn: next })}
+            onSelect={next =>
+              updateSettings({ weekStartsOn: next }).catch(() => undefined)
+            }
           />
           <Text style={styles.kicker}>Default event color</Text>
           <SegmentedControl
@@ -370,7 +435,9 @@ export function SettingsScreen({ theme }: { theme: Theme }) {
             ]}
             selected={snapshot.settings.eventColorKey}
             onSelect={next =>
-              void updateSettings({ eventColorKey: next as EventColorKey })
+              updateSettings({ eventColorKey: next as EventColorKey }).catch(
+                () => undefined,
+              )
             }
           />
         </Card>
@@ -391,14 +458,18 @@ export function SettingsScreen({ theme }: { theme: Theme }) {
               { key: 28, label: '28 days' },
             ]}
             selected={snapshot.settings.scoreCycleDays}
-            onSelect={next => void updateSettings({ scoreCycleDays: next })}
+            onSelect={next =>
+              updateSettings({ scoreCycleDays: next }).catch(() => undefined)
+            }
           />
           <ToggleRow
             theme={theme}
             label="Show completed tasks"
             value={snapshot.settings.showCompletedTasks}
             onValueChange={value =>
-              void updateSettings({ showCompletedTasks: value })
+              updateSettings({ showCompletedTasks: value }).catch(
+                () => undefined,
+              )
             }
           />
           <ToggleRow
@@ -406,7 +477,9 @@ export function SettingsScreen({ theme }: { theme: Theme }) {
             label="Show personal tasks on Home"
             value={snapshot.settings.showPersonalTasksOnHome}
             onValueChange={value =>
-              void updateSettings({ showPersonalTasksOnHome: value })
+              updateSettings({ showPersonalTasksOnHome: value }).catch(
+                () => undefined,
+              )
             }
           />
         </Card>
@@ -430,7 +503,7 @@ export function SettingsScreen({ theme }: { theme: Theme }) {
             label="Add category"
             kind="secondary"
             onPress={() => {
-              void addExpenseCategory(newCategory);
+              addExpenseCategory(newCategory).catch(() => undefined);
               setNewCategory('');
             }}
           />
@@ -444,7 +517,9 @@ export function SettingsScreen({ theme }: { theme: Theme }) {
                   theme={theme}
                   label="Remove"
                   kind="danger"
-                  onPress={() => void removeExpenseCategory(item)}
+                  onPress={() =>
+                    removeExpenseCategory(item).catch(() => undefined)
+                  }
                 />
               }
             />
@@ -460,10 +535,10 @@ export function SettingsScreen({ theme }: { theme: Theme }) {
         <Card theme={theme}>
           <ToggleRow
             theme={theme}
-            label='Enable app lock'
+            label="Enable app lock"
             value={snapshot.appLockSettings.isEnabled}
             onValueChange={value =>
-              void updateAppLockSettings({ isEnabled: value })
+              updateAppLockSettings({ isEnabled: value }).catch(() => undefined)
             }
           />
           <ToggleRow
@@ -471,7 +546,9 @@ export function SettingsScreen({ theme }: { theme: Theme }) {
             label="Enable biometric unlock"
             value={snapshot.appLockSettings.biometricEnabled}
             onValueChange={value =>
-              void updateAppLockSettings({ biometricEnabled: value })
+              updateAppLockSettings({ biometricEnabled: value }).catch(
+                () => undefined,
+              )
             }
           />
           <Field
@@ -480,7 +557,7 @@ export function SettingsScreen({ theme }: { theme: Theme }) {
             value={snapshot.appLockSettings.pin}
             onChangeText={value => {
               if (value.length <= 6) {
-                void updateAppLockSettings({ pin: value });
+                updateAppLockSettings({ pin: value }).catch(() => undefined);
               }
             }}
             keyboardType="numeric"
@@ -495,7 +572,9 @@ export function SettingsScreen({ theme }: { theme: Theme }) {
             ]}
             selected={snapshot.appLockSettings.lockAfterMinutes}
             onSelect={next =>
-              void updateAppLockSettings({ lockAfterMinutes: next })
+              updateAppLockSettings({ lockAfterMinutes: next }).catch(
+                () => undefined,
+              )
             }
           />
         </Card>

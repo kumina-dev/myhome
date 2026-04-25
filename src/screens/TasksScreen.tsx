@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, Text, View } from 'react-native';
 import { Theme } from '../theme/theme';
-import { AddTaskInput, TaskScope } from '../store/models';
+import { AddTaskInput, AppSnapshot, TaskScope } from '../store/models';
 import { useAppStore } from '../store/store';
 import {
   formatDateTime,
@@ -11,6 +11,7 @@ import {
   getVisibleTasks,
 } from '../store/selectors';
 import {
+  ActionTextButton,
   Avatar,
   Button,
   Card,
@@ -28,6 +29,27 @@ export function TasksScreen({ theme }: { theme: Theme }) {
 
   if (!snapshot) return null;
 
+  return (
+    <TasksScreenContent
+      theme={theme}
+      snapshot={snapshot}
+      addTask={addTask}
+      toggleTaskComplete={toggleTaskComplete}
+    />
+  );
+}
+
+function TasksScreenContent({
+  theme,
+  snapshot,
+  addTask,
+  toggleTaskComplete,
+}: {
+  theme: Theme;
+  snapshot: AppSnapshot;
+  addTask: ReturnType<typeof useAppStore>['addTask'];
+  toggleTaskComplete: ReturnType<typeof useAppStore>['toggleTaskComplete'];
+}) {
   const styles = createStyles(theme);
   const memberProfiles = getActiveGroupProfiles(snapshot);
   const scoreboard = getScoreboard(snapshot);
@@ -50,6 +72,10 @@ export function TasksScreen({ theme }: { theme: Theme }) {
       })),
     [memberProfiles],
   );
+
+  function handleSubmitPress() {
+    submit().catch(() => undefined);
+  }
 
   async function submit() {
     const numericPoints = Number(points);
@@ -138,11 +164,7 @@ export function TasksScreen({ theme }: { theme: Theme }) {
             weekStartsOn={snapshot.settings.weekStartsOn}
             onChange={setDueAt}
           />
-          <Button
-            theme={theme}
-            label="Add task"
-            onPress={() => void submit()}
-          />
+          <Button theme={theme} label="Add task" onPress={handleSubmitPress} />
         </Card>
       </Section>
 
@@ -175,18 +197,16 @@ export function TasksScreen({ theme }: { theme: Theme }) {
                       </Text>
                     ) : null}
                   </View>
-                  <Pressable
+                  <ActionTextButton
+                    theme={theme}
+                    label={task.completedAt ? 'Undo' : 'Complete'}
                     onPress={() =>
-                      void toggleTaskComplete(
+                      toggleTaskComplete(
                         task.id,
                         task.assigneeUserId ?? currentUserId,
-                      )
+                      ).catch(() => undefined)
                     }
-                  >
-                    <Text style={styles.actionText}>
-                      {task.completedAt ? 'Undo' : 'Complete'}
-                    </Text>
-                  </Pressable>
+                  />
                 </View>
                 {profile ? (
                   <View style={styles.assigneeRow}>
@@ -255,11 +275,6 @@ const createStyles = (theme: Theme) =>
       color: theme.success,
       fontSize: 13,
       fontWeight: '700',
-    },
-    actionText: {
-      color: theme.accent,
-      fontWeight: '800',
-      fontSize: 14,
     },
     assigneeRow: {
       flexDirection: 'row',
