@@ -1,329 +1,300 @@
-import React, { createContext, useContext, useReducer } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { AppState as NativeAppState, AppStateStatus } from 'react-native';
 import {
-  AppSettings,
-  AppState,
-  CalendarEvent,
-  Expense,
-  Note,
-  NotificationItem,
-  Task,
-  TaskScope,
+  AcceptInviteInput,
+  AddEventInput,
+  AddExpenseInput,
+  AddNoteInput,
+  AddTaskInput,
+  AppPhase,
+  AppRepositories,
+  AppSnapshot,
+  AuthFlowMode,
+  CreateGroupInput,
+  MemberRole,
+  SettingsTab,
+  SignInInput,
+  UpdateSettingsInput,
 } from './models';
-import { initialState } from './seed';
+import { createRepositories } from './mockApi';
 
-type Action =
-  | {
-      type: 'ADD_EXPENSE';
-      payload: {
-        buyerUserId: string;
-        title: string;
-        amountCents: number;
-        purchasedAt: string;
-        category: string;
-        notes?: string;
-      };
-    }
-  | {
-      type: 'ADD_NOTE';
-      payload: {
-        authorUserId: string;
-        title: string;
-        body: string;
-        isPinned: boolean;
-      };
-    }
-  | {
-      type: 'TOGGLE_NOTE_PINNED';
-      payload: {
-        noteId: string;
-      };
-    }
-  | {
-      type: 'ADD_EVENT';
-      payload: {
-        title: string;
-        startsAt: string;
-        endsAt: string;
-        color: string;
-        notes?: string;
-      };
-    }
-  | {
-      type: 'ADD_TASK';
-      payload: {
-        title: string;
-        scope: TaskScope;
-        assigneeUserId?: string;
-        points: number;
-        dueAt?: string;
-      };
-    }
-  | {
-      type: 'TOGGLE_TASK_COMPLETE';
-      payload: {
-        taskId: string;
-        completedByUserId: string;
-      };
-    }
-  | {
-      type: 'MARK_ALL_NOTIFICATIONS_READ';
-    }
-  | {
-      type: 'UPDATE_SETTINGS';
-      payload: Partial<AppSettings>;
-    }
-  | {
-      type: 'ADD_EXPENSE_CATEGORY';
-      payload: {
-        value: string;
-      };
-    }
-  | {
-      type: 'REMOVE_EXPENSE_CATEGORY';
-      payload: {
-        value: string;
-      };
-    };
-
-interface StoreValue {
-  state: AppState;
-  dispatch: React.Dispatch<Action>;
+interface AppStoreValue {
+  phase: AppPhase;
+  snapshot: AppSnapshot | null;
+  loading: boolean;
+  error: string | null;
+  authMode: AuthFlowMode;
+  settingsTab: SettingsTab;
+  setAuthMode: (mode: AuthFlowMode) => void;
+  setSettingsTab: (tab: SettingsTab) => void;
+  completeOnboarding: (mode: AuthFlowMode) => Promise<void>;
+  signIn: (input: SignInInput) => Promise<void>;
+  createGroupOwner: (input: CreateGroupInput) => Promise<void>;
+  acceptInvite: (input: AcceptInviteInput) => Promise<void>;
+  signOut: () => Promise<void>;
+  unlockApp: (pin: string) => Promise<void>;
+  lockApp: () => Promise<void>;
+  addExpense: (input: AddExpenseInput) => Promise<void>;
+  addNote: (input: AddNoteInput) => Promise<void>;
+  toggleNotePinned: (noteId: string) => Promise<void>;
+  addEvent: (input: AddEventInput) => Promise<void>;
+  addTask: (input: AddTaskInput) => Promise<void>;
+  toggleTaskComplete: (
+    taskId: string,
+    completedByUserId: string,
+  ) => Promise<void>;
+  updateSettings: (input: UpdateSettingsInput) => Promise<void>;
+  addExpenseCategory: (value: string) => Promise<void>;
+  removeExpenseCategory: (value: string) => Promise<void>;
+  markAllNotificationsRead: () => Promise<void>;
+  inviteMember: (email: string, profileNameHint: string) => Promise<void>;
+  revokeInvite: (inviteId: string) => Promise<void>;
+  updateMemberRole: (memberId: string, role: MemberRole) => Promise<void>;
+  removeMember: (memberId: string) => Promise<void>;
+  updateAppLockSettings: (input: {
+    isEnabled?: boolean;
+    pin?: string;
+    biometricEnabled?: boolean;
+    lockAfterMinutes?: number;
+  }) => Promise<void>;
 }
 
-const StoreContext = createContext<StoreValue | undefined>(undefined);
+const AppStoreContext = createContext<AppStoreValue | undefined>(undefined);
 
-function makeId(prefix: string): string {
-  return `${prefix}-${Date.now()}-${Math.round(Math.random() * 1000)}`;
-}
-
-function makeNotification(
-  type: NotificationItem['type'],
-  title: string,
-  body: string,
-): NotificationItem {
-  return {
-    id: makeId('notification'),
-    type,
-    title,
-    body,
-    createdAt: new Date().toISOString(),
-    isRead: false,
-  };
-}
-
-function reducer(state: AppState, action: Action): AppState {
-  switch (action.type) {
-    case 'ADD_EXPENSE': {
-      const expense: Expense = {
-        id: makeId('expense'),
-        ...action.payload,
-      };
-
-      return {
-        ...state,
-        expenses: [expense, ...state.expenses],
-        notifications: [
-          makeNotification(
-            'expense',
-            'Expense added',
-            `${expense.title} was logged under ${expense.category}.`,
-          ),
-          ...state.notifications,
-        ],
-      };
-    }
-
-    case 'ADD_NOTE': {
-      const note: Note = {
-        id: makeId('note'),
-        updatedAt: new Date().toISOString(),
-        ...action.payload,
-      };
-
-      return {
-        ...state,
-        notes: [note, ...state.notes],
-        notifications: [
-          makeNotification('note', 'New shared note', note.title),
-          ...state.notifications,
-        ],
-      };
-    }
-
-    case 'TOGGLE_NOTE_PINNED': {
-      return {
-        ...state,
-        notes: state.notes.map(note =>
-          note.id === action.payload.noteId
-            ? {
-                ...note,
-                isPinned: !note.isPinned,
-                updatedAt: new Date().toISOString(),
-              }
-            : note,
-        ),
-      };
-    }
-
-    case 'ADD_EVENT': {
-      const event: CalendarEvent = {
-        id: makeId('event'),
-        ...action.payload,
-      };
-
-      return {
-        ...state,
-        events: [event, ...state.events],
-        notifications: [
-          makeNotification(
-            'event',
-            'Calendar updated',
-            `${event.title} was added to the shared calendar.`,
-          ),
-          ...state.notifications,
-        ],
-      };
-    }
-
-    case 'ADD_TASK': {
-      const task: Task = {
-        id: makeId('task'),
-        ...action.payload,
-      };
-
-      return {
-        ...state,
-        tasks: [task, ...state.tasks],
-        notifications: [
-          makeNotification(
-            'task',
-            'Task created',
-            `${task.title} is now on the board.`,
-          ),
-          ...state.notifications,
-        ],
-      };
-    }
-
-    case 'TOGGLE_TASK_COMPLETE': {
-      const task = state.tasks.find(item => item.id === action.payload.taskId);
-
-      if (!task) {
-        return state;
-      }
-
-      const completedAt = task.completedAt
-        ? undefined
-        : new Date().toISOString();
-      const completedByUserId = completedAt
-        ? action.payload.completedByUserId
-        : undefined;
-
-      return {
-        ...state,
-        tasks: state.tasks.map(item =>
-          item.id === action.payload.taskId
-            ? {
-                ...item,
-                completedAt,
-                completedByUserId,
-              }
-            : item,
-        ),
-        notifications: completedAt
-          ? [
-              makeNotification(
-                'task',
-                'Task completed',
-                `${task.title} was completed.`,
-              ),
-              ...state.notifications,
-            ]
-          : state.notifications,
-      };
-    }
-
-    case 'MARK_ALL_NOTIFICATIONS_READ': {
-      return {
-        ...state,
-        notifications: state.notifications.map(item => ({
-          ...item,
-          isRead: true,
-        })),
-      };
-    }
-
-    case 'UPDATE_SETTINGS': {
-      return {
-        ...state,
-        settings: {
-          ...state.settings,
-          ...action.payload,
-          notifications: {
-            ...state.settings.notifications,
-            ...action.payload.notifications,
-          },
-        },
-      };
-    }
-
-    case 'ADD_EXPENSE_CATEGORY': {
-      const value = action.payload.value.trim();
-
-      if (!value) {
-        return state;
-      }
-
-      const exists = state.settings.expenseCategories.some(
-        item => item.toLowerCase() === value.toLowerCase(),
-      );
-
-      if (exists) {
-        return state;
-      }
-
-      return {
-        ...state,
-        settings: {
-          ...state.settings,
-          expenseCategories: [...state.settings.expenseCategories, value],
-        },
-      };
-    }
-
-    case 'REMOVE_EXPENSE_CATEGORY': {
-      const nextCategories = state.settings.expenseCategories.filter(
-        item => item !== action.payload.value,
-      );
-
-      return {
-        ...state,
-        settings: {
-          ...state.settings,
-          expenseCategories: nextCategories.length
-            ? nextCategories
-            : state.settings.expenseCategories,
-        },
-      };
-    }
-
-    default:
-      return state;
-  }
+function resolvePhase(
+  snapshot: AppSnapshot | null,
+  loading: boolean,
+): AppPhase {
+  if (loading || !snapshot) return 'splash';
+  if (!snapshot.onboardingComplete) return 'onboarding';
+  if (!snapshot.sessionState.session) return 'auth';
+  if (snapshot.appLockSettings.isEnabled && snapshot.appLockState.isLocked)
+    return 'app-locked';
+  return 'main-app';
 }
 
 export function AppStoreProvider({ children }: { children: React.ReactNode }) {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const repositoriesRef = useRef<AppRepositories>(createRepositories());
+  const [snapshot, setSnapshot] = useState<AppSnapshot | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [authMode, setAuthMode] = useState<AuthFlowMode>('sign-in');
+  const [settingsTab, setSettingsTab] = useState<SettingsTab>('account');
+
+  const run = useCallback(async (work: () => Promise<AppSnapshot>) => {
+    setError(null);
+
+    try {
+      const nextSnapshot = await work();
+      setSnapshot(nextSnapshot);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'Unexpected error.');
+      throw caught;
+    }
+  }, []);
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function bootstrap() {
+      setLoading(true);
+
+      try {
+        const data = await repositoriesRef.current.authRepository.bootstrap();
+
+        if (mounted) setSnapshot(data);
+      } catch (caught) {
+        if (mounted) {
+          setError(
+            caught instanceof Error ? caught.message : 'Failed to start app.',
+          );
+        }
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    }
+
+    bootstrap();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    const subscription = NativeAppState.addEventListener(
+      'change',
+      async (state: AppStateStatus) => {
+        if (!snapshot?.sessionState.session) return;
+
+        if (state === 'background') {
+          const timestamp = new Date().toISOString();
+          const next =
+            await repositoriesRef.current.authRepository.registerBackgroundedAt(
+              timestamp,
+            );
+          setSnapshot(next);
+        }
+
+        if (state === 'active') {
+          const timestamp = new Date().toISOString();
+          const next =
+            await repositoriesRef.current.authRepository.revalidateAppLock(
+              timestamp,
+            );
+          setSnapshot(next);
+        }
+      },
+    );
+
+    return () => {
+      subscription.remove();
+    };
+  }, [snapshot]);
+
+  const value = useMemo<AppStoreValue>(
+    () => ({
+      phase: resolvePhase(snapshot, loading),
+      snapshot,
+      loading,
+      error,
+      authMode,
+      settingsTab,
+      setAuthMode,
+      setSettingsTab,
+      completeOnboarding: async mode => {
+        setAuthMode(mode);
+        await run(() =>
+          repositoriesRef.current.authRepository.completeOnboarding(),
+        );
+      },
+      signIn: async input => {
+        await run(() => repositoriesRef.current.authRepository.signIn(input));
+      },
+      createGroupOwner: async input => {
+        await run(() =>
+          repositoriesRef.current.authRepository.createGroupOwner(input),
+        );
+      },
+      acceptInvite: async input => {
+        await run(() =>
+          repositoriesRef.current.authRepository.acceptInvite(input),
+        );
+      },
+      signOut: async () => {
+        await run(() => repositoriesRef.current.authRepository.signOut());
+      },
+      unlockApp: async pin => {
+        await run(() => repositoriesRef.current.authRepository.unlockApp(pin));
+      },
+      lockApp: async () => {
+        await run(() => repositoriesRef.current.authRepository.lockApp());
+      },
+      addExpense: async input => {
+        await run(() =>
+          repositoriesRef.current.expenseRepository.addExpense(input),
+        );
+      },
+      addNote: async input => {
+        await run(() => repositoriesRef.current.notesRepository.addNote(input));
+      },
+      toggleNotePinned: async noteId => {
+        await run(() =>
+          repositoriesRef.current.notesRepository.toggleNotePinned(noteId),
+        );
+      },
+      addEvent: async input => {
+        await run(() =>
+          repositoriesRef.current.calendarRepository.addEvent(input),
+        );
+      },
+      addTask: async input => {
+        await run(() => repositoriesRef.current.taskRepository.addTask(input));
+      },
+      toggleTaskComplete: async (taskId, completedByUserId) => {
+        await run(() =>
+          repositoriesRef.current.taskRepository.toggleTaskComplete(
+            taskId,
+            completedByUserId,
+          ),
+        );
+      },
+      updateSettings: async input => {
+        await run(() =>
+          repositoriesRef.current.settingsRepository.updateSettings(input),
+        );
+      },
+      addExpenseCategory: async value => {
+        await run(() =>
+          repositoriesRef.current.settingsRepository.addExpenseCategory(value),
+        );
+      },
+      removeExpenseCategory: async value => {
+        await run(() =>
+          repositoriesRef.current.settingsRepository.removeExpenseCategory(
+            value,
+          ),
+        );
+      },
+      markAllNotificationsRead: async () => {
+        await run(() =>
+          repositoriesRef.current.settingsRepository.markAllNotificationsRead(),
+        );
+      },
+      inviteMember: async (email, profileNameHint) => {
+        await run(() =>
+          repositoriesRef.current.groupRepository.inviteMember(
+            email,
+            profileNameHint,
+          ),
+        );
+      },
+      revokeInvite: async inviteId => {
+        await run(() =>
+          repositoriesRef.current.groupRepository.revokeInvite(inviteId),
+        );
+      },
+      updateMemberRole: async (memberId, role) => {
+        await run(() =>
+          repositoriesRef.current.groupRepository.updateMemberRole(
+            memberId,
+            role,
+          ),
+        );
+      },
+      removeMember: async memberId => {
+        await run(() =>
+          repositoriesRef.current.groupRepository.removeMember(memberId),
+        );
+      },
+      updateAppLockSettings: async input => {
+        await run(() =>
+          repositoriesRef.current.settingsRepository.updateAppLockSettings(
+            input,
+          ),
+        );
+      },
+    }),
+    [authMode, error, loading, run, settingsTab, snapshot],
+  );
 
   return (
-    <StoreContext.Provider value={{ state, dispatch }}>
+    <AppStoreContext.Provider value={value}>
       {children}
-    </StoreContext.Provider>
+    </AppStoreContext.Provider>
   );
 }
 
-export function useAppStore(): StoreValue {
-  const value = useContext(StoreContext);
+export function useAppStore() {
+  const value = useContext(AppStoreContext);
 
   if (!value) {
     throw new Error('useAppStore must be used inside AppStoreProvider');

@@ -1,38 +1,55 @@
-import { Alert, Text, View } from 'react-native';
-import { Theme } from '../theme/theme';
+import React, { useMemo, useState } from 'react';
+import { Alert, StyleSheet, Text, View } from 'react-native';
 import { useAppStore } from '../store/store';
 import {
   formatCurrency,
   formatShortDate,
+  getActiveGroupProfiles,
   getExpenseSummary,
-  getUserMap,
 } from '../store/selectors';
-import { useState } from 'react';
+import { Theme } from '../theme/theme';
 import {
+  Avatar,
   Button,
   Card,
+  EmptyState,
   Field,
-  Pill,
   Screen,
   Section,
+  SegmentedControl,
   StatCard,
 } from '../ui/primitives';
+import { DateField } from '../ui/pickers';
 
 export function ExpensesScreen({ theme }: { theme: Theme }) {
-  const { state, dispatch } = useAppStore();
-  const users = getUserMap(state.users);
-  const summary = getExpenseSummary(state);
+  const { snapshot, addExpense } = useAppStore();
 
-  const [buyerUserId, setBuyerUserId] = useState(state.settings.activeUserId);
+  if (!snapshot) return null;
+
+  const styles = createStyles(theme);
+  const summary = getExpenseSummary(snapshot);
+  const memberProfiles = getActiveGroupProfiles(snapshot);
+  const [buyerUserId, setBuyerUserId] = useState(
+    snapshot.sessionState.session?.userId ?? memberProfiles[0]?.member.userId,
+  );
   const [title, setTitle] = useState('');
   const [amount, setAmount] = useState('');
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [purchasedAt, setPurchasedAt] = useState(new Date().toISOString());
   const [category, setCategory] = useState(
-    state.settings.expenseCategories[0] ?? 'Other',
+    snapshot.settings.expenseCategories[0] ?? 'Other',
   );
   const [notes, setNotes] = useState('');
 
-  function submit() {
+  const memberOptions = useMemo(
+    () =>
+      memberProfiles.map(item => ({
+        key: item.member.userId,
+        label: item.profile.displayName,
+      })),
+    [memberProfiles],
+  );
+
+  async function submit() {
     const amountNumber = Number(amount.replace(',', '.'));
 
     if (!title.trim() || Number.isNaN(amountNumber) || amountNumber <= 0) {
@@ -40,16 +57,13 @@ export function ExpensesScreen({ theme }: { theme: Theme }) {
       return;
     }
 
-    dispatch({
-      type: 'ADD_EXPENSE',
-      payload: {
-        buyerUserId,
-        title: title.trim(),
-        amountCents: Math.round(amountNumber * 100),
-        purchasedAt: new Date(`${date}T12:00:00`).toISOString(),
-        category,
-        notes: notes.trim() || undefined,
-      },
+    await addExpense({
+      buyerUserId: buyerUserId ?? snapshot?.sessionState.session?.userId ?? '',
+      title: title.trim(),
+      amountCents: Math.round(amountNumber * 100),
+      purchasedAt,
+      category,
+      notes: notes.trim() || undefined,
     });
 
     setTitle('');
@@ -64,30 +78,25 @@ export function ExpensesScreen({ theme }: { theme: Theme }) {
           theme={theme}
           label="Total"
           value={formatCurrency(summary.total)}
-          hint="Current calendar month"
+          hint="By category, by member, and easy to scan"
         />
       </Section>
 
-      <Section theme={theme} title="Log purchase">
+      <Section
+        theme={theme}
+        title="Log purchase"
+        subtitle="Structured inputs beat mysterious free-text blobs every time."
+      >
         <Card theme={theme}>
-          <Text style={{ color: theme.textMuted, marginBottom: 8 }}>Buyer</Text>
-          <View
-            style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 8 }}
-          >
-            {state.users.map(user => (
-              <Pill
-                key={user.id}
-                theme={theme}
-                label={user.name}
-                selected={buyerUserId === user.id}
-                onPress={() => setBuyerUserId(user.id)}
-              />
-            ))}
-          </View>
-
+          <SegmentedControl
+            theme={theme}
+            items={memberOptions}
+            selected={buyerUserId ?? memberOptions[0]?.key ?? ''}
+            onSelect={setBuyerUserId}
+          />
           <Field
             theme={theme}
-            label="What"
+            label="What was bought"
             value={title}
             onChangeText={setTitle}
             placeholder="Weekly groceries"
@@ -100,31 +109,22 @@ export function ExpensesScreen({ theme }: { theme: Theme }) {
             placeholder="84.20"
             keyboardType="numeric"
           />
-          <Field
+          <DateField
             theme={theme}
-            label="Date"
-            value={date}
-            onChangeText={setDate}
-            placeholder="2026-04-23"
+            label="Purchase date"
+            value={purchasedAt}
+            weekStartsOn={snapshot.settings.weekStartsOn}
+            onChange={setPurchasedAt}
           />
-
-          <Text style={{ color: theme.textMuted, marginBottom: 8 }}>
-            Category
-          </Text>
-          <View
-            style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 8 }}
-          >
-            {state.settings.expenseCategories.map(item => (
-              <Pill
-                key={item}
-                theme={theme}
-                label={item}
-                selected={category === item}
-                onPress={() => setCategory(item)}
-              />
-            ))}
-          </View>
-
+          <SegmentedControl
+            theme={theme}
+            items={snapshot.settings.expenseCategories.map(item => ({
+              key: item,
+              label: item,
+            }))}
+            selected={category}
+            onSelect={setCategory}
+          />
           <Field
             theme={theme}
             label="Notes"
@@ -133,59 +133,110 @@ export function ExpensesScreen({ theme }: { theme: Theme }) {
             placeholder="Optional context"
             multiline
           />
-
-          <Button theme={theme} label="Add expense" onPress={submit} />
+          <Button
+            theme={theme}
+            label="Add expense"
+            onPress={() => void submit()}
+          />
         </Card>
       </Section>
 
       <Section theme={theme} title="By category">
-        {summary.byCategory.map(item => (
-          <Card key={item.label} theme={theme}>
-            <Text
-              style={{ color: theme.text, fontWeight: '700', fontSize: 16 }}
-            >
-              {item.label}
-            </Text>
-            <Text style={{ color: theme.textMuted, marginTop: 4 }}>
-              {formatCurrency(item.amountCents)}
-            </Text>
-          </Card>
-        ))}
+        {summary.byCategory.length ? (
+          summary.byCategory.map(item => (
+            <Card key={item.label} theme={theme}>
+              <Text style={styles.cardTitle}>{item.label}</Text>
+              <Text style={styles.cardValue}>
+                {formatCurrency(item.amountCents)}
+              </Text>
+            </Card>
+          ))
+        ) : (
+          <EmptyState
+            theme={theme}
+            title="No spending yet"
+            body="Add the first purchase and the monthly view will start making sense."
+          />
+        )}
       </Section>
 
-      <Section theme={theme} title="By person">
-        {summary.byUser.map(item => (
-          <Card key={item.userId} theme={theme}>
-            <Text
-              style={{ color: theme.text, fontWeight: '700', fontSize: 16 }}
-            >
-              {users[item.userId]?.name ?? 'Unknown'}
-            </Text>
-            <Text style={{ color: theme.textMuted, marginTop: 4 }}>
-              {formatCurrency(item.amountCents)}
-            </Text>
-          </Card>
-        ))}
+      <Section theme={theme} title="By member">
+        {summary.byUser.map(item => {
+          const profile = memberProfiles.find(
+            profileItem => profileItem.member.userId === item.userId,
+          )?.profile;
+
+          return (
+            <Card key={item.userId} theme={theme}>
+              <View style={styles.row}>
+                {profile ? (
+                  <Avatar
+                    theme={theme}
+                    label={profile.displayName}
+                    colorKey={profile.colorKey}
+                  />
+                ) : null}
+                <View style={styles.memberColumn}>
+                  <Text style={styles.cardTitle}>
+                    {profile?.displayName ?? 'Unknown'}
+                  </Text>
+                  <Text style={styles.bodyMuted}>
+                    {formatCurrency(item.amountCents)}
+                  </Text>
+                </View>
+              </View>
+            </Card>
+          );
+        })}
       </Section>
 
       <Section theme={theme} title="Recent expenses">
-        {summary.expenses.map(expense => (
-          <Card key={expense.id} theme={theme}>
-            <Text
-              style={{ color: theme.text, fontWeight: '700', fontSize: 16 }}
-            >
-              {expense.title}
-            </Text>
-            <Text style={{ color: theme.textMuted, marginTop: 4 }}>
-              {users[expense.buyerUserId]?.name} · {expense.category} ·{' '}
-              {formatShortDate(expense.purchasedAt)}
-            </Text>
-            <Text style={{ color: theme.text, marginTop: 8, fontSize: 18 }}>
-              {formatCurrency(expense.amountCents)}
-            </Text>
-          </Card>
-        ))}
+        {summary.expenses.map(expense => {
+          const profile = memberProfiles.find(
+            profileItem => profileItem.member.userId === expense.buyerUserId,
+          )?.profile;
+
+          return (
+            <Card key={expense.id} theme={theme}>
+              <Text style={styles.cardTitle}>{expense.title}</Text>
+              <Text style={styles.bodyMuted}>
+                {profile?.displayName ?? 'Unknown'} · {expense.category} ·{' '}
+                {formatShortDate(expense.purchasedAt)}
+              </Text>
+              <Text style={styles.cardValue}>
+                {formatCurrency(expense.amountCents)}
+              </Text>
+            </Card>
+          );
+        })}
       </Section>
     </Screen>
   );
 }
+
+const createStyles = (theme: Theme) =>
+  StyleSheet.create({
+    cardTitle: {
+      color: theme.text,
+      fontSize: 16,
+      fontWeight: '800',
+    },
+    cardValue: {
+      color: theme.text,
+      fontSize: 18,
+      fontWeight: '700',
+    },
+    bodyMuted: {
+      color: theme.textMuted,
+      fontSize: 14,
+      lineHeight: 20,
+    },
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+    },
+    memberColumn: {
+      gap: 4,
+    },
+  });

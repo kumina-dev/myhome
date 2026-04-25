@@ -1,9 +1,9 @@
 import {
-  AppState,
+  AppSnapshot,
   CalendarEvent,
-  NotificationItem,
-  Task,
-  User,
+  GroupMember,
+  UserProfile,
+  WeekStart,
 } from './models';
 
 export function formatCurrency(amountCents: number): string {
@@ -30,27 +30,81 @@ export function formatDateTime(value: string): string {
   }).format(new Date(value));
 }
 
-export function getUserMap(users: User[]): Record<string, User> {
-  return users.reduce<Record<string, User>>((acc, user) => {
-    acc[user.id] = user;
+export function formatTime(value: string): string {
+  return new Intl.DateTimeFormat('fi-FI', {
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(new Date(value));
+}
+
+export function isoDate(value: string): string {
+  return new Date(value).toISOString().slice(0, 10);
+}
+
+export function getCurrentGroup(snapshot: AppSnapshot) {
+  const groupId =
+    snapshot.sessionState.session?.groupId ?? snapshot.groups[0]?.id;
+  return (
+    snapshot.groups.find(item => item.id === groupId) ?? snapshot.groups[0]
+  );
+}
+
+export function getCurrentUser(snapshot: AppSnapshot) {
+  const userId = snapshot.sessionState.session?.userId;
+  return snapshot.authUsers.find(item => item.id === userId) ?? null;
+}
+
+export function getCurrentProfile(snapshot: AppSnapshot) {
+  const profileId = snapshot.sessionState.activeProfileId;
+  return snapshot.profiles.find(item => item.id === profileId) ?? null;
+}
+
+export function getProfileMap(
+  profiles: UserProfile[],
+): Record<string, UserProfile> {
+  return profiles.reduce<Record<string, UserProfile>>((acc, profile) => {
+    acc[profile.id] = profile;
     return acc;
   }, {});
 }
 
-export function getCurrentMonthExpenses(state: AppState) {
-  const now = new Date();
-
-  return state.expenses.filter(expense => {
-    const date = new Date(expense.purchasedAt);
-    return (
-      date.getFullYear() === now.getFullYear() &&
-      date.getMonth() === now.getMonth()
-    );
-  });
+export function getMemberMap(
+  members: GroupMember[],
+): Record<string, GroupMember> {
+  return members.reduce<Record<string, GroupMember>>((acc, member) => {
+    acc[member.id] = member;
+    return acc;
+  }, {});
 }
 
-export function getExpenseSummary(state: AppState) {
-  const expenses = getCurrentMonthExpenses(state);
+export function getGroupMembers(snapshot: AppSnapshot) {
+  const groupId = getCurrentGroup(snapshot)?.id;
+  return snapshot.members.filter(item => item.groupId === groupId);
+}
+
+export function getActiveGroupProfiles(snapshot: AppSnapshot) {
+  const profileMap = getProfileMap(snapshot.profiles);
+
+  return getGroupMembers(snapshot)
+    .map(member => ({
+      member,
+      profile: profileMap[member.profileId],
+    }))
+    .filter(item => Boolean(item.profile));
+}
+
+export function getExpenseSummary(snapshot: AppSnapshot) {
+  const groupId = getCurrentGroup(snapshot)?.id;
+  const now = new Date();
+  const expenses = snapshot.expenses
+    .filter(item => item.groupId === groupId)
+    .filter(expense => {
+      const date = new Date(expense.purchasedAt);
+      return (
+        date.getFullYear() === now.getFullYear() &&
+        date.getMonth() === now.getMonth()
+      );
+    });
   const byCategory = new Map<string, number>();
   const byUser = new Map<string, number>();
 
@@ -83,8 +137,10 @@ export function getExpenseSummary(state: AppState) {
   };
 }
 
-export function getPinnedNotes(state: AppState) {
-  return [...state.notes]
+export function getPinnedNotes(snapshot: AppSnapshot) {
+  const groupId = getCurrentGroup(snapshot)?.id;
+  return snapshot.notes
+    .filter(item => item.groupId === groupId)
     .sort(
       (a, b) =>
         new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
@@ -92,25 +148,25 @@ export function getPinnedNotes(state: AppState) {
     .sort((a, b) => Number(b.isPinned) - Number(a.isPinned));
 }
 
-export function getUpcomingEvents(state: AppState): CalendarEvent[] {
-  return [...state.events]
+export function getUpcomingEvents(snapshot: AppSnapshot): CalendarEvent[] {
+  const groupId = getCurrentGroup(snapshot)?.id;
+  return snapshot.events
+    .filter(item => item.groupId === groupId)
     .filter(event => new Date(event.endsAt).getTime() >= Date.now())
     .sort(
       (a, b) => new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime(),
     );
 }
 
-export function getVisibleTasks(state: AppState): Task[] {
-  const activeUserId = state.settings.activeUserId;
+export function getVisibleTasks(snapshot: AppSnapshot) {
+  const groupId = getCurrentGroup(snapshot)?.id;
+  const activeUserId = snapshot.sessionState.session?.userId;
 
-  return [...state.tasks]
-    .filter(task => {
-      if (state.settings.showCompletedTasks) {
-        return true;
-      }
-
-      return !task.completedAt;
-    })
+  return snapshot.tasks
+    .filter(item => item.groupId === groupId)
+    .filter(task =>
+      snapshot.settings.showCompletedTasks ? true : !task.completedAt,
+    )
     .filter(task => {
       if (task.scope === 'shared') {
         return true;
@@ -129,8 +185,11 @@ export function getVisibleTasks(state: AppState): Task[] {
     });
 }
 
-export function getUnreadNotifications(state: AppState): NotificationItem[] {
-  return state.notifications.filter(item => !item.isRead);
+export function getUnreadNotifications(snapshot: AppSnapshot) {
+  const groupId = getCurrentGroup(snapshot)?.id;
+  return snapshot.notifications.filter(
+    item => item.groupId === groupId && !item.isRead,
+  );
 }
 
 function startOfCycle(anchorIso: string, cycleDays: number, pointInTime: Date) {
@@ -146,44 +205,51 @@ function startOfCycle(anchorIso: string, cycleDays: number, pointInTime: Date) {
   return { start, end };
 }
 
-function buildScoreboard(state: AppState, range: { start: Date; end: Date }) {
+function buildScoreboard(
+  snapshot: AppSnapshot,
+  range: { start: Date; end: Date },
+) {
   const scores = new Map<string, number>();
+  const profiles = getActiveGroupProfiles(snapshot);
+  const groupId = getCurrentGroup(snapshot)?.id;
 
-  state.users.forEach(user => scores.set(user.id, 0));
+  profiles.forEach(item => scores.set(item.member.userId, 0));
 
-  state.tasks.forEach(task => {
-    if (!task.completedAt || !task.completedByUserId) {
-      return;
-    }
+  snapshot.tasks
+    .filter(task => task.groupId === groupId)
+    .forEach(task => {
+      if (!task.completedAt || !task.completedByUserId) {
+        return;
+      }
 
-    const completedAt = new Date(task.completedAt).getTime();
+      const completedAt = new Date(task.completedAt).getTime();
 
-    if (
-      completedAt >= range.start.getTime() &&
-      completedAt < range.end.getTime()
-    ) {
-      scores.set(
-        task.completedByUserId,
-        (scores.get(task.completedByUserId) ?? 0) + task.points,
-      );
-    }
-  });
+      if (
+        completedAt >= range.start.getTime() &&
+        completedAt < range.end.getTime()
+      ) {
+        scores.set(
+          task.completedByUserId,
+          (scores.get(task.completedByUserId) ?? 0) + task.points,
+        );
+      }
+    });
 
   return Array.from(scores.entries())
     .map(([userId, points]) => ({ userId, points }))
     .sort((a, b) => b.points - a.points);
 }
 
-export function getScoreboard(state: AppState) {
+export function getScoreboard(snapshot: AppSnapshot) {
   const current = startOfCycle(
-    state.settings.scoreCycleAnchor,
-    state.settings.scoreCycleDays,
+    snapshot.settings.scoreCycleAnchor,
+    snapshot.settings.scoreCycleDays,
     new Date(),
   );
   const previous = {
     start: new Date(
       current.start.getTime() -
-        state.settings.scoreCycleDays * 24 * 60 * 60 * 1000,
+        snapshot.settings.scoreCycleDays * 24 * 60 * 60 * 1000,
     ),
     end: current.start,
   };
@@ -191,7 +257,60 @@ export function getScoreboard(state: AppState) {
   return {
     current,
     previous,
-    currentScores: buildScoreboard(state, current),
-    previousScores: buildScoreboard(state, previous),
+    currentScores: buildScoreboard(snapshot, current),
+    previousScores: buildScoreboard(snapshot, previous),
   };
+}
+
+export function getCalendarMonthMatrix(
+  visibleMonth: Date,
+  weekStartsOn: WeekStart,
+) {
+  const firstDay = new Date(
+    visibleMonth.getFullYear(),
+    visibleMonth.getMonth(),
+    1,
+  );
+  const firstWeekday = firstDay.getDay();
+  const offset =
+    weekStartsOn === 'monday' ? (firstWeekday + 6) % 7 : firstWeekday;
+  const matrixStart = new Date(firstDay);
+  matrixStart.setDate(firstDay.getDate() - offset);
+
+  return Array.from({ length: 42 }, (_, index) => {
+    const date = new Date(matrixStart);
+    date.setDate(matrixStart.getDate() + index);
+    return date;
+  });
+}
+
+export function getEventsForDate(snapshot: AppSnapshot, dateIso: string) {
+  const groupId = getCurrentGroup(snapshot)?.id;
+
+  return snapshot.events
+    .filter(item => item.groupId === groupId)
+    .filter(item => isoDate(item.startsAt) === dateIso)
+    .sort(
+      (a, b) => new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime(),
+    );
+}
+
+export function getAgendaGroups(snapshot: AppSnapshot) {
+  const groups = new Map<string, CalendarEvent[]>();
+
+  getUpcomingEvents(snapshot).forEach(event => {
+    const key = isoDate(event.startsAt);
+    const current = groups.get(key) ?? [];
+    groups.set(key, [...current, event]);
+  });
+
+  return Array.from(groups.entries()).map(([dateIso, events]) => ({
+    dateIso,
+    events,
+  }));
+}
+
+export function getCurrentMemberRole(snapshot: AppSnapshot) {
+  const userId = snapshot.sessionState.session?.userId;
+  return getGroupMembers(snapshot).find(item => item.userId === userId)?.role;
 }

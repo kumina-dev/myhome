@@ -1,33 +1,45 @@
-import { Alert, Pressable, Text, View } from 'react-native';
+import React, { useState } from 'react';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Theme } from '../theme/theme';
 import { useAppStore } from '../store/store';
-import { formatDateTime, getPinnedNotes, getUserMap } from '../store/selectors';
-import { useState } from 'react';
-import { Button, Card, Field, Pill, Screen, Section } from '../ui/primitives';
+import {
+  formatDateTime,
+  getActiveGroupProfiles,
+  getPinnedNotes,
+} from '../store/selectors';
+import {
+  Avatar,
+  Button,
+  Card,
+  EmptyState,
+  Field,
+  Screen,
+  Section,
+  ToggleRow,
+} from '../ui/primitives';
 
 export function NotesScreen({ theme }: { theme: Theme }) {
-  const { state, dispatch } = useAppStore();
-  const users = getUserMap(state.users);
-  const notes = getPinnedNotes(state);
+  const { snapshot, addNote, toggleNotePinned } = useAppStore();
 
+  if (!snapshot) return null;
+
+  const styles = createStyles(theme);
+  const notes = getPinnedNotes(snapshot);
+  const memberProfiles = getActiveGroupProfiles(snapshot);
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [isPinned, setIsPinned] = useState(false);
 
-  function submit() {
+  async function submit() {
     if (!title.trim() || !body.trim()) {
       Alert.alert('Invalid note', 'Title and body are required.');
       return;
     }
 
-    dispatch({
-      type: 'ADD_NOTE',
-      payload: {
-        authorUserId: state.settings.activeUserId,
-        title: title.trim(),
-        body: body.trim(),
-        isPinned,
-      },
+    await addNote({
+      title: title.trim(),
+      body: body.trim(),
+      isPinned,
     });
 
     setTitle('');
@@ -37,7 +49,11 @@ export function NotesScreen({ theme }: { theme: Theme }) {
 
   return (
     <Screen theme={theme}>
-      <Section theme={theme} title="New shared note">
+      <Section
+        theme={theme}
+        title="Shared notes"
+        subtitle="Pinned notes stay visible. The rest still remain easy to find without becoming a fake wiki."
+      >
         <Card theme={theme}>
           <Field
             theme={theme}
@@ -54,60 +70,98 @@ export function NotesScreen({ theme }: { theme: Theme }) {
             placeholder="What everyone needs to know"
             multiline
           />
-          <View
-            style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 8 }}
-          >
-            <Pill
-              theme={theme}
-              label="Pinned"
-              selected={isPinned}
-              onPress={() => setIsPinned(value => !value)}
-            />
-          </View>
-          <Button theme={theme} label="Save note" onPress={submit} />
+          <ToggleRow
+            theme={theme}
+            label="Pin this note"
+            value={isPinned}
+            onValueChange={setIsPinned}
+          />
+          <Button
+            theme={theme}
+            label="Save note"
+            onPress={() => void submit()}
+          />
         </Card>
       </Section>
 
-      <Section theme={theme} title="Shared notes">
-        {notes.map(note => (
-          <Card key={note.id} theme={theme}>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}
-            >
-              <Text
-                style={{ color: theme.text, fontWeight: '700', fontSize: 16 }}
-              >
-                {note.title}
-              </Text>
-              <Pressable
-                onPress={() =>
-                  dispatch({
-                    type: 'TOGGLE_NOTE_PINNED',
-                    payload: { noteId: note.id },
-                  })
-                }
-              >
-                <Text style={{ color: theme.accent, fontWeight: '700' }}>
-                  {note.isPinned ? 'Unpin' : 'Pin'}
-                </Text>
-              </Pressable>
-            </View>
-            <Text style={{ color: theme.textMuted, marginTop: 8 }}>
-              {note.body}
-            </Text>
-            <Text
-              style={{ color: theme.textMuted, marginTop: 10, fontSize: 12 }}
-            >
-              {users[note.authorUserId]?.name} ·{' '}
-              {formatDateTime(note.updatedAt)}
-            </Text>
-          </Card>
-        ))}
+      <Section theme={theme} title='Current notes'>
+        {notes.length ? (
+          notes.map(note => {
+            const profile = memberProfiles.find(item => item.member.userId === note.authorUserId)?.profile;
+
+            return (
+              <Card key={note.id} theme={theme}>
+                <View style={styles.headerRow}>
+                  <View style={styles.authorRow}>
+                    {profile ? (
+                      <Avatar
+                        theme={theme}
+                        label={profile.displayName}
+                        colorKey={profile.colorKey}
+                      />
+                    ) : null}
+                    <View style={styles.authorText}>
+                      <Text style={styles.cardTitle}>{note.title}</Text>
+                      <Text style={styles.meta}>
+                        {profile?.displayName ?? 'Unknown'} · {formatDateTime(note.updatedAt)}
+                      </Text>
+                    </View>
+                  </View>
+                  <Pressable onPress={() => void toggleNotePinned(note.id)}>
+                    <Text style={styles.pinAction}>
+                      {note.isPinned ? 'Unpin' : 'Pin'}
+                    </Text>
+                  </Pressable>
+                </View>
+                <Text style={styles.body}>{note.body}</Text>
+              </Card>
+            );
+          })
+        ) : (
+          <EmptyState
+            theme={theme}
+            title="No notes yet"
+            body="Create the first shared note for plans, shopping reminders, or things no one should need to ask you twice."
+          />
+        )}
       </Section>
     </Screen>
   );
 }
+
+const createStyles = (theme: Theme) =>
+  StyleSheet.create({
+    headerRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      gap: 12,
+    },
+    authorRow: {
+      flexDirection: 'row',
+      gap: 12,
+      flex: 1,
+    },
+    authorText: {
+      gap: 4,
+      flex: 1,
+    },
+    cardTitle: {
+      color: theme.text,
+      fontSize: 16,
+      fontWeight: '800',
+    },
+    meta: {
+      color: theme.textMuted,
+      fontSize: 12,
+    },
+    pinAction: {
+      color: theme.accent,
+      fontWeight: '800',
+    },
+    body: {
+      color: theme.text,
+      fontSize: 15,
+      lineHeight: 21,
+    },
+  });
