@@ -40,13 +40,7 @@ const tabs: { key: SettingsTab; label: string }[] = [
   { key: 'security', label: 'Security' },
 ];
 
-export function SettingsScreen({
-  theme,
-  onClose,
-}: {
-  theme: Theme;
-  onClose: () => void;
-}) {
+export function SettingsScreen({ theme }: { theme: Theme }) {
   const {
     snapshot,
     settingsTab,
@@ -376,7 +370,7 @@ export function SettingsScreen({
             ]}
             selected={snapshot.settings.eventColorKey}
             onSelect={next =>
-              void updateSettings({ eventColorKey: next as CalendarViewMode })
+              void updateSettings({ eventColorKey: next as EventColorKey })
             }
           />
         </Card>
