@@ -314,3 +314,10 @@ export function getCurrentMemberRole(snapshot: AppSnapshot) {
   const userId = snapshot.sessionState.session?.userId;
   return getGroupMembers(snapshot).find(item => item.userId === userId)?.role;
 }
+
+export function getLocaleSettings(snapshot: AppSnapshot) {
+  return {
+    localePreference: snapshot.settings.localePreference,
+    currencyCode: snapshot.settings.currencyCode,
+  };
+}

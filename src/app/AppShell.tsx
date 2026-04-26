@@ -12,10 +12,13 @@ export function AppShell() {
 }
 
 function AppRuntimeProviders() {
-  useAppStore();
+  const { snapshot } = useAppStore();
 
   return (
-    <I18nProvider localePreference="system" currencyCode="EUR">
+    <I18nProvider
+      localePreference={snapshot?.settings.localePreference ?? 'system'}
+      currencyCode={snapshot?.settings.currencyCode ?? 'EUR'}
+    >
       <AppChrome />
     </I18nProvider>
   );

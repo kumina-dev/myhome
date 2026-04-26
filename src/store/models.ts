@@ -27,6 +27,8 @@ export type MemberRole = 'owner' | 'member';
 export type CalendarViewMode = 'month' | 'agenda';
 export type ProfileColorKey = 'blue' | 'pink' | 'green' | 'amber';
 export type EventColorKey = 'blue' | 'pink' | 'green' | 'amber' | 'red';
+export type SupportedLocale = 'en' | 'fi';
+export type LocalePreference = 'system' | SupportedLocale;
 
 export interface BaseRecord {
   id: string;
@@ -156,6 +158,8 @@ export interface AppSettings {
   groupName: string;
   themeMode: ThemeMode;
   defaultTab: AppTab;
+  localePreference: LocalePreference;
+  currencyCode: string;
   calendarDefaultView: CalendarViewMode;
   eventColorKey: EventColorKey;
   expenseCategories: string[];

@@ -271,6 +271,8 @@ export const initialSnapshot: AppSnapshot = (() => {
       groupName: 'North Circle',
       themeMode: 'system',
       defaultTab: 'home',
+      localePreference: 'system',
+      currencyCode: 'EUR',
       calendarDefaultView: 'month',
       eventColorKey: 'blue',
       expenseCategories: [
