@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
+  Pressable,
   StatusBar,
   StyleSheet,
   Text,
@@ -7,7 +8,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { AppTab } from '../store/models';
+import { AppTab, ProfileColorKey } from '../store/models';
 import { getCurrentGroup, getCurrentProfile } from '../store/selectors';
 import { useAppStore } from '../store/store';
 import { getTheme } from '../shared/theme/theme';
@@ -20,7 +21,7 @@ import { NotesScreen } from '../features/notes/NotesScreen';
 import { SettingsScreen } from '../features/settings/SettingsScreen';
 import { SplashScreen } from '../screens/SplashScreen';
 import { TasksScreen } from '../features/tasks/TasksScreen';
-import { AppTabBar, Avatar, Button } from '../ui/primitives';
+import { Button } from '../shared/ui/Button';
 import { appTabs } from './appTabs';
 
 export function AppChrome() {
@@ -154,4 +155,96 @@ const createStyles = (theme: ReturnType<typeof getTheme>) =>
     content: {
       flex: 1,
     },
+    avatar: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    avatarText: {
+      color: theme.inverseText,
+      fontWeight: '900',
+      fontSize: 14,
+    },
+    tabBar: {
+      flexDirection: 'row',
+      backgroundColor: theme.tabBar,
+      borderTopWidth: theme.borders.hairline,
+      borderTopColor: theme.border,
+      paddingVertical: 10,
+    },
+    tabItem: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: 8,
+    },
+    tabLabel: {
+      color: theme.textMuted,
+      fontSize: 12,
+      fontWeight: '800',
+    },
+    tabLabelSelected: {
+      color: theme.accent,
+      fontSize: 12,
+      fontWeight: '900',
+    },
   });
+
+function Avatar({
+  theme,
+  label,
+  colorKey,
+}: {
+  theme: ReturnType<typeof getTheme>;
+  label: string;
+  colorKey: ProfileColorKey;
+}) {
+  const styles = createStyles(theme);
+
+  return (
+    <View
+      style={[
+        styles.avatar,
+        { backgroundColor: theme.profileColors[colorKey] },
+      ]}
+    >
+      <Text style={styles.avatarText}>{label.slice(0, 1).toUpperCase()}</Text>
+    </View>
+  );
+}
+
+function AppTabBar({
+  theme,
+  tabs,
+  activeTab,
+  onSelect,
+}: {
+  theme: ReturnType<typeof getTheme>;
+  tabs: { key: AppTab; label: string }[];
+  activeTab: AppTab;
+  onSelect: (key: AppTab) => void;
+}) {
+  const styles = createStyles(theme);
+
+  return (
+    <View style={styles.tabBar}>
+      {tabs.map(tab => {
+        const selected = activeTab === tab.key;
+
+        return (
+          <Pressable
+            key={tab.key}
+            onPress={() => onSelect(tab.key)}
+            style={styles.tabItem}
+          >
+            <Text style={selected ? styles.tabLabelSelected : styles.tabLabel}>
+              {tab.label}
+            </Text>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
