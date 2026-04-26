@@ -7,7 +7,7 @@ import {
   getEventsForDate,
 } from '../../store/selectors';
 import { useDateTimeFormatter } from '../../shared/format/dateTime';
-import { useTranslation } from '../../i18n';
+import { TranslationKey, useTranslation } from '../../i18n';
 
 export function CalendarMonthView({
   theme,
@@ -36,24 +36,24 @@ export function CalendarMonthView({
       <Text style={styles.monthTitle}>{formatMonthYear(visibleMonth)}</Text>
       <View style={styles.weekHeader}>
         {(snapshot.settings.weekStartsOn === 'monday'
-          ? [
-              'calendar.weekdays.short.monday',
-              'calendar.weekdays.short.tuesday',
-              'calendar.weekdays.short.wednesday',
-              'calendar.weekdays.short.thursday',
-              'calendar.weekdays.short.friday',
-              'calendar.weekdays.short.saturday',
-              'calendar.weekdays.short.sunday',
-            ]
-          : [
-              'calendar.weekdays.short.sunday',
-              'calendar.weekdays.short.monday',
-              'calendar.weekdays.short.tuesday',
-              'calendar.weekdays.short.wednesday',
-              'calendar.weekdays.short.thursday',
-              'calendar.weekdays.short.friday',
-              'calendar.weekdays.short.saturday',
-            ]
+          ? ([
+              'calendar.weekdays.narrow.monday',
+              'calendar.weekdays.narrow.tuesday',
+              'calendar.weekdays.narrow.wednesday',
+              'calendar.weekdays.narrow.thursday',
+              'calendar.weekdays.narrow.friday',
+              'calendar.weekdays.narrow.saturday',
+              'calendar.weekdays.narrow.sunday',
+            ] satisfies TranslationKey[])
+          : ([
+              'calendar.weekdays.narrow.sunday',
+              'calendar.weekdays.narrow.monday',
+              'calendar.weekdays.narrow.tuesday',
+              'calendar.weekdays.narrow.wednesday',
+              'calendar.weekdays.narrow.thursday',
+              'calendar.weekdays.narrow.friday',
+              'calendar.weekdays.narrow.saturday',
+            ] satisfies TranslationKey[])
         ).map(value => (
           <Text key={value} style={styles.weekLabel}>
             {t(value)}

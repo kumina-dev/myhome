@@ -7,7 +7,7 @@ import { useDateTimeFormatter } from '../../shared/format/dateTime';
 import { ModalSheet } from '../../shared/ui/ModalSheet';
 import { CalendarViewMode, EventColorKey } from '../../store/models';
 import { getCalendarMonthMatrix } from '../../store/selectors';
-import { useTranslation } from '../../i18n';
+import { TranslationKey, useTranslation } from '../../i18n';
 
 function combineDateTime(dateIso: string, hour: number, minute: number) {
   const date = new Date(`${dateIso}T00:00:00`);
@@ -92,7 +92,7 @@ export function DateField({
 
         <View style={styles.weekHeader}>
           {(weekStartsOn === 'monday'
-            ? [
+            ? ([
                 'calendar.weekdays.narrow.monday',
                 'calendar.weekdays.narrow.tuesday',
                 'calendar.weekdays.narrow.wednesday',
@@ -100,8 +100,8 @@ export function DateField({
                 'calendar.weekdays.narrow.friday',
                 'calendar.weekdays.narrow.saturday',
                 'calendar.weekdays.narrow.sunday',
-              ]
-            : [
+              ] satisfies TranslationKey[])
+            : ([
                 'calendar.weekdays.narrow.sunday',
                 'calendar.weekdays.narrow.monday',
                 'calendar.weekdays.narrow.tuesday',
@@ -109,7 +109,7 @@ export function DateField({
                 'calendar.weekdays.narrow.thursday',
                 'calendar.weekdays.narrow.friday',
                 'calendar.weekdays.narrow.saturday',
-              ]
+              ] satisfies TranslationKey[])
           ).map(labelValue => (
             <Text key={labelValue} style={styles.weekLabel}>
               {t(labelValue)}
