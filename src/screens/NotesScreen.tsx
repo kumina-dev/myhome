@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Alert, StyleSheet, Text, View } from 'react-native';
-import { Theme } from '../theme/theme';
+import { Theme } from '../shared/theme/theme';
 import { useAppStore } from '../store/store';
 import { AppSnapshot } from '../store/models';
 import {

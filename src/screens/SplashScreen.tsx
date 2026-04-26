@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { Theme } from '../theme/theme';
+import { Theme } from '../shared/theme/theme';
 
 export function SplashScreen({ theme }: { theme: Theme }) {
   const styles = createStyles(theme);

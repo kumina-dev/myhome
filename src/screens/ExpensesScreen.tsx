@@ -8,7 +8,7 @@ import {
   getExpenseSummary,
 } from '../store/selectors';
 import { AppSnapshot } from '../store/models';
-import { Theme } from '../theme/theme';
+import { Theme } from '../shared/theme/theme';
 import {
   Avatar,
   Button,

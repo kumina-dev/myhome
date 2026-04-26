@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Alert, StyleSheet, Text, View } from 'react-native';
-import { Theme } from '../theme/theme';
+import { Theme } from '../shared/theme/theme';
 import {
   AppSnapshot,
   CalendarViewMode,

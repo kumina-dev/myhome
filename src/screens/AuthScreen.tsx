@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Alert, StyleSheet, Text } from 'react-native';
 import { AuthFlowMode } from '../store/models';
 import { useAppStore } from '../store/store';
-import { Theme } from '../theme/theme';
+import { Theme } from '../shared/theme/theme';
 import {
   Button,
   Card,

@@ -11,7 +11,7 @@ import {
   getUpcomingEvents,
 } from '../store/selectors';
 import { useAppStore } from '../store/store';
-import { Theme } from '../theme/theme';
+import { Theme } from '../shared/theme/theme';
 import {
   Avatar,
   Badge,

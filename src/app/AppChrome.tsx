@@ -10,7 +10,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppTab } from '../store/models';
 import { getCurrentGroup, getCurrentProfile } from '../store/selectors';
 import { useAppStore } from '../store/store';
-import { getTheme } from '../theme/theme';
+import { getTheme } from '../shared/theme/theme';
 import { AuthScreen } from '../screens/AuthScreen';
 import { AppLockScreen } from '../screens/AppLockScreen';
 import { CalendarScreen } from '../screens/CalendarScreen';
@@ -21,7 +21,7 @@ import { SettingsScreen } from '../screens/SettingsScreen';
 import { SplashScreen } from '../screens/SplashScreen';
 import { TasksScreen } from '../screens/TasksScreen';
 import { AppTabBar, Avatar, Button } from '../ui/primitives';
-import { appTabs } from './addTabs';
+import { appTabs } from './appTabs';
 
 export function AppChrome() {
   const { phase, snapshot, lockApp, loading } = useAppStore();
