@@ -15,7 +15,7 @@ import { AuthScreen } from '../features/auth/AuthScreen';
 import { AppLockScreen } from '../features/appLock/AppLockScreen';
 import { CalendarScreen } from '../screens/CalendarScreen';
 import { ExpensesScreen } from '../screens/ExpensesScreen';
-import { HomeScreen } from '../screens/HomeScreen';
+import { HomeScreen } from '../features/home/HomeScreen';
 import { NotesScreen } from '../screens/NotesScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
 import { SplashScreen } from '../screens/SplashScreen';
