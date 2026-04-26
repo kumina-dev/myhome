@@ -12,7 +12,7 @@ import { getCurrentGroup, getCurrentProfile } from '../store/selectors';
 import { useAppStore } from '../store/store';
 import { getTheme } from '../shared/theme/theme';
 import { AuthScreen } from '../features/auth/AuthScreen';
-import { AppLockScreen } from '../screens/AppLockScreen';
+import { AppLockScreen } from '../features/appLock/AppLockScreen';
 import { CalendarScreen } from '../screens/CalendarScreen';
 import { ExpensesScreen } from '../screens/ExpensesScreen';
 import { HomeScreen } from '../screens/HomeScreen';
