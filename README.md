@@ -1,97 +1,118 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# myhome
 
-# Getting Started
+Android React Native app for shared daily life management between trusted small groups.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+The app combines shared expenses, notes, calendar events, tasks, notifications, app lock, and deep settings in one private group experience.
 
-## Step 1: Start Metro
+## Platform
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+- Android only
+- React Native CLI
+- TypeScript
+- No Expo
+- No iOS project in this repository
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+## Requirements
+
+- Node.js 22.11 or newer
+- npm
+- Android Studio
+- Android SDK and emulator, or a connected Android device
+- React Native Android environment configured
+
+## Install
 
 ```sh
-# Using npm
+npm install
+```
+
+## Run
+
+Start Metro:
+
+```sh
 npm start
-
-# OR using Yarn
-yarn start
 ```
 
-## Step 2: Build and run your app
-
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
-
-### Android
+In another terminal, build and install the Android app:
 
 ```sh
-# Using npm
 npm run android
-
-# OR using Yarn
-yarn android
 ```
 
-### iOS
+## Scripts
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+- `npm start`: starts Metro
+- `npm run android`: builds and runs android
+- `npm run lint`: runs ESLint
+- `npm test`: runs Jest
 
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+## Project Structure
+
+```text
+src/
+  app/ App-level provider wiring, chrome, and tab configuration
+  features/ Feature-local screens, components, forms, and sections
+  i18n/ Locale resolution, typed translation keys, dictionaries
+  shared/
+    format/ Locale-aware date, time, and currency formatting helpers
+    theme/ Global design tokens and theme composition
+    ui/ Small shared UI primitives with real current reuse
+  store/ Mock repositories, models, seed data, selectors, store
+```
+
+## Architecture Notes
+
+- `src/app/AppShell.tsx` owns app-level provider wiring.
+- `src/app/AppChrome.tsx` owns app phase rendering and tab chrome.
+- Features live under `src/features/` and keep feature-specific UI local.
+- Shared UI is deliberately small: `AppText`, `Button`, `Card`, `Field`, `Screen`, `Section`, `EmptyState`, and `ModalSheet`.
+- Theme values live in `src/shared/theme/` as explicit tokens for colors, spacing, typography, radius, borders, elevation, and motion.
+- Formatting lives in `src/shared/format/` and reads locale/currency through i18n context.
+- Selectors should derive data only. They should not format user-facing values.
+
+## Internationalization
+
+User-facing text should use the i18n layer under `src/i18n/`.
+
+- Supported locales: English and Finnish
+- Locale preference: `system`, `en`, or `fi`
+- Locale fallback: explicit supported preference, then system locale, then English
+- Dates, times, and currency should use `src/shared/format/`
+- Seed data stores raw values and product data, not display-ready formatted strings
+
+## Styling Direction
+
+The UI uses a warm graphite foundation, bone-colored surfaces, ember/coral action accents, and green success states. The intent is polished and private, not generic fintech blue and not default React Native starter gray.
+
+Use the shared theme tokens before adding one-off values. Keep screen-specific styles local unless a pattern is already reused across features.
+
+## Branding Status
+
+The current `myhome` name is treated as existing repository branding. Do not rename the app, package, launcher label, or Android package path without an approved branding decision.
+
+Deferred branding files:
+
+- `app.json`
+- `android/app/src/main/res/values/strings.xml`
+- `android/app/src/main/java/com/myhome/`
+- Android launcher icon resources
+
+## Development Rules
+
+- Keep files short and focused.
+- Prefer feature-local organization first.
+- Do not add shared components without current cross-feature reuse.
+- Do not hard-code user-facing strings in screens or components.
+- Do not put formatting logic in selectors.
+- Do not add iOS files or scripts.
+- Do not introduce Expo.
+
+## Verification
+
+Run these before handing off changes:
 
 ```sh
-bundle install
+npm run lint
+npm test
 ```
-
-Then, and every time you update your native dependencies, run:
-
-```sh
-bundle exec pod install
-```
-
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
-
-```sh
-# Using npm
-npm run ios
-
-# OR using Yarn
-yarn ios
-```
-
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
-
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
-
-## Step 3: Modify your app
-
-Now that you have successfully run the app, let's make changes!
-
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
-
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
-
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
