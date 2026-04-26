@@ -15,7 +15,7 @@ import {
   ProfileColorKey,
   SettingsTab,
 } from '../store/models';
-import { Theme } from '../theme/theme';
+import { Theme } from '../shared/theme/theme';
 
 type ItemKey = string | number;
 

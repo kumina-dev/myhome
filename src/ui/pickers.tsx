@@ -6,7 +6,7 @@ import {
   formatTime,
   getCalendarMonthMatrix,
 } from '../store/selectors';
-import { Theme } from '../theme/theme';
+import { Theme } from '../shared/theme/theme';
 import {
   Button,
   ColorSwatch,

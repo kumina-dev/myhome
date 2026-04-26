@@ -8,7 +8,7 @@ import {
   getEventsForDate,
   isoDate,
 } from '../store/selectors';
-import { Theme } from '../theme/theme';
+import { Theme } from '../shared/theme/theme';
 import { AppSnapshot } from '../store/models';
 
 function monthHeading(value: Date) {
