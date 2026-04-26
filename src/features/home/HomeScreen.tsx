@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  formatCurrency,
   getActiveGroupProfiles,
   getCurrentGroup,
   getPinnedNotes,
@@ -9,6 +8,7 @@ import {
   getUpcomingEvents,
 } from '../../store/selectors';
 import { useAppStore } from '../../store/store';
+import { useCurrencyFormatter } from '../../shared/format/currency';
 import { Theme } from '../../shared/theme/theme';
 import { Screen } from '../../shared/ui/Screen';
 import { Section } from '../../shared/ui/Section';
@@ -19,6 +19,7 @@ import { HomeUpcoming } from './HomeUpcoming';
 
 export function HomeScreen({ theme }: { theme: Theme }) {
   const { snapshot, markAllNotificationsRead } = useAppStore();
+  const { formatCurrency } = useCurrencyFormatter();
 
   if (!snapshot) return null;
 

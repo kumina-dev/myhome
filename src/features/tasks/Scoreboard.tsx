@@ -3,7 +3,8 @@ import { StyleSheet, Text, View } from 'react-native';
 import { Theme } from '../../shared/theme/theme';
 import { Section } from '../../shared/ui/Section';
 import { GroupMember, UserProfile } from '../../store/models';
-import { formatShortDate, getScoreboard } from '../../store/selectors';
+import { useDateTimeFormatter } from '../../shared/format/dateTime';
+import { getScoreboard } from '../../store/selectors';
 
 interface ActiveGroupProfile {
   member: GroupMember;
@@ -62,6 +63,8 @@ function ScoreCards({
   cycleStart: string;
   showCycleHint: boolean;
 }) {
+  const { formatShortDate } = useDateTimeFormatter();
+  
   return (
     <>
       {scores.map(item => {

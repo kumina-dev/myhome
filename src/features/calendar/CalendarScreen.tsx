@@ -8,8 +8,8 @@ import { ModalSheet } from '../../shared/ui/ModalSheet';
 import { Screen } from '../../shared/ui/Screen';
 import { Section } from '../../shared/ui/Section';
 import { useAppStore } from '../../store/store';
+import { useDateTimeFormatter } from '../../shared/format/dateTime';
 import {
-  formatDateTime,
   getAgendaGroups,
   getCurrentGroup,
   getEventsForDate,
@@ -56,6 +56,7 @@ function CalendarScreenContent({
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
     null,
   );
+  const { formatDateTime } = useDateTimeFormatter();
   const agendaGroups = useMemo(() => getAgendaGroups(snapshot), [snapshot]);
   const dayEvents = getEventsForDate(snapshot, selectedDate);
   const viewMode = snapshot.settings.calendarDefaultView;

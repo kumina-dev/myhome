@@ -9,7 +9,7 @@ import {
   Task,
   UserProfile,
 } from '../../store/models';
-import { formatDateTime, formatShortDate } from '../../store/selectors';
+import { useDateTimeFormatter } from '../../shared/format/dateTime';
 
 interface ActiveGroupProfile {
   member: GroupMember;
@@ -30,6 +30,7 @@ export function TaskBoard({
   onToggleTaskComplete: (taskId: string, completedByUserId: string) => void;
 }) {
   const styles = createStyles(theme);
+  const { formatDateTime, formatShortDate } = useDateTimeFormatter();
 
   if (!tasks.length) {
     return (

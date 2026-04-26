@@ -5,7 +5,7 @@ import { Card } from '../../shared/ui/Card';
 import { EmptyState } from '../../shared/ui/EmptyState';
 import { Section } from '../../shared/ui/Section';
 import { CalendarEvent } from '../../store/models';
-import { formatDateTime } from '../../store/selectors';
+import { useDateTimeFormatter } from '../../shared/format/dateTime';
 
 export function HomeUpcoming({
   theme,
@@ -15,6 +15,7 @@ export function HomeUpcoming({
   upcoming: CalendarEvent[];
 }) {
   const styles = createStyles(theme);
+  const { formatDateTime } = useDateTimeFormatter();
 
   return (
     <Section theme={theme} title="Upcoming">

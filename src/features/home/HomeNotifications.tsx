@@ -6,7 +6,7 @@ import { Card } from '../../shared/ui/Card';
 import { EmptyState } from '../../shared/ui/EmptyState';
 import { Section } from '../../shared/ui/Section';
 import { NotificationItem } from '../../store/models';
-import { formatDateTime } from '../../store/selectors';
+import { useDateTimeFormatter } from '../../shared/format/dateTime';
 
 export function HomeNotifications({
   theme,
@@ -18,6 +18,7 @@ export function HomeNotifications({
   onMarkAllRead: () => void;
 }) {
   const styles = createStyles(theme);
+  const { formatDateTime } = useDateTimeFormatter();
 
   return (
     <Section

@@ -6,37 +6,6 @@ import {
   WeekStart,
 } from './models';
 
-export function formatCurrency(amountCents: number): string {
-  return new Intl.NumberFormat('fi-FI', {
-    style: 'currency',
-    currency: 'EUR',
-    maximumFractionDigits: 2,
-  }).format(amountCents / 100);
-}
-
-export function formatShortDate(value: string): string {
-  return new Intl.DateTimeFormat('fi-FI', {
-    day: 'numeric',
-    month: 'short',
-  }).format(new Date(value));
-}
-
-export function formatDateTime(value: string): string {
-  return new Intl.DateTimeFormat('fi-FI', {
-    day: 'numeric',
-    month: 'short',
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(new Date(value));
-}
-
-export function formatTime(value: string): string {
-  return new Intl.DateTimeFormat('fi-FI', {
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(new Date(value));
-}
-
 export function isoDate(value: string): string {
   return new Date(value).toISOString().slice(0, 10);
 }

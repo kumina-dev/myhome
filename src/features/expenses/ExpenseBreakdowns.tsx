@@ -4,11 +4,9 @@ import { Theme } from '../../shared/theme/theme';
 import { Card } from '../../shared/ui/Card';
 import { EmptyState } from '../../shared/ui/EmptyState';
 import { Section } from '../../shared/ui/Section';
-import {
-  formatCurrency,
-  formatShortDate,
-  getExpenseSummary,
-} from '../../store/selectors';
+import { useCurrencyFormatter } from '../../shared/format/currency';
+import { useDateTimeFormatter } from '../../shared/format/dateTime';
+import { getExpenseSummary } from '../../store/selectors';
 import { GroupMember, ProfileColorKey, UserProfile } from '../../store/models';
 
 interface ActiveGroupProfile {
@@ -26,6 +24,8 @@ export function ExpenseBreakdowns({
   memberProfiles: ActiveGroupProfile[];
 }) {
   const styles = createStyles(theme);
+  const { formatCurrency } = useCurrencyFormatter();
+  const { formatShortDate } = useDateTimeFormatter();
 
   return (
     <>

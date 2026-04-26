@@ -2,7 +2,8 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Theme } from '../../shared/theme/theme';
 import { CalendarEvent } from '../../store/models';
-import { formatShortDate, formatTime, isoDate } from '../../store/selectors';
+import { isoDate } from '../../store/selectors';
+import { useDateTimeFormatter } from '../../shared/format/dateTime';
 
 export function EventDetailCard({
   theme,
@@ -12,6 +13,7 @@ export function EventDetailCard({
   event: CalendarEvent;
 }) {
   const styles = createStyles(theme);
+  const { formatShortDate, formatTime } = useDateTimeFormatter();
 
   return (
     <View style={styles.detailCard}>

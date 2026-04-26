@@ -9,7 +9,7 @@ import {
   ProfileColorKey,
   UserProfile,
 } from '../../store/models';
-import { formatDateTime } from '../../store/selectors';
+import { useDateTimeFormatter } from '../../shared/format/dateTime';
 
 interface ActiveGroupProfile {
   member: GroupMember;
@@ -28,6 +28,7 @@ export function NoteList({
   onTogglePinned: (noteId: string) => void;
 }) {
   const styles = createStyles(theme);
+  const { formatDateTime } = useDateTimeFormatter();
 
   if (!notes.length) {
     return (

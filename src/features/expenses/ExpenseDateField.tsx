@@ -3,14 +3,8 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Theme } from '../../shared/theme/theme';
 import { Button } from '../../shared/ui/Button';
 import { ModalSheet } from '../../shared/ui/ModalSheet';
-import { formatShortDate, getCalendarMonthMatrix } from '../../store/selectors';
-
-function monthLabel(value: Date) {
-  return new Intl.DateTimeFormat('fi-FI', {
-    month: 'long',
-    year: 'numeric',
-  }).format(value);
-}
+import { useDateTimeFormatter } from '../../shared/format/dateTime';
+import { getCalendarMonthMatrix } from '../../store/selectors';
 
 function combineDateTime(dateIso: string, hour: number, minute: number) {
   const date = new Date(`${dateIso}T00:00:00`);
@@ -33,6 +27,7 @@ export function ExpenseDateField({
 }) {
   const styles = createStyles(theme);
   const [visible, setVisible] = useState(false);
+  const { formatMonthYear, formatShortDate } = useDateTimeFormatter();
   const [visibleMonth, setVisibleMonth] = useState(new Date(value));
 
   const cells = useMemo(
@@ -70,7 +65,7 @@ export function ExpenseDateField({
               )
             }
           />
-          <Text style={styles.monthLabel}>{monthLabel(visibleMonth)}</Text>
+          <Text style={styles.monthLabel}>{formatMonthYear(visibleMonth)}</Text>
           <Button
             theme={theme}
             label="Next"

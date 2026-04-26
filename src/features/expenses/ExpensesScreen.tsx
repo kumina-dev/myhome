@@ -1,8 +1,8 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useAppStore } from '../../store/store';
+import { useCurrencyFormatter } from '../../shared/format/currency';
 import {
-  formatCurrency,
   getActiveGroupProfiles,
   getExpenseSummary,
 } from '../../store/selectors';
@@ -14,9 +14,10 @@ import { ExpenseForm } from './ExpenseForm';
 
 export function ExpensesScreen({ theme }: { theme: Theme }) {
   const { snapshot, addExpense } = useAppStore();
-
+  const { formatCurrency } = useCurrencyFormatter();
+  
   if (!snapshot) return null;
-
+  
   const styles = createStyles(theme);
   const summary = getExpenseSummary(snapshot);
   const memberProfiles = getActiveGroupProfiles(snapshot);

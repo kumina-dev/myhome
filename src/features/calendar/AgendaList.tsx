@@ -2,7 +2,7 @@ import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Theme } from '../../shared/theme/theme';
 import { CalendarEvent } from '../../store/models';
-import { formatShortDate, formatTime } from '../../store/selectors';
+import { useDateTimeFormatter } from '../../shared/format/dateTime';
 
 export function AgendaList({
   theme,
@@ -14,6 +14,7 @@ export function AgendaList({
   onPressEvent: (event: CalendarEvent) => void;
 }) {
   const styles = createStyles(theme);
+  const { formatShortDate, formatTime } = useDateTimeFormatter();
 
   return (
     <View style={styles.agenda}>
