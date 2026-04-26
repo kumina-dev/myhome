@@ -11,7 +11,7 @@ import { AppTab } from '../store/models';
 import { getCurrentGroup, getCurrentProfile } from '../store/selectors';
 import { useAppStore } from '../store/store';
 import { getTheme } from '../shared/theme/theme';
-import { AuthScreen } from '../screens/AuthScreen';
+import { AuthScreen } from '../features/auth/AuthScreen';
 import { AppLockScreen } from '../screens/AppLockScreen';
 import { CalendarScreen } from '../screens/CalendarScreen';
 import { ExpensesScreen } from '../screens/ExpensesScreen';
