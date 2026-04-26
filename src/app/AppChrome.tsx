@@ -19,7 +19,7 @@ import { HomeScreen } from '../features/home/HomeScreen';
 import { NotesScreen } from '../features/notes/NotesScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
 import { SplashScreen } from '../screens/SplashScreen';
-import { TasksScreen } from '../screens/TasksScreen';
+import { TasksScreen } from '../features/tasks/TasksScreen';
 import { AppTabBar, Avatar, Button } from '../ui/primitives';
 import { appTabs } from './appTabs';
 
