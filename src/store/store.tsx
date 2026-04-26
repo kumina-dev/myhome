@@ -68,7 +68,7 @@ interface AppStoreValue {
 
 const AppStoreContext = createContext<AppStoreValue | undefined>(undefined);
 
-function resolvePhase(
+export function resolvePhase(
   snapshot: AppSnapshot | null,
   loading: boolean,
 ): AppPhase {
