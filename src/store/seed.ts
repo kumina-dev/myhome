@@ -36,7 +36,6 @@ export const initialSnapshot: AppSnapshot = (() => {
   const meta = makeMeta(groupId, ownerUserId);
 
   return {
-    onboardingComplete: false,
     authUsers: [
       {
         id: ownerUserId,

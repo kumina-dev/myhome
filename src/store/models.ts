@@ -1,9 +1,4 @@
-export type AppPhase =
-  | 'splash'
-  | 'onboarding'
-  | 'auth'
-  | 'app-locked'
-  | 'main-app';
+export type AppPhase = 'splash' | 'auth' | 'app-locked' | 'main-app';
 
 export type AppTab =
   | 'home'
@@ -173,7 +168,6 @@ export interface AppSettings {
 }
 
 export interface AppSnapshot {
-  onboardingComplete: boolean;
   authUsers: AuthUser[];
   profiles: UserProfile[];
   sessionState: SessionState;
@@ -249,7 +243,6 @@ export type UpdateSettingsInput = Omit<
 
 export interface AuthRepository {
   bootstrap(): Promise<AppSnapshot>;
-  completeOnboarding(): Promise<AppSnapshot>;
   signIn(input: SignInInput): Promise<AppSnapshot>;
   createGroupOwner(input: CreateGroupInput): Promise<AppSnapshot>;
   acceptInvite(input: AcceptInviteInput): Promise<AppSnapshot>;

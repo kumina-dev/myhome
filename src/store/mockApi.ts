@@ -110,12 +110,6 @@ class MockApi
     this.snapshot.appLockState = {
       isLocked: false,
     };
-    this.snapshot.onboardingComplete = true;
-  }
-
-  async completeOnboarding(): Promise<AppSnapshot> {
-    this.snapshot.onboardingComplete = true;
-    return clone(this.snapshot);
   }
 
   async signIn(input: {

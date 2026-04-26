@@ -35,7 +35,6 @@ interface AppStoreValue {
   settingsTab: SettingsTab;
   setAuthMode: (mode: AuthFlowMode) => void;
   setSettingsTab: (tab: SettingsTab) => void;
-  completeOnboarding: (mode: AuthFlowMode) => Promise<void>;
   signIn: (input: SignInInput) => Promise<void>;
   createGroupOwner: (input: CreateGroupInput) => Promise<void>;
   acceptInvite: (input: AcceptInviteInput) => Promise<void>;
@@ -74,7 +73,6 @@ function resolvePhase(
   loading: boolean,
 ): AppPhase {
   if (loading || !snapshot) return 'splash';
-  if (!snapshot.onboardingComplete) return 'onboarding';
   if (!snapshot.sessionState.session) return 'auth';
   if (snapshot.appLockSettings.isEnabled && snapshot.appLockState.isLocked)
     return 'app-locked';
@@ -170,12 +168,6 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
       settingsTab,
       setAuthMode,
       setSettingsTab,
-      completeOnboarding: async mode => {
-        setAuthMode(mode);
-        await run(() =>
-          repositoriesRef.current.authRepository.completeOnboarding(),
-        );
-      },
       signIn: async input => {
         await run(() => repositoriesRef.current.authRepository.signIn(input));
       },
@@ -234,7 +226,9 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
       },
       addExpenseCategory: async categoryName => {
         await run(() =>
-          repositoriesRef.current.settingsRepository.addExpenseCategory(categoryName),
+          repositoriesRef.current.settingsRepository.addExpenseCategory(
+            categoryName,
+          ),
         );
       },
       removeExpenseCategory: async categoryName => {
