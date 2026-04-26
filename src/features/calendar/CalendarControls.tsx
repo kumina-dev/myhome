@@ -1,0 +1,488 @@
+import React, { useMemo, useState } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Theme } from '../../shared/theme/theme';
+import { Button } from '../../shared/ui/Button';
+import { Field } from '../../shared/ui/Field';
+import { ModalSheet } from '../../shared/ui/ModalSheet';
+import { CalendarViewMode, EventColorKey } from '../../store/models';
+import {
+  formatShortDate,
+  formatTime,
+  getCalendarMonthMatrix,
+} from '../../store/selectors';
+
+function monthLabel(value: Date) {
+  return new Intl.DateTimeFormat('fi-FI', {
+    month: 'long',
+    year: 'numeric',
+  }).format(value);
+}
+
+function combineDateTime(dateIso: string, hour: number, minute: number) {
+  const date = new Date(`${dateIso}T00:00:00`);
+  date.setHours(hour, minute, 0, 0);
+  return date.toISOString();
+}
+
+function parseTimeValue(value: string) {
+  const date = new Date(value);
+  return {
+    hour: date.getHours(),
+    minute: date.getMinutes(),
+  };
+}
+
+export function DateField({
+  theme,
+  label,
+  value,
+  weekStartsOn,
+  onChange,
+}: {
+  theme: Theme;
+  label: string;
+  value: string;
+  weekStartsOn: 'monday' | 'sunday';
+  onChange: (next: string) => void;
+}) {
+  const styles = createStyles(theme);
+  const [visible, setVisible] = useState(false);
+  const [visibleMonth, setVisibleMonth] = useState(new Date(value));
+
+  const cells = useMemo(
+    () => getCalendarMonthMatrix(visibleMonth, weekStartsOn),
+    [visibleMonth, weekStartsOn],
+  );
+  const selectedIso = value.slice(0, 10);
+  const selectedMonth = visibleMonth.getMonth();
+  const selectedYear = visibleMonth.getFullYear();
+
+  return (
+    <>
+      <Pressable onPress={() => setVisible(true)} style={styles.trigger}>
+        <Text style={styles.triggerLabel}>{label}</Text>
+        <Text style={styles.triggerValue}>{formatShortDate(value)}</Text>
+      </Pressable>
+
+      <ModalSheet
+        theme={theme}
+        visible={visible}
+        title={label}
+        closeLabel="Close"
+        onClose={() => setVisible(false)}
+      >
+        <View style={styles.monthHeader}>
+          <Button
+            theme={theme}
+            label="Previous"
+            kind="secondary"
+            onPress={() =>
+              setVisibleMonth(
+                current =>
+                  new Date(current.getFullYear(), current.getMonth() - 1, 1),
+              )
+            }
+          />
+          <Text style={styles.monthLabel}>{monthLabel(visibleMonth)}</Text>
+          <Button
+            theme={theme}
+            label="Next"
+            kind="secondary"
+            onPress={() =>
+              setVisibleMonth(
+                current =>
+                  new Date(current.getFullYear(), current.getMonth() + 1, 1),
+              )
+            }
+          />
+        </View>
+
+        <View style={styles.weekHeader}>
+          {(weekStartsOn === 'monday'
+            ? ['M', 'T', 'W', 'T', 'F', 'S', 'S']
+            : ['S', 'M', 'T', 'W', 'T', 'F', 'S']
+          ).map(labelValue => (
+            <Text key={labelValue} style={styles.weekLabel}>
+              {labelValue}
+            </Text>
+          ))}
+        </View>
+
+        <View style={styles.grid}>
+          {cells.map(cell => {
+            const iso = cell.toISOString().slice(0, 10);
+            const sameMonth =
+              cell.getMonth() === selectedMonth &&
+              cell.getFullYear() === selectedYear;
+            const isSelected = iso === selectedIso;
+
+            return (
+              <Pressable
+                key={iso}
+                onPress={() => {
+                  const next = combineDateTime(iso, 12, 0);
+                  onChange(next);
+                  setVisible(false);
+                }}
+                style={[
+                  styles.dayCell,
+                  !sameMonth ? styles.dayCellMuted : null,
+                  isSelected ? styles.dayCellSelected : null,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.dayText,
+                    !sameMonth ? styles.dayTextMuted : null,
+                    isSelected ? styles.dayTextSelected : null,
+                  ]}
+                >
+                  {cell.getDate()}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      </ModalSheet>
+    </>
+  );
+}
+
+export function TimeField({
+  theme,
+  label,
+  value,
+  dateIso,
+  onChange,
+}: {
+  theme: Theme;
+  label: string;
+  value: string;
+  dateIso: string;
+  onChange: (next: string) => void;
+}) {
+  const styles = createStyles(theme);
+  const [visible, setVisible] = useState(false);
+  const parsed = parseTimeValue(value);
+  const [hour, setHour] = useState(String(parsed.hour).padStart(2, '0'));
+  const [minute, setMinute] = useState(String(parsed.minute).padStart(2, '0'));
+
+  return (
+    <>
+      <Pressable onPress={() => setVisible(true)} style={styles.trigger}>
+        <Text style={styles.triggerLabel}>{label}</Text>
+        <Text style={styles.triggerValue}>{formatTime(value)}</Text>
+      </Pressable>
+
+      <ModalSheet
+        theme={theme}
+        visible={visible}
+        title={label}
+        closeLabel="Close"
+        onClose={() => setVisible(false)}
+      >
+        <Field
+          theme={theme}
+          label="Hour"
+          value={hour}
+          onChangeText={setHour}
+          keyboardType="numeric"
+          helper="Use 00-23"
+        />
+        <Field
+          theme={theme}
+          label="Minute"
+          value={minute}
+          onChangeText={setMinute}
+          keyboardType="numeric"
+          helper="Use 00, 15, 30, or 45 for sane scheduling."
+        />
+        <Button
+          theme={theme}
+          label="Apply time"
+          onPress={() => {
+            const next = combineDateTime(dateIso, Number(hour), Number(minute));
+            onChange(next);
+            setVisible(false);
+          }}
+        />
+      </ModalSheet>
+    </>
+  );
+}
+
+export function EventColorField({
+  theme,
+  value,
+  onChange,
+}: {
+  theme: Theme;
+  value: EventColorKey;
+  onChange: (next: EventColorKey) => void;
+}) {
+  const [visible, setVisible] = useState(false);
+
+  return (
+    <>
+      <Button
+        theme={theme}
+        label={`Event color: ${value}`}
+        kind="secondary"
+        onPress={() => setVisible(true)}
+      />
+
+      <ModalSheet
+        theme={theme}
+        visible={visible}
+        title="Choose event color"
+        closeLabel="Close"
+        onClose={() => setVisible(false)}
+      >
+        {(['blue', 'pink', 'green', 'amber', 'red'] as EventColorKey[]).map(
+          colorKey => (
+            <ColorSwatch
+              key={colorKey}
+              theme={theme}
+              colorKey={colorKey}
+              selected={colorKey === value}
+              onPress={() => {
+                onChange(colorKey);
+                setVisible(false);
+              }}
+            />
+          ),
+        )}
+      </ModalSheet>
+    </>
+  );
+}
+
+export function CalendarViewField({
+  theme,
+  value,
+  onChange,
+}: {
+  theme: Theme;
+  value: CalendarViewMode;
+  onChange: (next: CalendarViewMode) => void;
+}) {
+  return (
+    <SegmentedControl
+      theme={theme}
+      items={[
+        { key: 'month', label: 'Month' },
+        { key: 'agenda', label: 'Agenda' },
+      ]}
+      selected={value}
+      onSelect={onChange}
+    />
+  );
+}
+
+function SegmentedControl<T extends string>({
+  theme,
+  items,
+  selected,
+  onSelect,
+}: {
+  theme: Theme;
+  items: { key: T; label: string }[];
+  selected: T;
+  onSelect: (key: T) => void;
+}) {
+  const styles = createStyles(theme);
+
+  return (
+    <View style={styles.segmented}>
+      {items.map(item => {
+        const isSelected = item.key === selected;
+
+        return (
+          <Pressable
+            key={item.key}
+            onPress={() => onSelect(item.key)}
+            style={[
+              styles.segmentBase,
+              isSelected ? styles.segmentSelected : styles.segment,
+            ]}
+          >
+            <Text
+              style={[
+                styles.segmentText,
+                isSelected ? styles.segmentTextSelected : null,
+              ]}
+            >
+              {item.label}
+            </Text>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
+
+function ColorSwatch({
+  theme,
+  colorKey,
+  selected,
+  onPress,
+}: {
+  theme: Theme;
+  colorKey: EventColorKey;
+  selected: boolean;
+  onPress: () => void;
+}) {
+  const styles = createStyles(theme);
+
+  return (
+    <Pressable
+      onPress={onPress}
+      style={[styles.swatchBase, selected ? styles.swatchSelected : null]}
+    >
+      <View
+        style={[
+          styles.swatchDot,
+          { backgroundColor: theme.eventColors[colorKey] },
+        ]}
+      />
+      <Text style={styles.swatchText}>{colorKey}</Text>
+    </Pressable>
+  );
+}
+
+const createStyles = (theme: Theme) =>
+  StyleSheet.create({
+    trigger: {
+      backgroundColor: theme.surface,
+      borderColor: theme.border,
+      borderWidth: theme.borders.hairline,
+      borderRadius: theme.radius.md,
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: theme.spacing.md,
+      marginBottom: theme.spacing.md,
+    },
+    triggerLabel: {
+      color: theme.textMuted,
+      fontSize: theme.typography.kicker.fontSize,
+      fontWeight: theme.typography.kicker.fontWeight,
+      textTransform: theme.typography.kicker.textTransform,
+      marginBottom: theme.spacing.sm,
+    },
+    triggerValue: {
+      color: theme.text,
+      fontSize: 15,
+      fontWeight: '700',
+    },
+    monthHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      gap: theme.spacing.sm,
+      marginBottom: theme.spacing.md,
+    },
+    monthLabel: {
+      color: theme.text,
+      fontSize: 16,
+      fontWeight: '900',
+      flex: 1,
+      textAlign: 'center',
+    },
+    weekHeader: {
+      flexDirection: 'row',
+      marginBottom: theme.spacing.sm,
+    },
+    weekLabel: {
+      flex: 1,
+      textAlign: 'center',
+      color: theme.textMuted,
+      fontSize: 12,
+      fontWeight: '800',
+    },
+    grid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: theme.spacing.xs,
+    },
+    dayCell: {
+      width: '13.2%',
+      aspectRatio: 1,
+      borderRadius: theme.radius.md,
+      backgroundColor: theme.surfaceMuted,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    dayCellMuted: {
+      backgroundColor: theme.backgroundElevated,
+    },
+    dayCellSelected: {
+      backgroundColor: theme.accent,
+    },
+    dayText: {
+      color: theme.text,
+      fontWeight: '800',
+    },
+    dayTextMuted: {
+      color: theme.textMuted,
+    },
+    dayTextSelected: {
+      color: theme.inverseText,
+    },
+    segmented: {
+      flexDirection: 'row',
+      backgroundColor: theme.surfaceMuted,
+      borderRadius: theme.radius.lg,
+      padding: theme.spacing.xs,
+      gap: theme.spacing.xs,
+      marginBottom: theme.spacing.sm,
+    },
+    segmentBase: {
+      flex: 1,
+      borderRadius: theme.radius.md,
+      paddingVertical: theme.spacing.md,
+      alignItems: 'center',
+      borderWidth: theme.borders.hairline,
+      borderColor: 'transparent',
+    },
+    segment: {
+      backgroundColor: 'transparent',
+    },
+    segmentSelected: {
+      backgroundColor: theme.surface,
+      borderColor: theme.border,
+    },
+    segmentText: {
+      color: theme.textMuted,
+      fontWeight: '800',
+      textAlign: 'center',
+      fontSize: 13,
+    },
+    segmentTextSelected: {
+      color: theme.text,
+    },
+    swatchBase: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.spacing.md,
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: theme.spacing.md,
+      borderRadius: theme.radius.md,
+      borderWidth: theme.borders.hairline,
+      borderColor: theme.border,
+      backgroundColor: theme.surface,
+      marginBottom: theme.spacing.sm,
+    },
+    swatchSelected: {
+      borderColor: theme.accent,
+      backgroundColor: theme.accentSoft,
+    },
+    swatchDot: {
+      width: 12,
+      height: 12,
+      borderRadius: 6,
+    },
+    swatchText: {
+      color: theme.text,
+      fontSize: 15,
+      lineHeight: 21,
+    },
+  });

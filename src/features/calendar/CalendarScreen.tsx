@@ -1,31 +1,25 @@
 import React, { useMemo, useState } from 'react';
-import { Alert, StyleSheet, Text, View } from 'react-native';
-import { Theme } from '../shared/theme/theme';
-import { useAppStore } from '../store/store';
+import { StyleSheet, Text, View } from 'react-native';
+import { Theme } from '../../shared/theme/theme';
+import { Button } from '../../shared/ui/Button';
+import { Card } from '../../shared/ui/Card';
+import { EmptyState } from '../../shared/ui/EmptyState';
+import { ModalSheet } from '../../shared/ui/ModalSheet';
+import { Screen } from '../../shared/ui/Screen';
+import { Section } from '../../shared/ui/Section';
+import { useAppStore } from '../../store/store';
 import {
   formatDateTime,
   getAgendaGroups,
   getCurrentGroup,
   getEventsForDate,
-  isoDate,
-} from '../store/selectors';
-import { CalendarMonthView, AgendaList, EventDetailCard } from '../ui/calendar';
-import {
-  Button,
-  Card,
-  EmptyState,
-  Field,
-  ModalSheet,
-  Screen,
-  Section,
-} from '../ui/primitives';
-import {
-  CalendarViewField,
-  DateField,
-  EventColorField,
-  TimeField,
-} from '../ui/pickers';
-import { AppSnapshot, CalendarEvent } from '../store/models';
+} from '../../store/selectors';
+import { AppSnapshot, CalendarEvent } from '../../store/models';
+import { AgendaList } from './AgendaList';
+import { CalendarComposer } from './CalendarComposer';
+import { CalendarMonthView } from './CalendarMonthView';
+import { CalendarViewField } from './CalendarControls';
+import { EventDetailCard } from './EventDetailCard';
 
 export function CalendarScreen({ theme }: { theme: Theme }) {
   const { snapshot, addEvent, updateSettings } = useAppStore();
@@ -62,51 +56,12 @@ function CalendarScreenContent({
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
     null,
   );
-  const [title, setTitle] = useState('');
-  const [notes, setNotes] = useState('');
-  const [startsAt, setStartsAt] = useState(new Date().toISOString());
-  const [endsAt, setEndsAt] = useState(
-    new Date(Date.now() + 60 * 60 * 1000).toISOString(),
-  );
-  const [colorKey, setColorKey] = useState(snapshot.settings.eventColorKey);
-
   const agendaGroups = useMemo(() => getAgendaGroups(snapshot), [snapshot]);
   const dayEvents = getEventsForDate(snapshot, selectedDate);
   const viewMode = snapshot.settings.calendarDefaultView;
 
   function handleCalendarViewChange(next: 'month' | 'agenda') {
     updateSettings({ calendarDefaultView: next }).catch(() => undefined);
-  }
-
-  function handleSubmitPress() {
-    submit().catch(() => undefined);
-  }
-
-  async function submit() {
-    if (!title.trim()) {
-      Alert.alert('Invalid event', 'Title is required.');
-      return;
-    }
-
-    if (new Date(endsAt).getTime() <= new Date(startsAt).getTime()) {
-      Alert.alert(
-        'Invalid time range',
-        'End time must be after the start time.',
-      );
-      return;
-    }
-
-    await addEvent({
-      title: title.trim(),
-      startsAt,
-      endsAt,
-      colorKey,
-      notes: notes.trim() || undefined,
-    });
-
-    setTitle('');
-    setNotes('');
-    setComposerVisible(false);
   }
 
   return (
@@ -232,68 +187,22 @@ function CalendarScreenContent({
         theme={theme}
         visible={composerVisible}
         title="Add event"
+        closeLabel="Close"
         onClose={() => setComposerVisible(false)}
       >
-        <Field
+        <CalendarComposer
           theme={theme}
-          label="Title"
-          value={title}
-          onChangeText={setTitle}
-          placeholder="Dinner with parents"
+          snapshot={snapshot}
+          onAddEvent={addEvent}
+          onDone={() => setComposerVisible(false)}
         />
-        <DateField
-          theme={theme}
-          label="Start date"
-          value={startsAt}
-          weekStartsOn={snapshot.settings.weekStartsOn}
-          onChange={next => {
-            setStartsAt(next);
-            setEndsAt(
-              new Date(new Date(next).getTime() + 60 * 60 * 1000).toISOString(),
-            );
-          }}
-        />
-        <TimeField
-          theme={theme}
-          label="Start time"
-          value={startsAt}
-          dateIso={isoDate(startsAt)}
-          onChange={setStartsAt}
-        />
-        <DateField
-          theme={theme}
-          label="End date"
-          value={endsAt}
-          weekStartsOn={snapshot.settings.weekStartsOn}
-          onChange={setEndsAt}
-        />
-        <TimeField
-          theme={theme}
-          label="End time"
-          value={endsAt}
-          dateIso={isoDate(endsAt)}
-          onChange={setEndsAt}
-        />
-        <EventColorField
-          theme={theme}
-          value={colorKey}
-          onChange={setColorKey}
-        />
-        <Field
-          theme={theme}
-          label="Notes"
-          value={notes}
-          onChangeText={setNotes}
-          placeholder="Optional reminder context"
-          multiline
-        />
-        <Button theme={theme} label="Save event" onPress={handleSubmitPress} />
       </ModalSheet>
 
       <ModalSheet
         theme={theme}
         visible={Boolean(selectedEvent)}
         title="Event details"
+        closeLabel="Close"
         onClose={() => setSelectedEvent(null)}
       >
         {selectedEvent ? (
