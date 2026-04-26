@@ -17,7 +17,7 @@ import { CalendarScreen } from '../features/calendar/CalendarScreen';
 import { ExpensesScreen } from '../features/expenses/ExpensesScreen';
 import { HomeScreen } from '../features/home/HomeScreen';
 import { NotesScreen } from '../features/notes/NotesScreen';
-import { SettingsScreen } from '../screens/SettingsScreen';
+import { SettingsScreen } from '../features/settings/SettingsScreen';
 import { SplashScreen } from '../screens/SplashScreen';
 import { TasksScreen } from '../features/tasks/TasksScreen';
 import { AppTabBar, Avatar, Button } from '../ui/primitives';
