@@ -7,6 +7,7 @@ import { useDateTimeFormatter } from '../../shared/format/dateTime';
 import { ModalSheet } from '../../shared/ui/ModalSheet';
 import { CalendarViewMode, EventColorKey } from '../../store/models';
 import { getCalendarMonthMatrix } from '../../store/selectors';
+import { useTranslation } from '../../i18n';
 
 function combineDateTime(dateIso: string, hour: number, minute: number) {
   const date = new Date(`${dateIso}T00:00:00`);
@@ -38,6 +39,7 @@ export function DateField({
   const styles = createStyles(theme);
   const [visible, setVisible] = useState(false);
   const { formatMonthYear, formatShortDate } = useDateTimeFormatter();
+  const { t } = useTranslation();
   const [visibleMonth, setVisibleMonth] = useState(new Date(value));
 
   const cells = useMemo(
@@ -59,13 +61,13 @@ export function DateField({
         theme={theme}
         visible={visible}
         title={label}
-        closeLabel="Close"
+        closeLabel={t('common.actions.close')}
         onClose={() => setVisible(false)}
       >
         <View style={styles.monthHeader}>
           <Button
             theme={theme}
-            label="Previous"
+            label={t('common.calendar.previous')}
             kind="secondary"
             onPress={() =>
               setVisibleMonth(
@@ -77,7 +79,7 @@ export function DateField({
           <Text style={styles.monthLabel}>{formatMonthYear(visibleMonth)}</Text>
           <Button
             theme={theme}
-            label="Next"
+            label={t('common.calendar.next')}
             kind="secondary"
             onPress={() =>
               setVisibleMonth(
@@ -90,11 +92,27 @@ export function DateField({
 
         <View style={styles.weekHeader}>
           {(weekStartsOn === 'monday'
-            ? ['M', 'T', 'W', 'T', 'F', 'S', 'S']
-            : ['S', 'M', 'T', 'W', 'T', 'F', 'S']
+            ? [
+                'calendar.weekdays.narrow.monday',
+                'calendar.weekdays.narrow.tuesday',
+                'calendar.weekdays.narrow.wednesday',
+                'calendar.weekdays.narrow.thursday',
+                'calendar.weekdays.narrow.friday',
+                'calendar.weekdays.narrow.saturday',
+                'calendar.weekdays.narrow.sunday',
+              ]
+            : [
+                'calendar.weekdays.narrow.sunday',
+                'calendar.weekdays.narrow.monday',
+                'calendar.weekdays.narrow.tuesday',
+                'calendar.weekdays.narrow.wednesday',
+                'calendar.weekdays.narrow.thursday',
+                'calendar.weekdays.narrow.friday',
+                'calendar.weekdays.narrow.saturday',
+              ]
           ).map(labelValue => (
             <Text key={labelValue} style={styles.weekLabel}>
-              {labelValue}
+              {t(labelValue)}
             </Text>
           ))}
         </View>
@@ -155,6 +173,7 @@ export function TimeField({
   const styles = createStyles(theme);
   const [visible, setVisible] = useState(false);
   const { formatTime } = useDateTimeFormatter();
+  const { t } = useTranslation();
   const parsed = parseTimeValue(value);
   const [hour, setHour] = useState(String(parsed.hour).padStart(2, '0'));
   const [minute, setMinute] = useState(String(parsed.minute).padStart(2, '0'));
@@ -170,28 +189,28 @@ export function TimeField({
         theme={theme}
         visible={visible}
         title={label}
-        closeLabel="Close"
+        closeLabel={t('common.actions.close')}
         onClose={() => setVisible(false)}
       >
         <Field
           theme={theme}
-          label="Hour"
+          label={t('calendar.fields.hour')}
           value={hour}
           onChangeText={setHour}
           keyboardType="numeric"
-          helper="Use 00-23"
+          helper={t('calendar.helpers.hour')}
         />
         <Field
           theme={theme}
-          label="Minute"
+          label={t('calendar.fields.minute')}
           value={minute}
           onChangeText={setMinute}
           keyboardType="numeric"
-          helper="Use 00, 15, 30, or 45 for sane scheduling."
+          helper={t('calendar.helpers.minute')}
         />
         <Button
           theme={theme}
-          label="Apply time"
+          label={t('calendar.actions.applyTime')}
           onPress={() => {
             const next = combineDateTime(dateIso, Number(hour), Number(minute));
             onChange(next);
@@ -213,12 +232,15 @@ export function EventColorField({
   onChange: (next: EventColorKey) => void;
 }) {
   const [visible, setVisible] = useState(false);
+  const { t } = useTranslation();
 
   return (
     <>
       <Button
         theme={theme}
-        label={`Event color: ${value}`}
+        label={t('calendar.fields.eventColorValue', {
+          value: t(`calendar.eventColors.${value}`),
+        })}
         kind="secondary"
         onPress={() => setVisible(true)}
       />
@@ -226,8 +248,8 @@ export function EventColorField({
       <ModalSheet
         theme={theme}
         visible={visible}
-        title="Choose event color"
-        closeLabel="Close"
+        title={t('calendar.fields.chooseEventColor')}
+        closeLabel={t('common.actions.close')}
         onClose={() => setVisible(false)}
       >
         {(['blue', 'pink', 'green', 'amber', 'red'] as EventColorKey[]).map(
@@ -258,12 +280,13 @@ export function CalendarViewField({
   value: CalendarViewMode;
   onChange: (next: CalendarViewMode) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <SegmentedControl
       theme={theme}
       items={[
-        { key: 'month', label: 'Month' },
-        { key: 'agenda', label: 'Agenda' },
+        { key: 'month', label: t('calendar.views.month') },
+        { key: 'agenda', label: t('calendar.views.agenda') },
       ]}
       selected={value}
       onSelect={onChange}
@@ -325,6 +348,7 @@ function ColorSwatch({
   onPress: () => void;
 }) {
   const styles = createStyles(theme);
+  const { t } = useTranslation();
 
   return (
     <Pressable
@@ -337,7 +361,9 @@ function ColorSwatch({
           { backgroundColor: theme.eventColors[colorKey] },
         ]}
       />
-      <Text style={styles.swatchText}>{colorKey}</Text>
+      <Text style={styles.swatchText}>
+        {t(`calendar.eventColors.${colorKey}`)}
+      </Text>
     </Pressable>
   );
 }

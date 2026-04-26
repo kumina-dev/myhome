@@ -6,6 +6,7 @@ import { Field } from '../../shared/ui/Field';
 import { AddEventInput, AppSnapshot } from '../../store/models';
 import { isoDate } from '../../store/selectors';
 import { DateField, EventColorField, TimeField } from './CalendarControls';
+import { useTranslation } from '../../i18n';
 
 export function CalendarComposer({
   theme,
@@ -18,6 +19,7 @@ export function CalendarComposer({
   onAddEvent: (input: AddEventInput) => Promise<void>;
   onDone: () => void;
 }) {
+  const { t } = useTranslation();
   const [title, setTitle] = useState('');
   const [notes, setNotes] = useState('');
   const [startsAt, setStartsAt] = useState(new Date().toISOString());
@@ -57,14 +59,14 @@ export function CalendarComposer({
     <>
       <Field
         theme={theme}
-        label="Title"
+        label={t('calendar.fields.title')}
         value={title}
         onChangeText={setTitle}
-        placeholder="Dinner with parents"
+        placeholder={t('calendar.placeholders.title')}
       />
       <DateField
         theme={theme}
-        label="Start date"
+        label={t('calendar.fields.startDate')}
         value={startsAt}
         weekStartsOn={snapshot.settings.weekStartsOn}
         onChange={next => {
@@ -76,21 +78,21 @@ export function CalendarComposer({
       />
       <TimeField
         theme={theme}
-        label="Start time"
+        label={t('calendar.fields.startTime')}
         value={startsAt}
         dateIso={isoDate(startsAt)}
         onChange={setStartsAt}
       />
       <DateField
         theme={theme}
-        label="End date"
+        label={t('calendar.fields.endDate')}
         value={endsAt}
         weekStartsOn={snapshot.settings.weekStartsOn}
         onChange={setEndsAt}
       />
       <TimeField
         theme={theme}
-        label="End time"
+        label={t('calendar.fields.endTime')}
         value={endsAt}
         dateIso={isoDate(endsAt)}
         onChange={setEndsAt}
@@ -98,7 +100,7 @@ export function CalendarComposer({
       <EventColorField theme={theme} value={colorKey} onChange={setColorKey} />
       <Field
         theme={theme}
-        label="Notes"
+        label={t('calendar.fields.notes')}
         value={notes}
         onChangeText={setNotes}
         placeholder="Optional reminder context"
@@ -106,7 +108,7 @@ export function CalendarComposer({
       />
       <Button
         theme={theme}
-        label="Save event"
+        label={t('calendar.actions.saveEvent')}
         onPress={() => submit().catch(() => undefined)}
       />
     </>

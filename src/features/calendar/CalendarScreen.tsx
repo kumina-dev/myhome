@@ -20,6 +20,7 @@ import { CalendarComposer } from './CalendarComposer';
 import { CalendarMonthView } from './CalendarMonthView';
 import { CalendarViewField } from './CalendarControls';
 import { EventDetailCard } from './EventDetailCard';
+import { useTranslation } from '../../i18n';
 
 export function CalendarScreen({ theme }: { theme: Theme }) {
   const { snapshot, addEvent, updateSettings } = useAppStore();
@@ -48,6 +49,7 @@ function CalendarScreenContent({
   updateSettings: ReturnType<typeof useAppStore>['updateSettings'];
 }) {
   const styles = createStyles(theme);
+  const { t } = useTranslation();
   const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().slice(0, 10),
   );
@@ -69,12 +71,12 @@ function CalendarScreenContent({
     <Screen theme={theme}>
       <Section
         theme={theme}
-        title="Shared calendar"
-        subtitle="Month view for context, agenda for clarity, and no one has to reverse-engineer date strings."
+        title={t('calendar.screen.title')}
+        subtitle={t('calendar.screen.subtitle')}
         action={
           <Button
             theme={theme}
-            label="Add event"
+            label={t('calendar.actions.addEvent')}
             onPress={() => setComposerVisible(true)}
           />
         }
@@ -86,19 +88,21 @@ function CalendarScreenContent({
             onChange={handleCalendarViewChange}
           />
           <Text style={styles.helperText}>
-            Current group: {getCurrentGroup(snapshot).groupName}
+            {t('calendar.screen.currentGroup', {
+              groupName: getCurrentGroup(snapshot).groupName,
+            })}
           </Text>
         </Card>
       </Section>
 
-      <Section theme={theme} title="Calendar">
+      <Section theme={theme} title={t('navigation.calendar')}>
         {viewMode === 'month' ? (
           <>
             <Card theme={theme}>
               <View style={styles.monthNav}>
                 <Button
                   theme={theme}
-                  label="Previous"
+                  label={t('common.calendar.previous')}
                   kind="secondary"
                   onPress={() =>
                     setVisibleMonth(
@@ -113,7 +117,7 @@ function CalendarScreenContent({
                 />
                 <Button
                   theme={theme}
-                  label="Today"
+                  label={t('common.calendar.today')}
                   kind="secondary"
                   onPress={() => {
                     setVisibleMonth(new Date());
@@ -122,7 +126,7 @@ function CalendarScreenContent({
                 />
                 <Button
                   theme={theme}
-                  label="Next"
+                  label={t('common.calendar.next')}
                   kind="secondary"
                   onPress={() =>
                     setVisibleMonth(
@@ -144,7 +148,10 @@ function CalendarScreenContent({
               selectedDate={selectedDate}
               onSelectDate={setSelectedDate}
             />
-            <Section theme={theme} title={`Events on ${selectedDate}`}>
+            <Section
+              theme={theme}
+              title={t('calendar.screen.eventsOn', { date: selectedDate })}
+            >
               {dayEvents.length ? (
                 dayEvents.map(event => (
                   <Card key={event.id} theme={theme}>
@@ -154,7 +161,7 @@ function CalendarScreenContent({
                     </Text>
                     <Button
                       theme={theme}
-                      label="View details"
+                      label={t('calendar.actions.viewDetails')}
                       kind="secondary"
                       onPress={() => setSelectedEvent(event)}
                     />
@@ -163,8 +170,8 @@ function CalendarScreenContent({
               ) : (
                 <EmptyState
                   theme={theme}
-                  title="Nothing scheduled"
-                  body="Select a day or add an event to start building a usable shared calendar."
+                  title={t('calendar.empty.dayTitle')}
+                  body={t('calendar.empty.dayBody')}
                 />
               )}
             </Section>
@@ -178,8 +185,8 @@ function CalendarScreenContent({
         ) : (
           <EmptyState
             theme={theme}
-            title="Agenda is empty"
-            body="Add the first event and the agenda view will start doing actual work."
+            title={t('calendar.empty.agendaTitle')}
+            body={t('calendar.empty.agendaBody')}
           />
         )}
       </Section>
@@ -187,8 +194,8 @@ function CalendarScreenContent({
       <ModalSheet
         theme={theme}
         visible={composerVisible}
-        title="Add event"
-        closeLabel="Close"
+        title={t('calendar.actions.addEvent')}
+        closeLabel={t('common.actions.close')}
         onClose={() => setComposerVisible(false)}
       >
         <CalendarComposer
@@ -202,8 +209,8 @@ function CalendarScreenContent({
       <ModalSheet
         theme={theme}
         visible={Boolean(selectedEvent)}
-        title="Event details"
-        closeLabel="Close"
+        title={t('calendar.eventDetails.title')}
+        closeLabel={t('common.actions.close')}
         onClose={() => setSelectedEvent(null)}
       >
         {selectedEvent ? (

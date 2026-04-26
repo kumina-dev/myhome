@@ -23,9 +23,11 @@ import { SplashScreen } from '../screens/SplashScreen';
 import { TasksScreen } from '../features/tasks/TasksScreen';
 import { Button } from '../shared/ui/Button';
 import { appTabs } from './appTabs';
+import { useTranslation } from '../i18n';
 
 export function AppChrome() {
   const { phase, snapshot, lockApp, loading } = useAppStore();
+  const { t } = useTranslation();
   const colorScheme = useColorScheme();
   const mode =
     snapshot?.settings.themeMode === 'system'
@@ -71,10 +73,10 @@ export function AppChrome() {
         <View style={styles.header}>
           <View style={styles.headerText}>
             <Text style={styles.title}>
-              {snapshot ? getCurrentGroup(snapshot).groupName : 'Group'}
+              {snapshot ? getCurrentGroup(snapshot).groupName : t('app.fallbackGroupName')}
             </Text>
             <Text style={styles.subtitle}>
-              Shared planning for a small trusted group
+              {t('app.headerSubtitle')}
             </Text>
           </View>
           <View style={styles.headerActions}>
@@ -87,7 +89,7 @@ export function AppChrome() {
             ) : null}
             <Button
               theme={theme}
-              label="Lock"
+              label={t('app.lock')}
               kind="secondary"
               onPress={() => {
                 lockApp().catch(() => undefined);
@@ -99,6 +101,7 @@ export function AppChrome() {
         <AppTabBar
           theme={theme}
           tabs={appTabs}
+          translate={t}
           activeTab={activeTab}
           onSelect={setActiveTab}
         />
@@ -218,11 +221,13 @@ function Avatar({
 function AppTabBar({
   theme,
   tabs,
+  translate,
   activeTab,
   onSelect,
 }: {
   theme: ReturnType<typeof getTheme>;
-  tabs: { key: AppTab; label: string }[];
+  tabs: typeof appTabs;
+  translate: ReturnType<typeof useTranslation>['t'];
   activeTab: AppTab;
   onSelect: (key: AppTab) => void;
 }) {
@@ -240,7 +245,7 @@ function AppTabBar({
             style={styles.tabItem}
           >
             <Text style={selected ? styles.tabLabelSelected : styles.tabLabel}>
-              {tab.label}
+              {translate(tab.labelKey)}
             </Text>
           </Pressable>
         );

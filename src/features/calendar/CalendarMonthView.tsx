@@ -6,13 +6,8 @@ import {
   getCalendarMonthMatrix,
   getEventsForDate,
 } from '../../store/selectors';
-
-function monthHeading(value: Date) {
-  return new Intl.DateTimeFormat('fi-FI', {
-    month: 'long',
-    year: 'numeric',
-  }).format(value);
-}
+import { useDateTimeFormatter } from '../../shared/format/dateTime';
+import { useTranslation } from '../../i18n';
 
 export function CalendarMonthView({
   theme,
@@ -28,6 +23,8 @@ export function CalendarMonthView({
   onSelectDate: (next: string) => void;
 }) {
   const styles = createStyles(theme);
+  const { formatMonthYear } = useDateTimeFormatter();
+  const { t } = useTranslation();
   const cells = getCalendarMonthMatrix(
     visibleMonth,
     snapshot.settings.weekStartsOn,
@@ -36,14 +33,30 @@ export function CalendarMonthView({
 
   return (
     <View style={styles.monthCard}>
-      <Text style={styles.monthTitle}>{monthHeading(visibleMonth)}</Text>
+      <Text style={styles.monthTitle}>{formatMonthYear(visibleMonth)}</Text>
       <View style={styles.weekHeader}>
         {(snapshot.settings.weekStartsOn === 'monday'
-          ? ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
-          : ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
+          ? [
+              'calendar.weekdays.short.monday',
+              'calendar.weekdays.short.tuesday',
+              'calendar.weekdays.short.wednesday',
+              'calendar.weekdays.short.thursday',
+              'calendar.weekdays.short.friday',
+              'calendar.weekdays.short.saturday',
+              'calendar.weekdays.short.sunday',
+            ]
+          : [
+              'calendar.weekdays.short.sunday',
+              'calendar.weekdays.short.monday',
+              'calendar.weekdays.short.tuesday',
+              'calendar.weekdays.short.wednesday',
+              'calendar.weekdays.short.thursday',
+              'calendar.weekdays.short.friday',
+              'calendar.weekdays.short.saturday',
+            ]
         ).map(value => (
           <Text key={value} style={styles.weekLabel}>
-            {value}
+            {t(value)}
           </Text>
         ))}
       </View>
