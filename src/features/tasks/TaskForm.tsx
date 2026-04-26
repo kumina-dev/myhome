@@ -11,7 +11,7 @@ import {
   TaskScope,
   UserProfile,
 } from '../../store/models';
-import { DateField } from '../../ui/pickers';
+import { TaskDateField } from './TaskDateField';
 
 interface ActiveGroupProfile {
   member: GroupMember;
@@ -99,7 +99,7 @@ export function TaskForm({
         onChangeText={setPoints}
         keyboardType="numeric"
       />
-      <DateField
+      <TaskDateField
         theme={theme}
         label="Due date"
         value={dueAt}

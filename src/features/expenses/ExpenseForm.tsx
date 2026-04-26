@@ -10,7 +10,7 @@ import {
   GroupMember,
   UserProfile,
 } from '../../store/models';
-import { DateField } from '../../ui/pickers';
+import { ExpenseDateField } from './ExpenseDateField';
 
 interface ActiveGroupProfile {
   member: GroupMember;
@@ -93,7 +93,7 @@ export function ExpenseForm({
         placeholder="84.20"
         keyboardType="numeric"
       />
-      <DateField
+      <ExpenseDateField
         theme={theme}
         label="Purchase date"
         value={purchasedAt}
