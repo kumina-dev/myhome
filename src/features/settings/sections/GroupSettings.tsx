@@ -10,7 +10,6 @@ import {
   Group,
   GroupMember,
   MemberRole,
-  UpdateSettingsInput,
   UserProfile,
 } from '../../../store/models';
 import { ListRow } from '../SettingsRows';
@@ -27,7 +26,7 @@ export function GroupSettings({
   group,
   memberProfiles,
   isOwner,
-  onUpdateSettings,
+  onUpdateGroupName,
   onInviteMember,
   onRevokeInvite,
   onUpdateMemberRole,
@@ -38,7 +37,7 @@ export function GroupSettings({
   group: Group;
   memberProfiles: ActiveGroupProfile[];
   isOwner: boolean;
-  onUpdateSettings: (input: UpdateSettingsInput) => Promise<void>;
+  onUpdateGroupName: (value: string) => Promise<void>;
   onInviteMember: (email: string, profileNameHint: string) => Promise<void>;
   onRevokeInvite: (inviteId: string) => Promise<void>;
   onUpdateMemberRole: (memberId: string, role: MemberRole) => Promise<void>;
@@ -66,9 +65,9 @@ export function GroupSettings({
           <Field
             theme={theme}
             label={t('settings.group.groupName')}
-            value={snapshot.settings.groupName}
+            value={group.groupName}
             onChangeText={value => {
-              onUpdateSettings({ groupName: value }).catch(() => undefined);
+              onUpdateGroupName(value).catch(() => undefined);
             }}
             helper={t('settings.group.groupNameHelper')}
           />

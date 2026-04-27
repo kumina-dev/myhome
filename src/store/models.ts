@@ -155,7 +155,6 @@ export interface NotificationPreferences {
 }
 
 export interface AppSettings {
-  groupName: string;
   themeMode: ThemeMode;
   defaultTab: AppTab;
   localePreference: LocalePreference;
@@ -258,6 +257,7 @@ export interface AuthRepository {
 }
 
 export interface GroupRepository {
+  updateGroupName(value: string): Promise<AppSnapshot>;
   inviteMember(email: string, profileNameHint: string): Promise<AppSnapshot>;
   revokeInvite(inviteId: string): Promise<AppSnapshot>;
   updateMemberRole(memberId: string, role: MemberRole): Promise<AppSnapshot>;

@@ -183,10 +183,6 @@ class MockApi
         joinedAt: timestamp,
       },
     ];
-    this.snapshot.settings = {
-      ...this.snapshot.settings,
-      groupName: input.groupName.trim(),
-    };
 
     this.finishAuth(user, groupId);
     this.pushNotification(
@@ -251,21 +247,27 @@ class MockApi
       item.id === invite.id ? { ...item, acceptedAt: timestamp } : item,
     );
 
-    const group = this.snapshot.groups.find(item => item.id === invite.groupId);
-
-    if (group) {
-      this.snapshot.settings = {
-        ...this.snapshot.settings,
-        groupName: group.groupName,
-      };
-    }
-
     this.finishAuth(user, invite.groupId);
     this.pushNotification(
       'New member joined',
       `${input.displayName.trim()} joined the group.`,
       'group',
     );
+    return clone(this.snapshot);
+  }
+
+  async updateGroupName(value: string): Promise<AppSnapshot> {
+    const session = this.getSessionOrThrow();
+    const cleaned = value.trim();
+
+    if (!cleaned) {
+      return clone(this.snapshot);
+    }
+
+    this.snapshot.groups = this.snapshot.groups.map(item =>
+      item.id === session.groupId ? { ...item, groupName: cleaned } : item,
+    );
+
     return clone(this.snapshot);
   }
 

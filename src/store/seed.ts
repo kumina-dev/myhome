@@ -268,7 +268,6 @@ export const initialSnapshot: AppSnapshot = (() => {
       },
     ],
     settings: {
-      groupName: 'North Circle',
       themeMode: 'system',
       defaultTab: 'home',
       localePreference: 'system',

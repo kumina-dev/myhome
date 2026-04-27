@@ -30,6 +30,7 @@ export function SettingsScreen({ theme }: { theme: Theme }) {
     updateSettings,
     addExpenseCategory,
     removeExpenseCategory,
+    updateGroupName,
     inviteMember,
     revokeInvite,
     updateMemberRole,
@@ -49,6 +50,7 @@ export function SettingsScreen({ theme }: { theme: Theme }) {
       updateSettings={updateSettings}
       addExpenseCategory={addExpenseCategory}
       removeExpenseCategory={removeExpenseCategory}
+      updateGroupName={updateGroupName}
       inviteMember={inviteMember}
       revokeInvite={revokeInvite}
       updateMemberRole={updateMemberRole}
@@ -67,6 +69,7 @@ function SettingsScreenContent({
   updateSettings,
   addExpenseCategory,
   removeExpenseCategory,
+  updateGroupName,
   inviteMember,
   revokeInvite,
   updateMemberRole,
@@ -83,6 +86,7 @@ function SettingsScreenContent({
   removeExpenseCategory: ReturnType<
     typeof useAppStore
   >['removeExpenseCategory'];
+  updateGroupName: ReturnType<typeof useAppStore>['updateGroupName'];
   inviteMember: ReturnType<typeof useAppStore>['inviteMember'];
   revokeInvite: ReturnType<typeof useAppStore>['revokeInvite'];
   updateMemberRole: ReturnType<typeof useAppStore>['updateMemberRole'];
@@ -130,7 +134,7 @@ function SettingsScreenContent({
           group={group}
           memberProfiles={memberProfiles}
           isOwner={isOwner}
-          onUpdateSettings={updateSettings}
+          onUpdateGroupName={updateGroupName}
           onInviteMember={inviteMember}
           onRevokeInvite={revokeInvite}
           onUpdateMemberRole={updateMemberRole}

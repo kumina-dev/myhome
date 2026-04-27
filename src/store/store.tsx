@@ -54,6 +54,7 @@ interface AppStoreValue {
   addExpenseCategory: (value: string) => Promise<void>;
   removeExpenseCategory: (value: string) => Promise<void>;
   markAllNotificationsRead: () => Promise<void>;
+  updateGroupName: (value: string) => Promise<void>;
   inviteMember: (email: string, profileNameHint: string) => Promise<void>;
   revokeInvite: (inviteId: string) => Promise<void>;
   updateMemberRole: (memberId: string, role: MemberRole) => Promise<void>;
@@ -242,6 +243,9 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
         await run(() =>
           repositoriesRef.current.settingsRepository.markAllNotificationsRead(),
         );
+      },
+      updateGroupName: async groupName => {
+        await run(() => repositoriesRef.current.groupRepository.updateGroupName(groupName));
       },
       inviteMember: async (email, profileNameHint) => {
         await run(() =>
