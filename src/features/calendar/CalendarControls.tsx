@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Theme } from '../../shared/theme/theme';
 import { Button } from '../../shared/ui/Button';
 import { Field } from '../../shared/ui/Field';
@@ -9,11 +9,14 @@ import { CalendarViewMode, EventColorKey } from '../../store/models';
 import { getCalendarMonthMatrix } from '../../store/selectors';
 import { TranslationKey, useTranslation } from '../../i18n';
 import { SegmentedControl } from '../../shared/ui/SegmentedControl';
+import {
+  combineDateAndTime,
+  parseHour,
+  parseMinute,
+} from '../../shared/validation/forms';
 
 function combineDateTime(dateIso: string, hour: number, minute: number) {
-  const date = new Date(`${dateIso}T00:00:00`);
-  date.setHours(hour, minute, 0, 0);
-  return date.toISOString();
+  return combineDateAndTime(dateIso, hour, minute) ?? new Date().toISOString();
 }
 
 function parseTimeValue(value: string) {
@@ -213,7 +216,27 @@ export function TimeField({
           theme={theme}
           label={t('calendar.actions.applyTime')}
           onPress={() => {
-            const next = combineDateTime(dateIso, Number(hour), Number(minute));
+            const parsedHour = parseHour(hour);
+            const parsedMinute = parseMinute(minute);
+
+            if (parsedHour === null || parsedMinute === null) {
+              Alert.alert(
+                t('validation.invalidTimeTitle'),
+                t('validation.invalidTimeBody'),
+              );
+              return;
+            }
+
+            const next = combineDateAndTime(dateIso, parsedHour, parsedMinute);
+
+            if (!next) {
+              Alert.alert(
+                t('validation.invalidTimeTitle'),
+                t('validation.invalidTimeBody'),
+              );
+              return;
+            }
+
             onChange(next);
             setVisible(false);
           }}

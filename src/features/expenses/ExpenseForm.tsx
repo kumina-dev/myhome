@@ -13,6 +13,11 @@ import {
 import { ExpenseDateField } from './ExpenseDateField';
 import { useTranslation } from '../../i18n';
 import { SegmentedControl } from '../../shared/ui/SegmentedControl';
+import {
+  normalizeOptionalText,
+  normalizeRequiredText,
+  parseMoneyToCents,
+} from '../../shared/validation/forms';
 
 interface ActiveGroupProfile {
   member: GroupMember;
@@ -53,9 +58,11 @@ export function ExpenseForm({
   );
 
   async function submit() {
-    const amountNumber = Number(amount.replace(',', '.'));
+    const cleanedTitle = normalizeRequiredText(title);
+    const amountCents = parseMoneyToCents(amount);
+    const cleanedNotes = normalizeOptionalText(notes);
 
-    if (!title.trim() || Number.isNaN(amountNumber) || amountNumber <= 0) {
+    if (!cleanedTitle || amountCents === null) {
       Alert.alert(
         t('expenses.validation.invalidTitle'),
         t('expenses.validation.invalidBody'),
@@ -65,11 +72,11 @@ export function ExpenseForm({
 
     await onAddExpense({
       buyerUserId: buyerUserId ?? snapshot.sessionState.session?.userId ?? '',
-      title: title.trim(),
-      amountCents: Math.round(amountNumber * 100),
+      title: cleanedTitle,
+      amountCents,
       purchasedAt,
       category,
-      notes: notes.trim() || undefined,
+      notes: cleanedNotes,
     });
 
     setTitle('');

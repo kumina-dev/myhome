@@ -8,6 +8,10 @@ import { Kicker } from '../SettingsRows';
 import { SegmentedControl } from '../../../shared/ui/SegmentedControl';
 import { ToggleRow } from '../../../shared/ui/ToggleRow';
 import { useTranslation } from '../../../i18n';
+import {
+  isValidPin,
+  normalizePinInput,
+} from '../../../shared/validation/forms';
 
 export function SecuritySettings({
   theme,
@@ -19,7 +23,7 @@ export function SecuritySettings({
   onUpdateAppLockSettings: (input: Partial<AppLockSettings>) => Promise<void>;
 }) {
   const { t } = useTranslation();
-  
+
   return (
     <Section theme={theme} title={t('settings.tabs.security')}>
       <Card theme={theme}>
@@ -46,8 +50,10 @@ export function SecuritySettings({
           label={t('settings.security.appPin')}
           value={snapshot.appLockSettings.pin}
           onChangeText={value => {
-            if (value.length <= 6) {
-              onUpdateAppLockSettings({ pin: value }).catch(() => undefined);
+            const pin = normalizePinInput(value);
+
+            if (isValidPin(pin)) {
+              onUpdateAppLockSettings({ pin }).catch(() => undefined);
             }
           }}
           keyboardType="numeric"

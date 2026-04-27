@@ -14,6 +14,11 @@ import {
 } from '../../../store/models';
 import { ListRow } from '../SettingsRows';
 import { useTranslation } from '../../../i18n';
+import {
+  normalizeEmail,
+  normalizeOptionalText,
+  normalizeRequiredText,
+} from '../../../shared/validation/forms';
 
 interface ActiveGroupProfile {
   member: GroupMember;
@@ -67,7 +72,11 @@ export function GroupSettings({
             label={t('settings.group.groupName')}
             value={group.groupName}
             onChangeText={value => {
-              onUpdateGroupName(value).catch(() => undefined);
+              const cleaned = normalizeRequiredText(value);
+
+              if (cleaned) {
+                onUpdateGroupName(cleaned).catch(() => undefined);
+              }
             }}
             helper={t('settings.group.groupNameHelper')}
           />
@@ -110,9 +119,14 @@ export function GroupSettings({
                       onPress={() => {
                         Alert.alert(
                           t('settings.group.removeMemberTitle'),
-                          t('settings.group.removeMemberBody', { name: item.profile.displayName }),
+                          t('settings.group.removeMemberBody', {
+                            name: item.profile.displayName,
+                          }),
                           [
-                            { text: t('common.actions.cancel'), style: 'cancel' },
+                            {
+                              text: t('common.actions.cancel'),
+                              style: 'cancel',
+                            },
                             {
                               text: t('common.actions.remove'),
                               style: 'destructive',
@@ -156,9 +170,20 @@ export function GroupSettings({
                 theme={theme}
                 label={t('settings.group.createInvite')}
                 onPress={() => {
-                  onInviteMember(inviteEmail, inviteName).catch(
-                    () => undefined,
-                  );
+                  const cleanedEmail = normalizeEmail(inviteEmail);
+
+                  if (!cleanedEmail) {
+                    Alert.alert(
+                      t('auth.errors.failed'),
+                      t('validation.invalidEmail'),
+                    );
+                    return;
+                  }
+
+                  onInviteMember(
+                    cleanedEmail,
+                    normalizeOptionalText(inviteName) ?? '',
+                  ).catch(() => undefined);
                   setInviteEmail('');
                   setInviteName('');
                 }}
@@ -170,9 +195,13 @@ export function GroupSettings({
             {pendingInvites.map(invite => (
               <Card key={invite.id} theme={theme}>
                 <Text style={styles.title}>{invite.email}</Text>
-                <Text style={styles.meta}>{t('settings.group.code', { code: invite.code })}</Text>
                 <Text style={styles.meta}>
-                  {t('settings.group.hint', { hint: invite.profileNameHint ?? t('settings.group.noHint') })}
+                  {t('settings.group.code', { code: invite.code })}
+                </Text>
+                <Text style={styles.meta}>
+                  {t('settings.group.hint', {
+                    hint: invite.profileNameHint ?? t('settings.group.noHint'),
+                  })}
                 </Text>
                 <Button
                   theme={theme}

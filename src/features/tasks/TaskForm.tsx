@@ -14,6 +14,10 @@ import {
 import { TaskDateField } from './TaskDateField';
 import { useTranslation } from '../../i18n';
 import { SegmentedControl } from '../../shared/ui/SegmentedControl';
+import {
+  normalizeRequiredText,
+  parsePositiveInteger,
+} from '../../shared/validation/forms';
 
 interface ActiveGroupProfile {
   member: GroupMember;
@@ -50,9 +54,10 @@ export function TaskForm({
   );
 
   async function submit() {
-    const numericPoints = Number(points);
+    const cleanedTitle = normalizeRequiredText(title);
+    const numericPoints = parsePositiveInteger(points);
 
-    if (!title.trim() || Number.isNaN(numericPoints) || numericPoints <= 0) {
+    if (!cleanedTitle || numericPoints === null) {
       Alert.alert(
         t('tasks.validation.invalidTitle'),
         t('tasks.validation.invalidBody'),
@@ -61,7 +66,7 @@ export function TaskForm({
     }
 
     await onAddTask({
-      title: title.trim(),
+      title: cleanedTitle,
       scope,
       assigneeUserId: scope === 'personal' ? assigneeUserId : undefined,
       points: numericPoints,

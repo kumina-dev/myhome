@@ -7,6 +7,10 @@ import { AddEventInput, AppSnapshot } from '../../store/models';
 import { isoDate } from '../../store/selectors';
 import { DateField, EventColorField, TimeField } from './CalendarControls';
 import { useTranslation } from '../../i18n';
+import {
+  normalizeOptionalText,
+  normalizeRequiredText,
+} from '../../shared/validation/forms';
 
 export function CalendarComposer({
   theme,
@@ -29,25 +33,31 @@ export function CalendarComposer({
   const [colorKey, setColorKey] = useState(snapshot.settings.eventColorKey);
 
   async function submit() {
-    if (!title.trim()) {
-      Alert.alert('Invalid event', 'Title is required.');
+    const cleanedTitle = normalizeRequiredText(title);
+    const cleanedNotes = normalizeOptionalText(notes);
+
+    if (!cleanedTitle) {
+      Alert.alert(
+        t('calendar.validation.invalidEvent'),
+        t('validation.requiredText'),
+      );
       return;
     }
 
     if (new Date(endsAt).getTime() <= new Date(startsAt).getTime()) {
       Alert.alert(
-        'Invalid time range',
-        'End time must be after the start time.',
+        t('calendar.validation.invalidTimeRange'),
+        t('calendar.validation.endAfterStart'),
       );
       return;
     }
 
     await onAddEvent({
-      title: title.trim(),
+      title: cleanedTitle,
       startsAt,
       endsAt,
       colorKey,
-      notes: notes.trim() || undefined,
+      notes: cleanedNotes,
     });
 
     setTitle('');
@@ -103,7 +113,7 @@ export function CalendarComposer({
         label={t('calendar.fields.notes')}
         value={notes}
         onChangeText={setNotes}
-        placeholder="Optional reminder context"
+        placeholder={t('calendar.placeholders.notes')}
         multiline
       />
       <Button

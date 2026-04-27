@@ -268,8 +268,19 @@ export const en = {
   },
   validation: {
     unexpectedError: 'Unexpected error.',
+    requiredText: 'This field is required.',
+    invalidEmail: 'Enter a valid email address.',
+    invalidCurrencyCode: 'Use a three-letter currency code.',
+    invalidPin: 'PIN must be 4-6 digits.',
+    invalidTimeTitle: 'Invalid time',
+    invalidTimeBody: 'Use a valid 24-hour time.',
   },
   calendar: {
+    validation: {
+      invalidEvent: 'Invalid event',
+      invalidTimeRange: 'Invalid time range',
+      endAfterStart: 'End time must be after the start time.',
+    },
     screen: {
       title: 'Shared calendar',
       subtitle:
@@ -349,7 +360,7 @@ export const en = {
       full: {
         monday: 'Monday',
         sunday: 'Sunday',
-      }
+      },
     },
   },
 } as const;
@@ -357,7 +368,7 @@ export const en = {
 type WidenTranslationLeaves<T> = T extends string
   ? TranslationLeaf
   : {
-    readonly [K in keyof T]: WidenTranslationLeaves<T[K]>;
-  };
+      readonly [K in keyof T]: WidenTranslationLeaves<T[K]>;
+    };
 
 export type TranslationShape = WidenTranslationLeaves<typeof en>;

@@ -1,16 +1,21 @@
-import React, { useState } from "react";
-import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
-import { useTranslation } from "../../i18n";
+import React, { useState } from 'react';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from '../../i18n';
 import {
   AcceptInviteInput,
   AuthFlowMode,
   CreateGroupInput,
   SignInInput,
-} from "../../store/models";
-import { Theme } from "../../shared/theme/theme";
-import { Button } from "../../shared/ui/Button";
-import { Field } from "../../shared/ui/Field";
-import { authOptions } from "./authOptions";
+} from '../../store/models';
+import { Theme } from '../../shared/theme/theme';
+import { Button } from '../../shared/ui/Button';
+import { Field } from '../../shared/ui/Field';
+import { authOptions } from './authOptions';
+import {
+  normalizeEmail,
+  normalizeInviteCode,
+  normalizeRequiredText,
+} from '../../shared/validation/forms';
 
 export function AuthForm({
   theme,
@@ -37,39 +42,58 @@ export function AuthForm({
 
   async function handleSubmit() {
     try {
+      const normalizedEmail = normalizeEmail(email);
+      const cleanedPassword = normalizeRequiredText(password);
+
+      if (!normalizedEmail) {
+        throw new Error(t('validation.invalidEmail'));
+      }
+
+      if (!cleanedPassword) {
+        throw new Error(t('validation.requiredText'));
+      }
+
       if (authMode === 'sign-in') {
-        await onSignIn({ email, password });
+        await onSignIn({ email: normalizedEmail, password: cleanedPassword });
         return;
       }
 
       if (authMode === 'create-group') {
-        if (!groupName.trim() || !displayName.trim()) {
+        const cleanedGroupName = normalizeRequiredText(groupName);
+        const cleanedDisplayName = normalizeRequiredText(displayName);
+
+        if (!cleanedGroupName || !cleanedDisplayName) {
           throw new Error(t('auth.validation.createGroupRequired'));
         }
 
         await onCreateGroup({
-          groupName,
-          displayName,
-          email,
-          password,
+          groupName: cleanedGroupName,
+          displayName: cleanedDisplayName,
+          email: normalizedEmail,
+          password: cleanedPassword,
         });
         return;
       }
 
-      if (!inviteCode.trim() || !displayName.trim()) {
+      const cleanedInviteCode = normalizeInviteCode(inviteCode);
+      const cleanedDisplayName = normalizeRequiredText(displayName);
+
+      if (!cleanedInviteCode || !cleanedDisplayName) {
         throw new Error(t('auth.validation.inviteRequired'));
       }
 
       await onAcceptInvite({
-        code: inviteCode,
-        displayName,
-        email,
-        password,
+        code: cleanedInviteCode,
+        displayName: cleanedDisplayName,
+        email: normalizedEmail,
+        password: cleanedPassword,
       });
     } catch (caught) {
       Alert.alert(
         t('auth.errors.failed'),
-        caught instanceof Error ? caught.message : t('validation.unexpectedError'),
+        caught instanceof Error
+          ? caught.message
+          : t('validation.unexpectedError'),
       );
     }
   }
@@ -149,9 +173,7 @@ export function AuthForm({
         label={t('common.actions.continue')}
         onPress={() => handleSubmit().catch(() => undefined)}
       />
-      <Text style={styles.helper}>
-        {t('auth.helper.seededCredentials')}
-      </Text>
+      <Text style={styles.helper}>{t('auth.helper.seededCredentials')}</Text>
     </>
   );
 }

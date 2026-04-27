@@ -267,8 +267,19 @@ export const fi = {
   },
   validation: {
     unexpectedError: 'Odottamaton virhe.',
+    requiredText: 'Tämä kenttä vaaditaan.',
+    invalidEmail: 'Anna kelvollinen sähköpostiosoite.',
+    invalidCurrencyCode: 'Käytä kolmikirjaimista valuuttakoodia.',
+    invalidPin: 'PIN-koodin pitää olla 4-6 numeroa.',
+    invalidTimeTitle: 'Virheellinen aika',
+    invalidTimeBody: 'Käytä kelvollista 24 tunnin aikaa.',
   },
   calendar: {
+    validation: {
+      invalidEvent: 'Virheellinen tapahtuma',
+      invalidTimeRange: 'Virheellinen aikaväli',
+      endAfterStart: 'Loppuajan pitää olla alkuajan jälkeen.',
+    },
     screen: {
       title: 'Yhteinen kalenteri',
       subtitle:

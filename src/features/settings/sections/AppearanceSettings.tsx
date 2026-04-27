@@ -13,6 +13,7 @@ import {
 import { Kicker } from '../SettingsRows';
 import { SegmentedControl } from '../../../shared/ui/SegmentedControl';
 import { useTranslation } from '../../../i18n';
+import { normalizeCurrencyCode } from '../../../shared/validation/forms';
 
 export function AppearanceSettings({
   theme,
@@ -24,7 +25,7 @@ export function AppearanceSettings({
   onUpdateSettings: (input: UpdateSettingsInput) => Promise<void>;
 }) {
   const { t } = useTranslation();
-  
+
   return (
     <Section theme={theme} title={t('settings.tabs.appearance')}>
       <Card theme={theme}>
@@ -64,11 +65,13 @@ export function AppearanceSettings({
           theme={theme}
           label={t('settings.currencyCode')}
           value={snapshot.settings.currencyCode}
-          onChangeText={value =>
-            onUpdateSettings({
-              currencyCode: value.trim().toUpperCase(),
-            }).catch(() => undefined)
-          }
+          onChangeText={value => {
+            const currencyCode = normalizeCurrencyCode(value);
+
+            if (currencyCode) {
+              onUpdateSettings({ currencyCode }).catch(() => undefined);
+            }
+          }}
           placeholder="EUR"
         />
 

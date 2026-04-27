@@ -8,6 +8,7 @@ import { Screen } from '../../shared/ui/Screen';
 import { Section } from '../../shared/ui/Section';
 import { useAppStore } from '../../store/store';
 import { useTranslation } from '../../i18n';
+import { isValidPin, normalizePinInput } from '../../shared/validation/forms';
 
 export function AppLockScreen({ theme }: { theme: Theme }) {
   const { snapshot, unlockApp, signOut, updateAppLockSettings } = useAppStore();
@@ -27,12 +28,18 @@ export function AppLockScreen({ theme }: { theme: Theme }) {
 
   async function handleUnlock() {
     try {
+      if (!isValidPin(pin)) {
+        throw new Error(t('validation.invalidPin'));
+      }
+
       await unlockApp(pin);
       setPin('');
     } catch (caught) {
       Alert.alert(
         t('appLock.errors.unlockFailed'),
-        caught instanceof Error ? caught.message : t('validation.unexpectedError'),
+        caught instanceof Error
+          ? caught.message
+          : t('validation.unexpectedError'),
       );
     }
   }
@@ -49,7 +56,7 @@ export function AppLockScreen({ theme }: { theme: Theme }) {
             theme={theme}
             label={t('appLock.fields.pin')}
             value={pin}
-            onChangeText={setPin}
+            onChangeText={value => setPin(normalizePinInput(value))}
             keyboardType="numeric"
             secureTextEntry
             helper={t('appLock.helpers.seededPin')}
