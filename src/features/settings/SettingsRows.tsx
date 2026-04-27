@@ -1,9 +1,7 @@
 import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { Theme } from '../../shared/theme/theme';
 import { ProfileColorKey } from '../../store/models';
-
-type ItemKey = string | number;
 
 export function Kicker({
   theme,
@@ -37,71 +35,6 @@ export function ListRow({
         {subtitle ? <Text style={styles.meta}>{subtitle}</Text> : null}
       </View>
       {trailing}
-    </View>
-  );
-}
-
-export function ToggleRow({
-  theme,
-  label,
-  value,
-  onValueChange,
-}: {
-  theme: Theme;
-  label: string;
-  value: boolean;
-  onValueChange: (value: boolean) => void;
-}) {
-  const styles = createStyles(theme);
-
-  return (
-    <Pressable onPress={() => onValueChange(!value)} style={styles.toggleRow}>
-      <Text style={styles.body}>{label}</Text>
-      <View style={value ? styles.toggleTrackOn : styles.toggleTrack}>
-        <View style={value ? styles.toggleThumbOn : styles.toggleThumb} />
-      </View>
-    </Pressable>
-  );
-}
-
-export function SegmentedControl<T extends ItemKey>({
-  theme,
-  items,
-  selected,
-  onSelect,
-}: {
-  theme: Theme;
-  items: { key: T; label: string }[];
-  selected: T;
-  onSelect: (key: T) => void;
-}) {
-  const styles = createStyles(theme);
-
-  return (
-    <View style={styles.segmented}>
-      {items.map(item => {
-        const isSelected = item.key === selected;
-
-        return (
-          <Pressable
-            key={String(item.key)}
-            onPress={() => onSelect(item.key)}
-            style={[
-              styles.segmentBase,
-              isSelected ? styles.segmentSelected : styles.segment,
-            ]}
-          >
-            <Text
-              style={[
-                styles.segmentText,
-                isSelected ? styles.segmentTextSelected : null,
-              ]}
-            >
-              {item.label}
-            </Text>
-          </Pressable>
-        );
-      })}
     </View>
   );
 }
@@ -173,77 +106,6 @@ const createStyles = (theme: Theme) =>
       color: theme.text,
       fontSize: 15,
       fontWeight: '800',
-    },
-    toggleRow: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      paddingVertical: theme.spacing.sm,
-      gap: theme.spacing.md,
-    },
-    toggleTrack: {
-      width: 52,
-      height: 30,
-      borderRadius: theme.radius.full,
-      borderWidth: theme.borders.hairline,
-      borderColor: theme.border,
-      backgroundColor: theme.surfaceMuted,
-      padding: 3,
-      alignItems: 'flex-start',
-    },
-    toggleTrackOn: {
-      width: 52,
-      height: 30,
-      borderRadius: theme.radius.full,
-      borderWidth: theme.borders.hairline,
-      borderColor: theme.accent,
-      backgroundColor: theme.accent,
-      padding: 3,
-      alignItems: 'flex-end',
-    },
-    toggleThumb: {
-      width: 22,
-      height: 22,
-      borderRadius: 11,
-      backgroundColor: theme.textMuted,
-    },
-    toggleThumbOn: {
-      width: 22,
-      height: 22,
-      borderRadius: 11,
-      backgroundColor: theme.inverseText,
-    },
-    segmented: {
-      flexDirection: 'row',
-      backgroundColor: theme.surfaceMuted,
-      borderRadius: theme.radius.lg,
-      padding: theme.spacing.xs,
-      gap: theme.spacing.xs,
-      marginBottom: theme.spacing.sm,
-    },
-    segmentBase: {
-      flex: 1,
-      borderRadius: theme.radius.md,
-      paddingVertical: theme.spacing.md,
-      alignItems: 'center',
-      borderWidth: theme.borders.hairline,
-      borderColor: 'transparent',
-    },
-    segment: {
-      backgroundColor: 'transparent',
-    },
-    segmentSelected: {
-      backgroundColor: theme.surface,
-      borderColor: theme.border,
-    },
-    segmentText: {
-      color: theme.textMuted,
-      fontWeight: '800',
-      textAlign: 'center',
-      fontSize: 13,
-    },
-    segmentTextSelected: {
-      color: theme.text,
     },
     avatar: {
       width: 36,

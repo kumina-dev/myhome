@@ -10,7 +10,8 @@ import {
   ThemeMode,
   UpdateSettingsInput,
 } from '../../../store/models';
-import { Kicker, SegmentedControl } from '../SettingsRows';
+import { Kicker } from '../SettingsRows';
+import { SegmentedControl } from '../../../shared/ui/SegmentedControl';
 import { useTranslation } from '../../../i18n';
 
 export function AppearanceSettings({

@@ -8,6 +8,7 @@ import { ModalSheet } from '../../shared/ui/ModalSheet';
 import { CalendarViewMode, EventColorKey } from '../../store/models';
 import { getCalendarMonthMatrix } from '../../store/selectors';
 import { TranslationKey, useTranslation } from '../../i18n';
+import { SegmentedControl } from '../../shared/ui/SegmentedControl';
 
 function combineDateTime(dateIso: string, hour: number, minute: number) {
   const date = new Date(`${dateIso}T00:00:00`);
@@ -294,48 +295,6 @@ export function CalendarViewField({
   );
 }
 
-function SegmentedControl<T extends string>({
-  theme,
-  items,
-  selected,
-  onSelect,
-}: {
-  theme: Theme;
-  items: { key: T; label: string }[];
-  selected: T;
-  onSelect: (key: T) => void;
-}) {
-  const styles = createStyles(theme);
-
-  return (
-    <View style={styles.segmented}>
-      {items.map(item => {
-        const isSelected = item.key === selected;
-
-        return (
-          <Pressable
-            key={item.key}
-            onPress={() => onSelect(item.key)}
-            style={[
-              styles.segmentBase,
-              isSelected ? styles.segmentSelected : styles.segment,
-            ]}
-          >
-            <Text
-              style={[
-                styles.segmentText,
-                isSelected ? styles.segmentTextSelected : null,
-              ]}
-            >
-              {item.label}
-            </Text>
-          </Pressable>
-        );
-      })}
-    </View>
-  );
-}
-
 function ColorSwatch({
   theme,
   colorKey,
@@ -444,38 +403,6 @@ const createStyles = (theme: Theme) =>
     },
     dayTextSelected: {
       color: theme.inverseText,
-    },
-    segmented: {
-      flexDirection: 'row',
-      backgroundColor: theme.surfaceMuted,
-      borderRadius: theme.radius.lg,
-      padding: theme.spacing.xs,
-      gap: theme.spacing.xs,
-      marginBottom: theme.spacing.sm,
-    },
-    segmentBase: {
-      flex: 1,
-      borderRadius: theme.radius.md,
-      paddingVertical: theme.spacing.md,
-      alignItems: 'center',
-      borderWidth: theme.borders.hairline,
-      borderColor: 'transparent',
-    },
-    segment: {
-      backgroundColor: 'transparent',
-    },
-    segmentSelected: {
-      backgroundColor: theme.surface,
-      borderColor: theme.border,
-    },
-    segmentText: {
-      color: theme.textMuted,
-      fontWeight: '800',
-      textAlign: 'center',
-      fontSize: 13,
-    },
-    segmentTextSelected: {
-      color: theme.text,
     },
     swatchBase: {
       flexDirection: 'row',

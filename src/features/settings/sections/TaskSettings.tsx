@@ -3,7 +3,9 @@ import { Theme } from '../../../shared/theme/theme';
 import { Card } from '../../../shared/ui/Card';
 import { Section } from '../../../shared/ui/Section';
 import { AppSnapshot, UpdateSettingsInput } from '../../../store/models';
-import { Kicker, SegmentedControl, ToggleRow } from '../SettingsRows';
+import { Kicker } from '../SettingsRows';
+import { SegmentedControl } from '../../../shared/ui/SegmentedControl';
+import { ToggleRow } from '../../../shared/ui/ToggleRow';
 import { useTranslation } from '../../../i18n';
 
 export function TaskSettings({

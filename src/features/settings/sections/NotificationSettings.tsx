@@ -3,7 +3,7 @@ import { Theme } from '../../../shared/theme/theme';
 import { Card } from '../../../shared/ui/Card';
 import { Section } from '../../../shared/ui/Section';
 import { AppSnapshot, UpdateSettingsInput } from '../../../store/models';
-import { ToggleRow } from '../SettingsRows';
+import { ToggleRow } from '../../../shared/ui/ToggleRow';
 import { useTranslation } from '../../../i18n';
 
 export function NotificationSettings({
