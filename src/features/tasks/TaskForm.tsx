@@ -12,6 +12,7 @@ import {
   UserProfile,
 } from '../../store/models';
 import { TaskDateField } from './TaskDateField';
+import { useTranslation } from '../../i18n';
 
 interface ActiveGroupProfile {
   member: GroupMember;
@@ -31,6 +32,7 @@ export function TaskForm({
   currentUserId: string;
   onAddTask: (input: AddTaskInput) => Promise<void>;
 }) {
+  const { t } = useTranslation();
   const [title, setTitle] = useState('');
   const [scope, setScope] = useState<TaskScope>('shared');
   const [assigneeUserId, setAssigneeUserId] = useState(currentUserId);
@@ -50,7 +52,7 @@ export function TaskForm({
     const numericPoints = Number(points);
 
     if (!title.trim() || Number.isNaN(numericPoints) || numericPoints <= 0) {
-      Alert.alert('Invalid task', 'Title and positive points are required.');
+      Alert.alert(t('tasks.validation.invalidTitle'), t('tasks.validation.invalidBody'));
       return;
     }
 
@@ -70,16 +72,16 @@ export function TaskForm({
     <Card theme={theme}>
       <Field
         theme={theme}
-        label="Title"
+        label={t('tasks.fields.title')}
         value={title}
         onChangeText={setTitle}
-        placeholder="Take out trash"
+        placeholder={t('tasks.placeholders.title')}
       />
       <SegmentedControl
         theme={theme}
         items={[
-          { key: 'shared', label: 'Shared' },
-          { key: 'personal', label: 'Personal' },
+          { key: 'shared', label: t('tasks.scopes.shared') },
+          { key: 'personal', label: t('tasks.scopes.personal') },
         ]}
         selected={scope}
         onSelect={setScope}
@@ -94,21 +96,21 @@ export function TaskForm({
       ) : null}
       <Field
         theme={theme}
-        label="Points"
+        label={t('tasks.fields.points')}
         value={points}
         onChangeText={setPoints}
         keyboardType="numeric"
       />
       <TaskDateField
         theme={theme}
-        label="Due date"
+        label={t('tasks.fields.dueDate')}
         value={dueAt}
         weekStartsOn={snapshot.settings.weekStartsOn}
         onChange={setDueAt}
       />
       <Button
         theme={theme}
-        label="Add task"
+        label={t('tasks.actions.addTask')}
         onPress={() => submit().catch(() => undefined)}
       />
     </Card>

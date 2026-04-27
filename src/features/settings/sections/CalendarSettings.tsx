@@ -10,6 +10,7 @@ import {
   WeekStart,
 } from '../../../store/models';
 import { Kicker, SegmentedControl } from '../SettingsRows';
+import { useTranslation } from '../../../i18n';
 
 export function CalendarSettings({
   theme,
@@ -20,15 +21,17 @@ export function CalendarSettings({
   snapshot: AppSnapshot;
   onUpdateSettings: (input: UpdateSettingsInput) => Promise<void>;
 }) {
+  const { t } = useTranslation();
+  
   return (
-    <Section theme={theme} title="Calendar">
+    <Section theme={theme} title={t('navigation.calendar')}>
       <Card theme={theme}>
-        <Kicker theme={theme}>Default view</Kicker>
+        <Kicker theme={theme}>{t('settings.appearance.defaultTab')}</Kicker>
         <SegmentedControl
           theme={theme}
           items={[
-            { key: 'month', label: 'Month' },
-            { key: 'agenda', label: 'Agenda' },
+            { key: 'month', label: t('calendar.views.month') },
+            { key: 'agenda', label: t('calendar.views.agenda') },
           ]}
           selected={snapshot.settings.calendarDefaultView}
           onSelect={next =>
@@ -38,12 +41,12 @@ export function CalendarSettings({
           }
         />
 
-        <Kicker theme={theme}>Week starts on</Kicker>
+        <Kicker theme={theme}>{t('calendar.fields.weekStartsOn')}</Kicker>
         <SegmentedControl
           theme={theme}
           items={[
-            { key: 'monday', label: 'Monday' },
-            { key: 'sunday', label: 'Sunday' },
+            { key: 'monday', label: t('calendar.weekdays.full.monday') },
+            { key: 'sunday', label: t('calendar.weekdays.full.sunday') },
           ]}
           selected={snapshot.settings.weekStartsOn}
           onSelect={next =>
@@ -53,15 +56,15 @@ export function CalendarSettings({
           }
         />
 
-        <Kicker theme={theme}>Default event color</Kicker>
+        <Kicker theme={theme}>{t('calendar.fields.defaultEventColor')}</Kicker>
         <SegmentedControl
           theme={theme}
           items={[
-            { key: 'blue', label: 'Blue' },
-            { key: 'pink', label: 'Pink' },
-            { key: 'green', label: 'Green' },
-            { key: 'amber', label: 'Amber' },
-            { key: 'red', label: 'Red' },
+            { key: 'blue', label: t('calendar.eventColors.blue') },
+            { key: 'pink', label: t('calendar.eventColors.pink') },
+            { key: 'green', label: t('calendar.eventColors.green') },
+            { key: 'amber', label: t('calendar.eventColors.amber') },
+            { key: 'red', label: t('calendar.eventColors.red') },
           ]}
           selected={snapshot.settings.eventColorKey}
           onSelect={next =>

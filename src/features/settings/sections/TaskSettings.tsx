@@ -4,6 +4,7 @@ import { Card } from '../../../shared/ui/Card';
 import { Section } from '../../../shared/ui/Section';
 import { AppSnapshot, UpdateSettingsInput } from '../../../store/models';
 import { Kicker, SegmentedControl, ToggleRow } from '../SettingsRows';
+import { useTranslation } from '../../../i18n';
 
 export function TaskSettings({
   theme,
@@ -14,16 +15,18 @@ export function TaskSettings({
   snapshot: AppSnapshot;
   onUpdateSettings: (input: UpdateSettingsInput) => Promise<void>;
 }) {
+  const { t } = useTranslation();
+  
   return (
-    <Section theme={theme} title="Tasks and scoring">
+    <Section theme={theme} title={t('settings.tasks.title')}>
       <Card theme={theme}>
-        <Kicker theme={theme}>Score cycle</Kicker>
+        <Kicker theme={theme}>{t('settings.tasks.scoreCycle')}</Kicker>
         <SegmentedControl
           theme={theme}
           items={[
-            { key: 7, label: '7 days' },
-            { key: 14, label: '14 days' },
-            { key: 28, label: '28 days' },
+            { key: 7, label: t('common.durations.days', { count: 7 }) },
+            { key: 14, label: t('common.durations.days', { count: 14 }) },
+            { key: 28, label: t('common.durations.days', { count: 28 }) },
           ]}
           selected={snapshot.settings.scoreCycleDays}
           onSelect={next =>
@@ -32,7 +35,7 @@ export function TaskSettings({
         />
         <ToggleRow
           theme={theme}
-          label="Show completed tasks"
+          label={t('settings.tasks.showCompletedTasks')}
           value={snapshot.settings.showCompletedTasks}
           onValueChange={value =>
             onUpdateSettings({ showCompletedTasks: value }).catch(
@@ -42,7 +45,7 @@ export function TaskSettings({
         />
         <ToggleRow
           theme={theme}
-          label="Show personal tasks on Home"
+          label={t('settings.tasks.showPersonalTasksOnHome')}
           value={snapshot.settings.showPersonalTasksOnHome}
           onValueChange={value =>
             onUpdateSettings({ showPersonalTasksOnHome: value }).catch(

@@ -20,6 +20,7 @@ import { NotificationSettings } from './sections/NotificationSettings';
 import { SecuritySettings } from './sections/SecuritySettings';
 import { TaskSettings } from './sections/TaskSettings';
 import { settingsTabs } from './settingsTabs';
+import { useTranslation } from '../../i18n';
 
 export function SettingsScreen({ theme }: { theme: Theme }) {
   const {
@@ -96,13 +97,14 @@ function SettingsScreenContent({
   const memberProfiles = getActiveGroupProfiles(snapshot);
   const currentRole = getCurrentMemberRole(snapshot);
   const isOwner = currentRole === 'owner';
+  const { t } = useTranslation();
 
   return (
     <Screen theme={theme}>
       <Section
         theme={theme}
-        title="Settings"
-        subtitle="Deep enough to be useful, not deep enough to become a support ticket factory."
+        title={t('settings.screen.title')}
+        subtitle={t('settings.screen.subtitle')}
       >
         <SettingsTabBar
           theme={theme}
@@ -222,11 +224,12 @@ function SettingsTabBar({
   onSelect,
 }: {
   theme: Theme;
-  tabs: { key: SettingsTab; label: string }[];
+  tabs: typeof settingsTabs;
   activeTab: SettingsTab;
   onSelect: (key: SettingsTab) => void;
 }) {
   const styles = createStyles(theme);
+  const { t } = useTranslation();
 
   return (
     <ScrollView
@@ -253,7 +256,7 @@ function SettingsTabBar({
                 selected ? styles.settingsTabTextSelected : null,
               ]}
             >
-              {tab.label}
+              {t(tab.labelKey)}
             </Text>
           </Pressable>
         );

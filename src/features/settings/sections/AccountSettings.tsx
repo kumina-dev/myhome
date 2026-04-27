@@ -6,6 +6,7 @@ import { Card } from '../../../shared/ui/Card';
 import { Section } from '../../../shared/ui/Section';
 import { AppSnapshot, MemberRole, UserProfile } from '../../../store/models';
 import { Avatar, Badge } from '../SettingsRows';
+import { useTranslation } from '../../../i18n'; 
 
 export function AccountSettings({
   theme,
@@ -21,9 +22,10 @@ export function AccountSettings({
   onSignOut: () => Promise<void>;
 }) {
   const styles = createStyles(theme);
+  const { t } = useTranslation();
 
   return (
-    <Section theme={theme} title="Account">
+    <Section theme={theme} title={t('settings.tabs.account')}>
       <Card theme={theme}>
         {profile ? (
           <View style={styles.accountHeader}>
@@ -40,10 +42,10 @@ export function AccountSettings({
             </View>
           </View>
         ) : null}
-        <Badge theme={theme} label={currentRole ?? 'member'} />
+        <Badge theme={theme} label={currentRole === 'owner' ? t('common.roles.owner') : t('common.roles.member')} />
         <Button
           theme={theme}
-          label="Sign out"
+          label={t('appLock.actions.signOut')}
           kind="secondary"
           onPress={() => onSignOut().catch(() => undefined)}
         />

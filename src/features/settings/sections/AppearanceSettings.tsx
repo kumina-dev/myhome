@@ -11,6 +11,7 @@ import {
   UpdateSettingsInput,
 } from '../../../store/models';
 import { Kicker, SegmentedControl } from '../SettingsRows';
+import { useTranslation } from '../../../i18n';
 
 export function AppearanceSettings({
   theme,
@@ -21,16 +22,18 @@ export function AppearanceSettings({
   snapshot: AppSnapshot;
   onUpdateSettings: (input: UpdateSettingsInput) => Promise<void>;
 }) {
+  const { t } = useTranslation();
+  
   return (
-    <Section theme={theme} title="Appearance">
+    <Section theme={theme} title={t('settings.tabs.appearance')}>
       <Card theme={theme}>
-        <Kicker theme={theme}>Theme</Kicker>
+        <Kicker theme={theme}>{t('settings.appearance.theme')}</Kicker>
         <SegmentedControl
           theme={theme}
           items={[
-            { key: 'system', label: 'System' },
-            { key: 'light', label: 'Light' },
-            { key: 'dark', label: 'Dark' },
+            { key: 'system', label: t('settings.locale.system') },
+            { key: 'light', label: t('settings.appearance.light') },
+            { key: 'dark', label: t('settings.appearance.dark') },
           ]}
           selected={snapshot.settings.themeMode}
           onSelect={next =>
@@ -40,13 +43,13 @@ export function AppearanceSettings({
           }
         />
 
-        <Kicker theme={theme}>Language</Kicker>
+        <Kicker theme={theme}>{t('settings.appearance.language')}</Kicker>
         <SegmentedControl
           theme={theme}
           items={[
-            { key: 'system', label: 'System' },
-            { key: 'en', label: 'English' },
-            { key: 'fi', label: 'Finnish' },
+            { key: 'system', label: t('settings.locale.system') },
+            { key: 'en', label: t('settings.locale.english') },
+            { key: 'fi', label: t('settings.locale.finnish') },
           ]}
           selected={snapshot.settings.localePreference}
           onSelect={next =>
@@ -58,7 +61,7 @@ export function AppearanceSettings({
 
         <Field
           theme={theme}
-          label="Currency code"
+          label={t('settings.currencyCode')}
           value={snapshot.settings.currencyCode}
           onChangeText={value =>
             onUpdateSettings({
@@ -68,16 +71,16 @@ export function AppearanceSettings({
           placeholder="EUR"
         />
 
-        <Kicker theme={theme}>Default tab</Kicker>
+        <Kicker theme={theme}>{t('settings.appearance.defaultTab')}</Kicker>
         <SegmentedControl
           theme={theme}
           items={[
-            { key: 'home', label: 'Home' },
-            { key: 'expenses', label: 'Expenses' },
-            { key: 'notes', label: 'Notes' },
-            { key: 'calendar', label: 'Calendar' },
-            { key: 'tasks', label: 'Tasks' },
-            { key: 'settings', label: 'Settings' },
+            { key: 'home', label: t('navigation.home') },
+            { key: 'expenses', label: t('navigation.expenses') },
+            { key: 'notes', label: t('navigation.notes') },
+            { key: 'calendar', label: t('navigation.calendar') },
+            { key: 'tasks', label: t('navigation.tasks') },
+            { key: 'settings', label: t('navigation.settings') },
           ]}
           selected={snapshot.settings.defaultTab}
           onSelect={next =>

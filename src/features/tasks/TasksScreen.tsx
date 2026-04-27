@@ -11,9 +11,11 @@ import {
 import { Scoreboard } from './Scoreboard';
 import { TaskBoard } from './TaskBoard';
 import { TaskForm } from './TaskForm';
+import { useTranslation } from '../../i18n';
 
 export function TasksScreen({ theme }: { theme: Theme }) {
   const { snapshot, addTask, toggleTaskComplete } = useAppStore();
+  const { t } = useTranslation();
 
   if (!snapshot) return null;
 
@@ -27,7 +29,7 @@ export function TasksScreen({ theme }: { theme: Theme }) {
 
   return (
     <Screen theme={theme}>
-      <Section theme={theme} title="Current cycle">
+      <Section theme={theme} title={t('tasks.screen.currentCycle')}>
         <Scoreboard
           theme={theme}
           scoreboard={scoreboard}
@@ -37,8 +39,8 @@ export function TasksScreen({ theme }: { theme: Theme }) {
 
       <Section
         theme={theme}
-        title="New task"
-        subtitle="Shared and personal tasks live in the same system, without making everyday use feel like a spreadsheet prison."
+        title={t('tasks.screen.newTask')}
+        subtitle={t('tasks.screen.newTaskSubtitle')}
       >
         <TaskForm
           theme={theme}
@@ -49,7 +51,7 @@ export function TasksScreen({ theme }: { theme: Theme }) {
         />
       </Section>
 
-      <Section theme={theme} title="Task board">
+      <Section theme={theme} title={t('tasks.screen.taskBoard')}>
         <TaskBoard
           theme={theme}
           tasks={tasks}

@@ -5,6 +5,7 @@ import { Field } from '../../../shared/ui/Field';
 import { Section } from '../../../shared/ui/Section';
 import { AppLockSettings, AppSnapshot } from '../../../store/models';
 import { Kicker, SegmentedControl, ToggleRow } from '../SettingsRows';
+import { useTranslation } from '../../../i18n';
 
 export function SecuritySettings({
   theme,
@@ -15,12 +16,14 @@ export function SecuritySettings({
   snapshot: AppSnapshot;
   onUpdateAppLockSettings: (input: Partial<AppLockSettings>) => Promise<void>;
 }) {
+  const { t } = useTranslation();
+  
   return (
-    <Section theme={theme} title="Security">
+    <Section theme={theme} title={t('settings.tabs.security')}>
       <Card theme={theme}>
         <ToggleRow
           theme={theme}
-          label="Enable app lock"
+          label={t('settings.security.enableAppLock')}
           value={snapshot.appLockSettings.isEnabled}
           onValueChange={value =>
             onUpdateAppLockSettings({ isEnabled: value }).catch(() => undefined)
@@ -28,7 +31,7 @@ export function SecuritySettings({
         />
         <ToggleRow
           theme={theme}
-          label="Enable biometric unlock"
+          label={t('settings.security.enableBiometricUnlock')}
           value={snapshot.appLockSettings.biometricEnabled}
           onValueChange={value =>
             onUpdateAppLockSettings({ biometricEnabled: value }).catch(
@@ -38,7 +41,7 @@ export function SecuritySettings({
         />
         <Field
           theme={theme}
-          label="App PIN"
+          label={t('settings.security.appPin')}
           value={snapshot.appLockSettings.pin}
           onChangeText={value => {
             if (value.length <= 6) {
@@ -47,13 +50,13 @@ export function SecuritySettings({
           }}
           keyboardType="numeric"
         />
-        <Kicker theme={theme}>Lock after</Kicker>
+        <Kicker theme={theme}>{t('settings.security.lockAfter')}</Kicker>
         <SegmentedControl
           theme={theme}
           items={[
-            { key: 1, label: '1 min' },
-            { key: 5, label: '5 min' },
-            { key: 15, label: '15 min' },
+            { key: 1, label: t('common.durations.minutes', { count: 1 }) },
+            { key: 5, label: t('common.durations.minutes', { count: 5 }) },
+            { key: 15, label: t('common.durations.minutes', { count: 15 }) },
           ]}
           selected={snapshot.appLockSettings.lockAfterMinutes}
           onSelect={next =>

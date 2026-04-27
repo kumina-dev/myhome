@@ -4,6 +4,7 @@ import { Card } from '../../../shared/ui/Card';
 import { Section } from '../../../shared/ui/Section';
 import { AppSnapshot, UpdateSettingsInput } from '../../../store/models';
 import { ToggleRow } from '../SettingsRows';
+import { useTranslation } from '../../../i18n';
 
 export function NotificationSettings({
   theme,
@@ -14,12 +15,14 @@ export function NotificationSettings({
   snapshot: AppSnapshot;
   onUpdateSettings: (input: UpdateSettingsInput) => Promise<void>;
 }) {
+  const { t } = useTranslation();
+  
   return (
-    <Section theme={theme} title="Notifications">
+    <Section theme={theme} title={t('settings.tabs.notifications')}>
       <Card theme={theme}>
         <ToggleRow
           theme={theme}
-          label="Event reminders"
+          label={t('settings.notifications.eventReminders')}
           value={snapshot.settings.notifications.eventReminders}
           onValueChange={value =>
             onUpdateSettings({
@@ -29,7 +32,7 @@ export function NotificationSettings({
         />
         <ToggleRow
           theme={theme}
-          label="Task reminders"
+          label={t('settings.notifications.taskReminders')}
           value={snapshot.settings.notifications.taskReminders}
           onValueChange={value =>
             onUpdateSettings({
@@ -39,7 +42,7 @@ export function NotificationSettings({
         />
         <ToggleRow
           theme={theme}
-          label="Shared note alerts"
+          label={t('settings.notifications.noteAlerts')}
           value={snapshot.settings.notifications.noteAlerts}
           onValueChange={value =>
             onUpdateSettings({
@@ -49,7 +52,7 @@ export function NotificationSettings({
         />
         <ToggleRow
           theme={theme}
-          label="Expense activity"
+          label={t('settings.notifications.expenseAlerts')}
           value={snapshot.settings.notifications.expenseAlerts}
           onValueChange={value =>
             onUpdateSettings({
@@ -59,7 +62,7 @@ export function NotificationSettings({
         />
         <ToggleRow
           theme={theme}
-          label="Shared task broadcasts"
+          label={t('settings.notifications.sharedTaskBroadcasts')}
           value={snapshot.settings.notifications.sharedTaskBroadcasts}
           onValueChange={value =>
             onUpdateSettings({

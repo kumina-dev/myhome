@@ -11,10 +11,12 @@ import { Screen } from '../../shared/ui/Screen';
 import { Section } from '../../shared/ui/Section';
 import { ExpenseBreakdowns } from './ExpenseBreakdowns';
 import { ExpenseForm } from './ExpenseForm';
+import { useTranslation } from '../../i18n';
 
 export function ExpensesScreen({ theme }: { theme: Theme }) {
   const { snapshot, addExpense } = useAppStore();
   const { formatCurrency } = useCurrencyFormatter();
+  const { t } = useTranslation();
   
   if (!snapshot) return null;
   
@@ -24,7 +26,7 @@ export function ExpensesScreen({ theme }: { theme: Theme }) {
 
   return (
     <Screen theme={theme}>
-      <Section theme={theme} title="This month">
+      <Section theme={theme} title={t('expenses.screen.thisMonth')}>
         <View style={styles.statCard}>
           <Text style={styles.kicker}>Total</Text>
           <Text style={styles.statValue}>{formatCurrency(summary.total)}</Text>
@@ -36,8 +38,8 @@ export function ExpensesScreen({ theme }: { theme: Theme }) {
 
       <Section
         theme={theme}
-        title="Log purchase"
-        subtitle="Structured inputs beat mysterious free-text blobs every time."
+        title={t('expenses.screen.logPurchase')}
+        subtitle={t('expenses.screen.logPurchaseSubtitle')}
       >
         <ExpenseForm
           theme={theme}

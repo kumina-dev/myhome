@@ -18,7 +18,7 @@ export function AuthScreen({ theme }: { theme: Theme }) {
       <Section
         theme={theme}
         title={t('auth.accessTitle')}
-        subtitle="Private app, invited members, and an actual path through the flow instead of guesswork."
+        subtitle={t('auth.subtitle')}
       >
         <Card theme={theme}>
           <AuthForm

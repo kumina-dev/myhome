@@ -31,7 +31,7 @@ export function AppLockScreen({ theme }: { theme: Theme }) {
       setPin('');
     } catch (caught) {
       Alert.alert(
-        'Unlock failed',
+        t('appLock.errors.unlockFailed'),
         caught instanceof Error ? caught.message : t('validation.unexpectedError'),
       );
     }
@@ -41,40 +41,38 @@ export function AppLockScreen({ theme }: { theme: Theme }) {
     <Screen theme={theme}>
       <Section
         theme={theme}
-        title="App lock"
-        subtitle="The session exists, but access still requires the local device lock."
+        title={t('appLock.title')}
+        subtitle={t('appLock.subtitle')}
       >
         <Card theme={theme}>
           <Field
             theme={theme}
-            label="PIN"
+            label={t('appLock.fields.pin')}
             value={pin}
             onChangeText={setPin}
             keyboardType="numeric"
             secureTextEntry
-            helper="Current seeded PIN: 2580"
+            helper={t('appLock.helpers.seededPin')}
           />
           <ToggleRow
             theme={theme}
-            label="Biometric unlock"
+            label={t('appLock.settings.biometricUnlock')}
             value={snapshot.appLockSettings.biometricEnabled}
             onValueChange={handleBiometricChange}
           />
           <Button
             theme={theme}
-            label="Unlock"
+            label={t('appLock.actions.unlock')}
             onPress={() => handleUnlock().catch(() => undefined)}
           />
           <Button
             theme={theme}
-            label="Sign out"
+            label={t('appLock.actions.signOut')}
             kind="secondary"
             onPress={handleSignOut}
           />
           <Text style={styles.helper}>
-            In a full device build, biometric unlock would be wired to native
-            secure auth. Here the setting and lock flow are ready, not
-            fictional.
+            {t('appLock.helpers.nativeBiometric')}
           </Text>
         </Card>
       </Section>

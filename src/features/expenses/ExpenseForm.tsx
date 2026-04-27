@@ -11,6 +11,7 @@ import {
   UserProfile,
 } from '../../store/models';
 import { ExpenseDateField } from './ExpenseDateField';
+import { useTranslation } from '../../i18n';
 
 interface ActiveGroupProfile {
   member: GroupMember;
@@ -28,6 +29,8 @@ export function ExpenseForm({
   memberProfiles: ActiveGroupProfile[];
   onAddExpense: (input: AddExpenseInput) => Promise<void>;
 }) {
+  const { t } = useTranslation();
+  
   const [buyerUserId, setBuyerUserId] = useState(
     snapshot.sessionState.session?.userId ?? memberProfiles[0]?.member.userId,
   );
@@ -52,7 +55,7 @@ export function ExpenseForm({
     const amountNumber = Number(amount.replace(',', '.'));
 
     if (!title.trim() || Number.isNaN(amountNumber) || amountNumber <= 0) {
-      Alert.alert('Invalid expense', 'Title and amount are required.');
+      Alert.alert(t('expenses.validation.invalidTitle'), t('expenses.validation.invalidBody'));
       return;
     }
 
@@ -80,22 +83,22 @@ export function ExpenseForm({
       />
       <Field
         theme={theme}
-        label="What was bought"
+        label={t('expenses.fields.title')}
         value={title}
         onChangeText={setTitle}
-        placeholder="Weekly groceries"
+        placeholder={t('expenses.placeholders.title')}
       />
       <Field
         theme={theme}
-        label="Amount"
+        label={t('expenses.fields.amount')}
         value={amount}
         onChangeText={setAmount}
-        placeholder="84.20"
+        placeholder={t('expenses.placeholders.amount')}
         keyboardType="numeric"
       />
       <ExpenseDateField
         theme={theme}
-        label="Purchase date"
+        label={t('expenses.fields.purchaseDate')}
         value={purchasedAt}
         weekStartsOn={snapshot.settings.weekStartsOn}
         onChange={setPurchasedAt}
@@ -111,15 +114,15 @@ export function ExpenseForm({
       />
       <Field
         theme={theme}
-        label="Notes"
+        label={t('expenses.fields.notes')}
         value={notes}
         onChangeText={setNotes}
-        placeholder="Optional context"
+        placeholder={t('expenses.placeholders.notes')}
         multiline
       />
       <Button
         theme={theme}
-        label="Add expense"
+        label={t('expenses.actions.addExpense')}
         onPress={() => submit().catch(() => undefined)}
       />
     </Card>

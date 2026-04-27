@@ -14,6 +14,7 @@ import {
   UserProfile,
 } from '../../../store/models';
 import { ListRow } from '../SettingsRows';
+import { useTranslation } from '../../../i18n';
 
 interface ActiveGroupProfile {
   member: GroupMember;
@@ -43,6 +44,7 @@ export function GroupSettings({
   onUpdateMemberRole: (memberId: string, role: MemberRole) => Promise<void>;
   onRemoveMember: (memberId: string) => Promise<void>;
 }) {
+  const { t } = useTranslation();
   const styles = createStyles(theme);
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteName, setInviteName] = useState('');
@@ -59,27 +61,31 @@ export function GroupSettings({
 
   return (
     <>
-      <Section theme={theme} title="Group">
+      <Section theme={theme} title={t('settings.tabs.group')}>
         <Card theme={theme}>
           <Field
             theme={theme}
-            label="Group name"
+            label={t('settings.group.groupName')}
             value={snapshot.settings.groupName}
             onChangeText={value => {
               onUpdateSettings({ groupName: value }).catch(() => undefined);
             }}
-            helper="Covers family, flatmates, close friends, and other sane private groups."
+            helper={t('settings.group.groupNameHelper')}
           />
         </Card>
       </Section>
 
-      <Section theme={theme} title="Members">
+      <Section theme={theme} title={t('settings.group.members')}>
         {memberProfiles.map(item => (
           <Card key={item.member.id} theme={theme}>
             <ListRow
               theme={theme}
               title={item.profile.displayName}
-              subtitle={item.member.role}
+              subtitle={
+                item.member.role === 'owner'
+                  ? t('common.roles.owner')
+                  : t('common.roles.member')
+              }
               trailing={
                 isOwner && item.member.role !== 'owner' ? (
                   <View style={styles.memberActions}>
@@ -87,8 +93,8 @@ export function GroupSettings({
                       theme={theme}
                       label={
                         item.member.role === 'member'
-                          ? 'Make owner'
-                          : 'Make member'
+                          ? t('settings.group.makeOwner')
+                          : t('settings.group.makeMember')
                       }
                       kind="secondary"
                       onPress={() =>
@@ -100,16 +106,16 @@ export function GroupSettings({
                     />
                     <Button
                       theme={theme}
-                      label="Remove"
+                      label={t('common.actions.remove')}
                       kind="danger"
                       onPress={() => {
                         Alert.alert(
-                          'Remove member',
-                          `Remove ${item.profile.displayName} from the group?`,
+                          t('settings.group.removeMemberTitle'),
+                          t('settings.group.removeMemberBody', { name: item.profile.displayName }),
                           [
-                            { text: 'Cancel', style: 'cancel' },
+                            { text: t('common.actions.cancel'), style: 'cancel' },
                             {
-                              text: 'Remove',
+                              text: t('common.actions.remove'),
                               style: 'destructive',
                               onPress: () => {
                                 onRemoveMember(item.member.id).catch(
@@ -131,25 +137,25 @@ export function GroupSettings({
 
       {isOwner ? (
         <>
-          <Section theme={theme} title="Invite member">
+          <Section theme={theme} title={t('settings.group.inviteMember')}>
             <Card theme={theme}>
               <Field
                 theme={theme}
-                label="Email"
+                label={t('auth.fields.email')}
                 value={inviteEmail}
                 onChangeText={setInviteEmail}
                 placeholder="friend@example.com"
               />
               <Field
                 theme={theme}
-                label="Name hint"
+                label={t('settings.group.nameHint')}
                 value={inviteName}
                 onChangeText={setInviteName}
-                placeholder="June"
+                placeholder={t('auth.placeholders.displayName')}
               />
               <Button
                 theme={theme}
-                label="Create invite"
+                label={t('settings.group.createInvite')}
                 onPress={() => {
                   onInviteMember(inviteEmail, inviteName).catch(
                     () => undefined,
@@ -161,17 +167,17 @@ export function GroupSettings({
             </Card>
           </Section>
 
-          <Section theme={theme} title="Pending invites">
+          <Section theme={theme} title={t('settings.group.pendingInvites')}>
             {pendingInvites.map(invite => (
               <Card key={invite.id} theme={theme}>
                 <Text style={styles.title}>{invite.email}</Text>
-                <Text style={styles.meta}>Code: {invite.code}</Text>
+                <Text style={styles.meta}>{t('settings.group.code', { code: invite.code })}</Text>
                 <Text style={styles.meta}>
-                  Hint: {invite.profileNameHint ?? 'none'}
+                  {t('settings.group.hint', { hint: invite.profileNameHint ?? t('settings.group.noHint') })}
                 </Text>
                 <Button
                   theme={theme}
-                  label="Revoke invite"
+                  label={t('settings.group.revokeInvite')}
                   kind="danger"
                   onPress={() =>
                     onRevokeInvite(invite.id).catch(() => undefined)

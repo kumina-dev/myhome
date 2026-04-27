@@ -44,7 +44,7 @@ export function AuthForm({
 
       if (authMode === 'create-group') {
         if (!groupName.trim() || !displayName.trim()) {
-          throw new Error('Group name and display name are required.');
+          throw new Error(t('auth.validation.createGroupRequired'));
         }
 
         await onCreateGroup({
@@ -57,7 +57,7 @@ export function AuthForm({
       }
 
       if (!inviteCode.trim() || !displayName.trim()) {
-        throw new Error('Invite code and display name are required.');
+        throw new Error(t('auth.validation.inviteRequired'));
       }
 
       await onAcceptInvite({
@@ -68,7 +68,7 @@ export function AuthForm({
       });
     } catch (caught) {
       Alert.alert(
-        'Auth failed',
+        t('auth.errors.failed'),
         caught instanceof Error ? caught.message : t('validation.unexpectedError'),
       );
     }
@@ -102,47 +102,47 @@ export function AuthForm({
       {authMode === 'create-group' ? (
         <Field
           theme={theme}
-          label="Group name"
+          label={t('auth.fields.groupName')}
           value={groupName}
           onChangeText={setGroupName}
-          placeholder="North Circle"
+          placeholder={t('auth.placeholders.groupName')}
         />
       ) : null}
 
       {authMode !== 'sign-in' ? (
         <Field
           theme={theme}
-          label="Display name"
+          label={t('auth.fields.displayName')}
           value={displayName}
           onChangeText={setDisplayName}
-          placeholder="June"
+          placeholder={t('auth.placeholders.displayName')}
         />
       ) : null}
 
       {authMode === 'accept-invite' ? (
         <Field
           theme={theme}
-          label="Invite code"
+          label={t('auth.fields.inviteCode')}
           value={inviteCode}
           onChangeText={setInviteCode}
-          placeholder="GROUP-1234"
+          placeholder={t('auth.placeholders.inviteCode')}
         />
       ) : null}
 
       <Field
         theme={theme}
-        label="Email"
+        label={t('auth.fields.email')}
         value={email}
         onChangeText={setEmail}
-        placeholder="you@example.com"
+        placeholder={t('auth.placeholders.email')}
       />
       <Field
         theme={theme}
-        label="Password"
+        label={t('auth.fields.password')}
         value={password}
         onChangeText={setPassword}
         secureTextEntry
-        placeholder="Password"
+        placeholder={t('auth.placeholders.password')}
       />
       <Button
         theme={theme}
@@ -150,7 +150,7 @@ export function AuthForm({
         onPress={() => handleSubmit().catch(() => undefined)}
       />
       <Text style={styles.helper}>
-        Demo credentials already seeded: `owner@northcircle.app` / `1234`.
+        {t('auth.helper.seededCredentials')}
       </Text>
     </>
   );

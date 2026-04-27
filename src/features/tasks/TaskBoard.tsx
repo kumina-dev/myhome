@@ -10,6 +10,7 @@ import {
   UserProfile,
 } from '../../store/models';
 import { useDateTimeFormatter } from '../../shared/format/dateTime';
+import { useTranslation } from '../../i18n';
 
 interface ActiveGroupProfile {
   member: GroupMember;
@@ -31,13 +32,14 @@ export function TaskBoard({
 }) {
   const styles = createStyles(theme);
   const { formatDateTime, formatShortDate } = useDateTimeFormatter();
+  const { t } = useTranslation();
 
   if (!tasks.length) {
     return (
       <EmptyState
         theme={theme}
-        title="No tasks yet"
-        body="Add the first shared or personal task to make the score cycle do something useful."
+        title={t('tasks.empty.title')}
+        body={t('tasks.empty.body')}
       />
     );
   }

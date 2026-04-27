@@ -6,9 +6,11 @@ import { useAppStore } from '../../store/store';
 import { getActiveGroupProfiles, getPinnedNotes } from '../../store/selectors';
 import { NoteForm } from './NoteForm';
 import { NoteList } from './NoteList';
+import { useTranslation } from '../../i18n';
 
 export function NotesScreen({ theme }: { theme: Theme }) {
   const { snapshot, addNote, toggleNotePinned } = useAppStore();
+  const { t } = useTranslation();
 
   if (!snapshot) return null;
 
@@ -19,13 +21,13 @@ export function NotesScreen({ theme }: { theme: Theme }) {
     <Screen theme={theme}>
       <Section
         theme={theme}
-        title="Shared notes"
-        subtitle="Pinned notes stay visible. The rest still remain easy to find without becoming a fake wiki."
+        title={t('notes.screen.title')}
+        subtitle={t('notes.screen.subtitle')}
       >
         <NoteForm theme={theme} onAddNote={addNote} />
       </Section>
 
-      <Section theme={theme} title="Current notes">
+      <Section theme={theme} title={t('notes.screen.currentNotes')}>
         <NoteList
           theme={theme}
           notes={notes}

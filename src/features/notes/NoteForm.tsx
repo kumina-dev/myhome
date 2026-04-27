@@ -5,6 +5,7 @@ import { Button } from '../../shared/ui/Button';
 import { Card } from '../../shared/ui/Card';
 import { Field } from '../../shared/ui/Field';
 import { AddNoteInput } from '../../store/models';
+import { useTranslation } from '../../i18n';
 
 export function NoteForm({
   theme,
@@ -13,13 +14,14 @@ export function NoteForm({
   theme: Theme;
   onAddNote: (input: AddNoteInput) => Promise<void>;
 }) {
+  const { t } = useTranslation();
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [isPinned, setIsPinned] = useState(false);
 
   async function submit() {
     if (!title.trim() || !body.trim()) {
-      Alert.alert('Invalid note', 'Title and body are required.');
+      Alert.alert(t('notes.validation.invalidTitle'), t('notes.validation.invalidBody'));
       return;
     }
 
@@ -38,28 +40,28 @@ export function NoteForm({
     <Card theme={theme}>
       <Field
         theme={theme}
-        label="Title"
+        label={t('notes.fields.title')}
         value={title}
         onChangeText={setTitle}
-        placeholder="Weekend plan"
+        placeholder={t('notes.placeholders.title')}
       />
       <Field
         theme={theme}
-        label="Body"
+        label={t('notes.fields.body')}
         value={body}
         onChangeText={setBody}
-        placeholder="What everyone needs to know"
+        placeholder={t('notes.placeholders.body')}
         multiline
       />
       <ToggleRow
         theme={theme}
-        label="Pin this note"
+        label={t('notes.fields.pin')}
         value={isPinned}
         onValueChange={setIsPinned}
       />
       <Button
         theme={theme}
-        label="Save note"
+        label={t('notes.actions.saveNote')}
         onPress={() => submit().catch(() => undefined)}
       />
     </Card>

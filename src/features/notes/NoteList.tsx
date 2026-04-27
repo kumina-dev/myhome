@@ -10,6 +10,7 @@ import {
   UserProfile,
 } from '../../store/models';
 import { useDateTimeFormatter } from '../../shared/format/dateTime';
+import { useTranslation } from '../../i18n';
 
 interface ActiveGroupProfile {
   member: GroupMember;
@@ -29,13 +30,14 @@ export function NoteList({
 }) {
   const styles = createStyles(theme);
   const { formatDateTime } = useDateTimeFormatter();
+  const { t } = useTranslation();
 
   if (!notes.length) {
     return (
       <EmptyState
         theme={theme}
-        title="No notes yet"
-        body="Create the first shared note for plans, shopping reminders, or things no one should need to ask you twice."
+        title={t('notes.empty.title')}
+        body={t('notes.empty.body')}
       />
     );
   }

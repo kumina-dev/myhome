@@ -5,6 +5,7 @@ import { Button } from '../../shared/ui/Button';
 import { ModalSheet } from '../../shared/ui/ModalSheet';
 import { useDateTimeFormatter } from '../../shared/format/dateTime';
 import { getCalendarMonthMatrix } from '../../store/selectors';
+import { TranslationKey, useTranslation } from '../../i18n';
 
 function combineDateTime(dateIso: string, hour: number, minute: number) {
   const date = new Date(`${dateIso}T00:00:00`);
@@ -28,6 +29,7 @@ export function ExpenseDateField({
   const styles = createStyles(theme);
   const [visible, setVisible] = useState(false);
   const { formatMonthYear, formatShortDate } = useDateTimeFormatter();
+  const { t } = useTranslation();
   const [visibleMonth, setVisibleMonth] = useState(new Date(value));
 
   const cells = useMemo(
@@ -50,13 +52,13 @@ export function ExpenseDateField({
         theme={theme}
         visible={visible}
         title={label}
-        closeLabel="Close"
+        closeLabel={t('common.actions.close')}
         onClose={() => setVisible(false)}
       >
         <View style={styles.monthHeader}>
           <Button
             theme={theme}
-            label="Previous"
+            label={t('common.calendar.previous')}
             kind="secondary"
             onPress={() =>
               setVisibleMonth(
@@ -68,7 +70,7 @@ export function ExpenseDateField({
           <Text style={styles.monthLabel}>{formatMonthYear(visibleMonth)}</Text>
           <Button
             theme={theme}
-            label="Next"
+            label={t('common.calendar.next')}
             kind="secondary"
             onPress={() =>
               setVisibleMonth(
@@ -81,11 +83,27 @@ export function ExpenseDateField({
 
         <View style={styles.weekHeader}>
           {(weekStartsOn === 'monday'
-            ? ['M', 'T', 'W', 'T', 'F', 'S', 'S']
-            : ['S', 'M', 'T', 'W', 'T', 'F', 'S']
+            ? ([
+                'calendar.weekdays.narrow.monday',
+                'calendar.weekdays.narrow.tuesday',
+                'calendar.weekdays.narrow.wednesday',
+                'calendar.weekdays.narrow.thursday',
+                'calendar.weekdays.narrow.friday',
+                'calendar.weekdays.narrow.saturday',
+                'calendar.weekdays.narrow.sunday',
+              ] satisfies TranslationKey[])
+            : ([
+                'calendar.weekdays.narrow.sunday',
+                'calendar.weekdays.narrow.monday',
+                'calendar.weekdays.narrow.tuesday',
+                'calendar.weekdays.narrow.wednesday',
+                'calendar.weekdays.narrow.thursday',
+                'calendar.weekdays.narrow.friday',
+                'calendar.weekdays.narrow.saturday',
+              ] satisfies TranslationKey[])
           ).map((labelValue, index) => (
             <Text key={`${labelValue}-${index}`} style={styles.weekLabel}>
-              {labelValue}
+              {t(labelValue)}
             </Text>
           ))}
         </View>

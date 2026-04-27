@@ -8,6 +8,7 @@ import { useCurrencyFormatter } from '../../shared/format/currency';
 import { useDateTimeFormatter } from '../../shared/format/dateTime';
 import { getExpenseSummary } from '../../store/selectors';
 import { GroupMember, ProfileColorKey, UserProfile } from '../../store/models';
+import { useTranslation } from '../../i18n';
 
 interface ActiveGroupProfile {
   member: GroupMember;
@@ -26,10 +27,11 @@ export function ExpenseBreakdowns({
   const styles = createStyles(theme);
   const { formatCurrency } = useCurrencyFormatter();
   const { formatShortDate } = useDateTimeFormatter();
+  const { t } = useTranslation();
 
   return (
     <>
-      <Section theme={theme} title="By category">
+      <Section theme={theme} title={t('expenses.sections.byCategory')}>
         {summary.byCategory.length ? (
           summary.byCategory.map(item => (
             <Card key={item.label} theme={theme}>
@@ -42,13 +44,13 @@ export function ExpenseBreakdowns({
         ) : (
           <EmptyState
             theme={theme}
-            title="No spending yet"
-            body="Add the first purchase and the monthly view will start making sense."
+            title={t('expenses.empty.noSpendingTitle')}
+            body={t('expenses.empty.noSpendingBody')}
           />
         )}
       </Section>
 
-      <Section theme={theme} title="By member">
+      <Section theme={theme} title={t('expenses.sections.byMember')}>
         {summary.byUser.map(item => {
           const profile = memberProfiles.find(
             profileItem => profileItem.member.userId === item.userId,
@@ -78,7 +80,7 @@ export function ExpenseBreakdowns({
         })}
       </Section>
 
-      <Section theme={theme} title="Recent expenses">
+      <Section theme={theme} title={t('expenses.sections.recentExpenses')}>
         {summary.expenses.map(expense => {
           const profile = memberProfiles.find(
             profileItem => profileItem.member.userId === expense.buyerUserId,
