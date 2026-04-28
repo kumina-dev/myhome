@@ -1,5 +1,7 @@
 import {
   BackendAuthUserRecord,
+  BackendExpenseCategoryRecord,
+  BackendExpenseRecord,
   BackendGroupMemberRecord,
   BackendGroupRecord,
   BackendProfileRecord,
@@ -7,6 +9,7 @@ import {
 import {
   AppSettings,
   AppSnapshot,
+  Expense,
   Group,
   GroupMember,
   Session,
@@ -77,19 +80,55 @@ export function mapBackendGroupMember(
   };
 }
 
+export function mapBackendExpense(
+  record: BackendExpenseRecord,
+  categoriesById: Record<string, BackendExpenseCategoryRecord>,
+): Expense {
+  const categoryName = record.category
+    ? categoriesById[record.category]?.name
+    : undefined;
+
+  return {
+    id: record.id,
+    groupId: record.group,
+    createdAt: record.created,
+    updatedAt: record.updated,
+    createdByUserId: record.createdBy ?? '',
+    updatedByUserId: record.updatedBy ?? '',
+    deletedAt: record.deletedAt,
+    buyerUserId: record.buyer,
+    title: record.title,
+    amountCents: record.amountCents,
+    purchasedAt: record.purchasedAt,
+    category: categoryName ?? 'Other',
+    notes: record.notes,
+  };
+}
+
 export function createPocketBaseSnapshot({
   currentUser,
   currentProfile,
   activeGroup,
   members,
   profiles,
+  expenseCategories = [],
+  expenses = [],
 }: {
   currentUser: BackendAuthUserRecord | null;
   currentProfile: BackendProfileRecord | null;
   activeGroup: BackendGroupRecord | null;
   members: BackendGroupMemberRecord[];
   profiles: BackendProfileRecord[];
+  expenseCategories?: BackendExpenseCategoryRecord[];
+  expenses?: BackendExpenseRecord[];
 }): AppSnapshot {
+  const categoriesById = expenseCategories.reduce<
+    Record<string, BackendExpenseCategoryRecord>
+  >((acc, category) => {
+    acc[category.id] = category;
+    return acc;
+  }, {});
+
   const authUsers = currentUser
     ? [
         {
@@ -126,11 +165,16 @@ export function createPocketBaseSnapshot({
     groups: activeGroup ? [mapBackendGroup(activeGroup)] : [],
     members: members.map(mapBackendGroupMember),
     invites: [],
-    expenses: [],
+    expenses: expenses.map(expense =>
+      mapBackendExpense(expense, categoriesById),
+    ),
     notes: [],
     events: [],
     tasks: [],
     notifications: [],
-    settings: createDefaultSettings(),
+    settings: {
+      ...createDefaultSettings(),
+      expenseCategories: expenseCategories.map(category => category.name),
+    },
   };
 }

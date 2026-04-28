@@ -6,6 +6,8 @@ import {
 } from '../backend/pocketBaseAuth';
 import {
   BackendAuthUserRecord,
+  BackendExpenseCategoryRecord,
+  BackendExpenseRecord,
   BackendGroupMemberRecord,
   BackendGroupRecord,
   BackendProfileRecord,
@@ -44,6 +46,8 @@ function emptyResult(): RepositoryResult {
       activeGroup: null,
       members: [],
       profiles: [],
+      expenseCategories: [],
+      expenses: [],
     }),
   };
 }
@@ -119,6 +123,24 @@ class PocketBaseWorkspaceReader {
           } as never)
       : [];
 
+    const expenseCategories = await this.client
+      .collection('expense_categories')
+      .getFullList<BackendExpenseCategoryRecord>({
+        filter: this.client.filter('group = {:groupId} && archivedAt = null', {
+          groupId: activeGroup.id,
+        }),
+        sort: 'sortOrder,name',
+      });
+
+    const expenses = await this.client
+      .collection('expenses')
+      .getFullList<BackendExpenseRecord>({
+        filter: this.client.filter('group = {:groupId} && deletedAt = null', {
+          groupId: activeGroup.id,
+        }),
+        sort: '-purchasedAt',
+      });
+
     return {
       snapshot: createPocketBaseSnapshot({
         currentUser,
@@ -126,6 +148,8 @@ class PocketBaseWorkspaceReader {
         activeGroup,
         members,
         profiles,
+        expenseCategories,
+        expenses,
       }),
     };
   }
@@ -139,6 +163,11 @@ class PocketBaseAuthRepository implements AuthRepository {
     this.authClientPromise = createPocketBaseAuthClient();
   }
 
+  async getClient(): Promise<PocketBase> {
+    const authClient = await this.authClientPromise;
+    return authClient.getClient();
+  }
+
   private async readWorkspace(
     session: PocketBaseAuthSession,
   ): Promise<RepositoryResult> {
@@ -148,6 +177,13 @@ class PocketBaseAuthRepository implements AuthRepository {
     this.snapshot = result.snapshot;
 
     return result;
+  }
+
+  async refresh(): Promise<RepositoryResult> {
+    const authClient = await this.authClientPromise;
+    const session = await authClient.bootstrap();
+
+    return this.readWorkspace(session);
   }
 
   async bootstrap(): Promise<RepositoryResult> {
@@ -293,8 +329,45 @@ class PocketBaseFeatureRepository
 {
   constructor(private readonly authRepository: PocketBaseAuthRepository) {}
 
-  async addExpense(_input: AddExpenseInput): Promise<RepositoryResult> {
-    unsupported('PocketBase expenses are not wired in Batch 6.');
+  private getSession() {
+    const session = this.authRepository.getSnapshot().sessionState.session;
+
+    if (!session) {
+      throw new Error('You need to sign in first.');
+    }
+
+    return session;
+  }
+
+  async addExpense(input: AddExpenseInput): Promise<RepositoryResult> {
+    const client = await this.authRepository.getClient();
+    const session = this.getSession();
+    const category = await client
+      .collection('expense_categories')
+      .getFirstListItem<BackendExpenseCategoryRecord>(
+        client.filter(
+          'group = {:groupId} && name = {:name} && archivedAt = null',
+          {
+            groupId: session.groupId,
+            name: input.category,
+          },
+        ),
+      );
+
+    await client.collection('expenses').create({
+      group: session.groupId,
+      buyer: input.buyerUserId,
+      title: input.title,
+      amountCents: input.amountCents,
+      currencyCode: this.authRepository.getSnapshot().settings.currencyCode,
+      purchasedAt: input.purchasedAt,
+      category: category.id,
+      notes: input.notes,
+      createdBy: session.userId,
+      updatedBy: session.userId,
+    });
+
+    return this.authRepository.refresh();
   }
 
   async addNote(_input: AddNoteInput): Promise<RepositoryResult> {
@@ -324,12 +397,49 @@ class PocketBaseFeatureRepository
     return unchanged(this.authRepository.getSnapshot());
   }
 
-  async addExpenseCategory(_value: string): Promise<RepositoryResult> {
-    unsupported('PocketBase categories are not wired in Batch 6.');
+  async addExpenseCategory(value: string): Promise<RepositoryResult> {
+    const cleaned = value.trim();
+
+    if (!cleaned) {
+      return unchanged(this.authRepository.getSnapshot());
+    }
+
+    const client = await this.authRepository.getClient();
+    const session = this.getSession();
+
+    await client.collection('expense_categories').create({
+      group: session.groupId,
+      name: cleaned,
+      sortOrder:
+        this.authRepository.getSnapshot().settings.expenseCategories.length + 1,
+      createdBy: session.userId,
+      updatedBy: session.userId,
+    });
+
+    return this.authRepository.refresh();
   }
 
-  async removeExpenseCategory(_value: string): Promise<RepositoryResult> {
-    unsupported('PocketBase categories are not wired in Batch 6.');
+  async removeExpenseCategory(value: string): Promise<RepositoryResult> {
+    const client = await this.authRepository.getClient();
+    const session = this.getSession();
+    const category = await client
+      .collection('expense_categories')
+      .getFirstListItem<BackendExpenseCategoryRecord>(
+        client.filter(
+          'group = {:groupId} && name = {:name} && archivedAt = null',
+          {
+            groupId: session.groupId,
+            name: value,
+          },
+        ),
+      );
+
+    await client.collection('expense_categories').update(category.id, {
+      archivedAt: new Date().toISOString(),
+      updatedBy: session.userId,
+    });
+
+    return this.authRepository.refresh();
   }
 
   async markAllNotificationsRead(): Promise<RepositoryResult> {
