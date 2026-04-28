@@ -1,5 +1,8 @@
 import { AppSnapshot, ProfileColorKey } from './models';
 
+export const DEVELOPMENT_ONLY_SEEDED_PASSWORD = '1234';
+export const DEVELOPMENT_ONLY_APP_LOCK_PIN = '2580';
+
 const now = new Date();
 
 function isoOffset(days: number, hours = 10): string {
@@ -40,19 +43,19 @@ export const initialSnapshot: AppSnapshot = (() => {
       {
         id: ownerUserId,
         email: 'owner@northcircle.app',
-        password: '1234',
+        developmentPlainTextPassword: DEVELOPMENT_ONLY_SEEDED_PASSWORD,
         profileId: ownerProfileId,
       },
       {
         id: secondUserId,
         email: 'elin@northcircle.app',
-        password: '1234',
+        developmentPlainTextPassword: DEVELOPMENT_ONLY_SEEDED_PASSWORD,
         profileId: secondProfileId,
       },
       {
         id: thirdUserId,
         email: 'mika@northcircle.app',
-        password: '1234',
+        developmentPlainTextPassword: DEVELOPMENT_ONLY_SEEDED_PASSWORD,
         profileId: thirdProfileId,
       },
     ],
@@ -67,7 +70,7 @@ export const initialSnapshot: AppSnapshot = (() => {
     },
     appLockSettings: {
       isEnabled: true,
-      pin: '2580',
+      developmentPin: DEVELOPMENT_ONLY_APP_LOCK_PIN,
       biometricEnabled: true,
       lockAfterMinutes: 5,
     },

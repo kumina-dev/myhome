@@ -54,7 +54,10 @@ export function AuthForm({
       }
 
       if (authMode === 'sign-in') {
-        await onSignIn({ email: normalizedEmail, password: cleanedPassword });
+        await onSignIn({
+          email: normalizedEmail,
+          developmentPlainTextPassword: cleanedPassword,
+        });
         return;
       }
 
@@ -70,7 +73,7 @@ export function AuthForm({
           groupName: cleanedGroupName,
           displayName: cleanedDisplayName,
           email: normalizedEmail,
-          password: cleanedPassword,
+          developmentPlainTextPassword: cleanedPassword,
         });
         return;
       }
@@ -86,7 +89,7 @@ export function AuthForm({
         code: cleanedInviteCode,
         displayName: cleanedDisplayName,
         email: normalizedEmail,
-        password: cleanedPassword,
+        developmentPlainTextPassword: cleanedPassword,
       });
     } catch (caught) {
       Alert.alert(

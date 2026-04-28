@@ -21,6 +21,8 @@ import {
 } from './models';
 import { initialSnapshot } from './seed';
 
+const DEVELOPMENT_INVITE_CODE_PREFIX = 'GROUP';
+
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
 }
@@ -29,11 +31,17 @@ function makeId(prefix: string): string {
   return `${prefix}-${Date.now()}-${Math.round(Math.random() * 1000)}`;
 }
 
+function makeDevelopmentInviteCode(): string {
+  return `${DEVELOPMENT_INVITE_CODE_PREFIX}-${Math.round(
+    Math.random() * 8999 + 1000,
+  )}`;
+}
+
 function nowIso(): string {
   return new Date().toISOString();
 }
 
-class MockApi
+class InMemoryDevelopmentApi
   implements
     AuthRepository,
     GroupRepository,
@@ -114,12 +122,12 @@ class MockApi
 
   async signIn(input: {
     email: string;
-    password: string;
+    developmentPlainTextPassword: string;
   }): Promise<AppSnapshot> {
     const user = this.snapshot.authUsers.find(
       item =>
         item.email.trim().toLowerCase() === input.email.trim().toLowerCase() &&
-        item.password === input.password,
+        item.developmentPlainTextPassword === input.developmentPlainTextPassword,
     );
 
     if (!user) {
@@ -140,7 +148,7 @@ class MockApi
     groupName: string;
     displayName: string;
     email: string;
-    password: string;
+    developmentPlainTextPassword: string;
   }): Promise<AppSnapshot> {
     const userId = makeId('auth');
     const profileId = makeId('profile');
@@ -150,7 +158,7 @@ class MockApi
     const user: AuthUser = {
       id: userId,
       email: input.email.trim().toLowerCase(),
-      password: input.password,
+      developmentPlainTextPassword: input.developmentPlainTextPassword,
       profileId,
     };
 
@@ -219,7 +227,7 @@ class MockApi
     const user: AuthUser = {
       id: userId,
       email: input.email.trim().toLowerCase(),
-      password: input.password,
+      developmentPlainTextPassword: input.developmentPlainTextPassword,
       profileId,
     };
 
@@ -281,7 +289,7 @@ class MockApi
   }
 
   async unlockApp(pin: string): Promise<AppSnapshot> {
-    if (pin !== this.snapshot.appLockSettings.pin) {
+    if (pin !== this.snapshot.appLockSettings.developmentPin) {
       throw new Error('Incorrect PIN.');
     }
 
@@ -349,7 +357,7 @@ class MockApi
       id: makeId('invite'),
       groupId: session.groupId,
       email: normalizedEmail,
-      code: `GROUP-${Math.round(Math.random() * 8999 + 1000)}`,
+      code: makeDevelopmentInviteCode(),
       profileNameHint: profileNameHint.trim() || undefined,
       invitedByUserId: session.userId,
       createdAt: nowIso(),
@@ -614,8 +622,8 @@ class MockApi
   }
 }
 
-export function createRepositories(): AppRepositories {
-  const api = new MockApi();
+export function createDevelopmentRepositories(): AppRepositories {
+  const api = new InMemoryDevelopmentApi();
 
   return {
     authRepository: api,

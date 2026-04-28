@@ -48,12 +48,14 @@ export function SecuritySettings({
         <Field
           theme={theme}
           label={t('settings.security.appPin')}
-          value={snapshot.appLockSettings.pin}
+          value={snapshot.appLockSettings.developmentPin}
           onChangeText={value => {
             const pin = normalizePinInput(value);
 
             if (isValidPin(pin)) {
-              onUpdateAppLockSettings({ pin }).catch(() => undefined);
+              onUpdateAppLockSettings({ developmentPin: pin }).catch(
+                () => undefined,
+              );
             }
           }}
           keyboardType="numeric"

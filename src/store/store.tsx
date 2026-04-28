@@ -24,7 +24,7 @@ import {
   SignInInput,
   UpdateSettingsInput,
 } from './models';
-import { createRepositories } from './mockApi';
+import { createDevelopmentRepositories } from './developmentApi';
 
 interface AppStoreValue {
   phase: AppPhase;
@@ -61,7 +61,7 @@ interface AppStoreValue {
   removeMember: (memberId: string) => Promise<void>;
   updateAppLockSettings: (input: {
     isEnabled?: boolean;
-    pin?: string;
+    developmentPin?: string;
     biometricEnabled?: boolean;
     lockAfterMinutes?: number;
   }) => Promise<void>;
@@ -81,7 +81,7 @@ export function resolvePhase(
 }
 
 export function AppStoreProvider({ children }: { children: React.ReactNode }) {
-  const repositoriesRef = useRef<AppRepositories>(createRepositories());
+  const repositoriesRef = useRef<AppRepositories>(createDevelopmentRepositories());
   const [snapshot, setSnapshot] = useState<AppSnapshot | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
