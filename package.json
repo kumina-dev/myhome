@@ -9,6 +9,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "pocketbase": "^0.26.2",
     "react": "19.2.3",
     "react-native": "0.85.2",
     "react-native-safe-area-context": "^5.5.2"
