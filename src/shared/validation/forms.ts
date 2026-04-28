@@ -76,23 +76,31 @@ export function parsePositiveInteger(value: string): number | null {
 }
 
 export function parseHour(value: string): number | null {
-  const parsed = parsePositiveInteger(value);
+  const cleaned = value.trim();
 
-  if (parsed === null && value.trim() === '0') {
-    return 0;
+  if (!/^\d{1,2}$/.test(cleaned)) {
+    return null;
   }
 
-  return parsed !== null && parsed <= 23 ? parsed : null;
+  const parsed = Number(cleaned);
+
+  return Number.isInteger(parsed) && parsed >= 0 && parsed <= 23
+    ? parsed
+    : null;
 }
 
 export function parseMinute(value: string): number | null {
-  const parsed = parsePositiveInteger(value);
+  const cleaned = value.trim();
 
-  if (parsed === null && value.trim() === '0') {
-    return 0;
+  if (!/^\d{1,2}$/.test(cleaned)) {
+    return null;
   }
 
-  return parsed !== null && parsed <= 59 ? parsed : null;
+  const parsed = Number(cleaned);
+
+  return Number.isInteger(parsed) && parsed >= 0 && parsed <= 59
+    ? parsed
+    : null;
 }
 
 export function combineDateAndTime(
