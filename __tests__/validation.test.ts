@@ -86,6 +86,8 @@ describe('form validation helpers', () => {
     expect(new Date(combined as string).getHours()).toBe(9);
     expect(new Date(combined as string).getMinutes()).toBe(30);
     expect(combineDateAndTime('2026/04/28', 9, 30)).toBeNull();
+    expect(combineDateAndTime('2026-02-31', 9, 30)).toBeNull();
+    expect(combineDateAndTime('2026-13-01', 9, 30)).toBeNull();
     expect(combineDateAndTime('2026-04-28', 24, 0)).toBeNull();
     expect(combineDateAndTime('2026-04-28', 9, 60)).toBeNull();
   });

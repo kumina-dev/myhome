@@ -9,7 +9,9 @@ import {
   getEventsForDate,
   getExpenseSummary,
   getLocaleSettings,
+  getPinnedNotes,
   getScoreboard,
+  getUnreadNotifications,
   getVisibleTasks,
 } from '../src/store/selectors';
 
@@ -288,6 +290,114 @@ describe('store selectors', () => {
         events: snapshot.events,
       },
     ]);
+  });
+
+  it('orders current group notes with pinned notes first and excludes other groups', () => {
+    const snapshot = cloneSnapshot();
+
+    snapshot.notes = [
+      {
+        id: 'current-unpinned',
+        groupId: 'group-nordline',
+        createdAt: isoAt(-3),
+        updatedAt: isoAt(-1),
+        createdByUserId: 'auth-owner',
+        updatedByUserId: 'auth-owner',
+        authorUserId: 'auth-owner',
+        title: 'Current unpinned',
+        body: 'Visible after pinned notes',
+        isPinned: false,
+      },
+      {
+        id: 'current-pinned-older',
+        groupId: 'group-nordline',
+        createdAt: isoAt(-4),
+        updatedAt: isoAt(-4),
+        createdByUserId: 'auth-owner',
+        updatedByUserId: 'auth-owner',
+        authorUserId: 'auth-owner',
+        title: 'Current pinned older',
+        body: 'Visible first because pinned',
+        isPinned: true,
+      },
+      {
+        id: 'current-pinned-newer',
+        groupId: 'group-nordline',
+        createdAt: isoAt(-2),
+        updatedAt: isoAt(-2),
+        createdByUserId: 'auth-elin',
+        updatedByUserId: 'auth-elin',
+        authorUserId: 'auth-elin',
+        title: 'Current pinned newer',
+        body: 'Visible before older pinned note',
+        isPinned: true,
+      },
+      {
+        id: 'other-group-pinned',
+        groupId: 'group-other',
+        createdAt: isoAt(0),
+        updatedAt: isoAt(0),
+        createdByUserId: 'auth-other',
+        updatedByUserId: 'auth-other',
+        authorUserId: 'auth-other',
+        title: 'Wrong group',
+        body: 'Must not leak into current group notes',
+        isPinned: true,
+      },
+    ];
+
+    expect(getPinnedNotes(snapshot).map(note => note.id)).toEqual([
+      'current-pinned-newer',
+      'current-pinned-older',
+      'current-unpinned',
+    ]);
+  });
+
+  it('returns unread notifications only for the current group', () => {
+    const snapshot = cloneSnapshot();
+
+    snapshot.notifications = [
+      {
+        id: 'current-unread',
+        groupId: 'group-nordline',
+        createdAt: isoAt(-1),
+        updatedAt: isoAt(-1),
+        createdByUserId: 'auth-owner',
+        updatedByUserId: 'auth-owner',
+        type: 'group',
+        title: 'Unread',
+        body: 'Current group unread notification',
+        isRead: false,
+      },
+      {
+        id: 'current-read',
+        groupId: 'group-nordline',
+        createdAt: isoAt(-1),
+        updatedAt: isoAt(-1),
+        createdByUserId: 'auth-owner',
+        updatedByUserId: 'auth-owner',
+        type: 'group',
+        title: 'Read',
+        body: 'Current group read notification',
+        isRead: true,
+      },
+      {
+        id: 'other-group-unread',
+        groupId: 'group-other',
+        createdAt: isoAt(-1),
+        updatedAt: isoAt(-1),
+        createdByUserId: 'auth-other',
+        updatedByUserId: 'auth-other',
+        type: 'group',
+        title: 'Wrong group',
+        body: 'Must not leak into current group notifications',
+        isRead: false,
+      },
+    ];
+
+    expect(
+      getUnreadNotifications(snapshot).map(notification => notification.id),
+    ).toEqual(['current-unread']);
   });
 
   it('returns current member role and locale settings', () => {

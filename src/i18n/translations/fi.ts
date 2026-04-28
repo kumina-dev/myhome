@@ -161,6 +161,42 @@ export const fi = {
       body: 'Luo ensimmäinen yhteinen muistiinpano suunnitelmille, ostosmuistutuksille tai muille tärkeille asioille.',
     },
   },
+  home: {
+    screen: {
+      subtitle:
+        'Yksityinen ryhmän suunnittelu, kulut ja tehtävät ilman turhaa säätöä.',
+      overview: 'Yhteenveto',
+    },
+    overview: {
+      thisMonth: 'Tämä kuukausi',
+      thisMonthHint: 'Ryhmän kulut nykyiseltä kuukaudelta',
+      pinnedNotes: 'Kiinnitetyt muistiinpanot',
+      pinnedNotesHint: 'Kaikille näkyvät tärkeimmät asiat',
+      cycleLeader: 'Jakson johtaja',
+      noScoreYet: 'Ei pisteitä vielä',
+      pointsThisCycle: '{count} pistettä tässä jaksossa',
+      completeTasksToStart: 'Aloita suorittamalla tehtäviä',
+    },
+    notifications: {
+      title: 'Ilmoitukset',
+      markAllRead: 'Merkitse kaikki luetuiksi',
+      emptyTitle: 'Hiljaista nyt',
+      emptyBody: 'Ei lukemattomia päivityksiä.',
+      types: {
+        event: 'Tapahtuma',
+        task: 'Tehtävä',
+        note: 'Muistiinpano',
+        expense: 'Kulu',
+        group: 'Ryhmä',
+      },
+    },
+    upcoming: {
+      title: 'Tulossa',
+      emptyTitle: 'Ei tulevia tapahtumia',
+      emptyBody:
+        'Lisää suunnitelmia, muistutuksia tai tärkeitä päivämääriä ryhmän koordinointiin.',
+    },
+  },
   tasks: {
     screen: {
       currentCycle: 'Nykyinen jakso',
@@ -192,6 +228,11 @@ export const fi = {
       title: 'Ei tehtäviä vielä',
       body: 'Lisää ensimmäinen yhteinen tai henkilökohtainen tehtävä, jotta pistejakso tekee jotain hyödyllistä.',
     },
+    scoreboard: {
+      previousCycle: 'Edellinen jakso',
+      cycleStarted: 'Jakso alkoi {date}',
+      previousScoringWindow: 'Edellinen pisteytysjakso',
+    },
   },
   settings: {
     screen: {
@@ -220,6 +261,7 @@ export const fi = {
       defaultTab: 'Oletusvälilehti',
       light: 'Vaalea',
       dark: 'Tumma',
+      currencyPlaceholder: 'EUR',
     },
     group: {
       members: 'Jäsenet',
@@ -232,6 +274,7 @@ export const fi = {
       removeMemberBody: 'Poistetaanko {name} ryhmästä?',
       inviteMember: 'Kutsu jäsen',
       nameHint: 'Nimivihje',
+      inviteEmailPlaceholder: 'kaveri@example.com',
       createInvite: 'Luo kutsu',
       pendingInvites: 'Odottavat kutsut',
       code: 'Koodi: {code}',

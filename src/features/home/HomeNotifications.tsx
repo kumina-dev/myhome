@@ -7,6 +7,18 @@ import { EmptyState } from '../../shared/ui/EmptyState';
 import { Section } from '../../shared/ui/Section';
 import { NotificationItem } from '../../store/models';
 import { useDateTimeFormatter } from '../../shared/format/dateTime';
+import { TranslationKey, useTranslation } from '../../i18n';
+
+const notificationTypeLabelKeys: Record<
+  NotificationItem['type'],
+  TranslationKey
+> = {
+  event: 'home.notifications.types.event',
+  task: 'home.notifications.types.task',
+  note: 'home.notifications.types.note',
+  expense: 'home.notifications.types.expense',
+  group: 'home.notifications.types.group',
+};
 
 export function HomeNotifications({
   theme,
@@ -19,16 +31,17 @@ export function HomeNotifications({
 }) {
   const styles = createStyles(theme);
   const { formatDateTime } = useDateTimeFormatter();
+  const { t } = useTranslation();
 
   return (
     <Section
       theme={theme}
-      title="Notifications"
+      title={t('home.notifications.title')}
       action={
         unread.length ? (
           <Button
             theme={theme}
-            label="Mark all read"
+            label={t('home.notifications.markAllRead')}
             kind="secondary"
             onPress={onMarkAllRead}
           />
@@ -38,7 +51,10 @@ export function HomeNotifications({
       {unread.length ? (
         unread.map(item => (
           <Card key={item.id} theme={theme}>
-            <Badge theme={theme} label={item.type} />
+            <Badge
+              theme={theme}
+              label={t(notificationTypeLabelKeys[item.type])}
+            />
             <Text style={styles.cardTitle}>{item.title}</Text>
             <Text style={styles.bodyMuted}>{item.body}</Text>
             <Text style={styles.meta}>{formatDateTime(item.createdAt)}</Text>
@@ -47,8 +63,8 @@ export function HomeNotifications({
       ) : (
         <EmptyState
           theme={theme}
-          title="Quiet for now"
-          body="No unread updates. A rare but welcome condition."
+          title={t('home.notifications.emptyTitle')}
+          body={t('home.notifications.emptyBody')}
         />
       )}
     </Section>
@@ -57,7 +73,7 @@ export function HomeNotifications({
 
 function Badge({ theme, label }: { theme: Theme; label: string }) {
   const styles = createStyles(theme);
-  
+
   return (
     <View style={styles.badge}>
       <Text style={styles.badgeText}>{label}</Text>

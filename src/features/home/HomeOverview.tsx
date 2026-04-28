@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Theme } from '../../shared/theme/theme';
+import { useTranslation } from '../../i18n';
 
 export function HomeOverview({
   theme,
@@ -15,28 +16,30 @@ export function HomeOverview({
   leaderName?: string;
   leaderPoints?: number;
 }) {
+  const { t } = useTranslation();
+
   return (
     <>
       <StatCard
         theme={theme}
-        label="This month"
+        label={t('home.overview.thisMonth')}
         value={monthlyTotal}
-        hint="Shared spending for the current month"
+        hint={t('home.overview.thisMonthHint')}
       />
       <StatCard
         theme={theme}
-        label="Pinned notes"
+        label={t('home.overview.pinnedNotes')}
         value={String(pinnedNoteCount)}
-        hint="Visible priorities for everyone"
+        hint={t('home.overview.pinnedNotesHint')}
       />
       <StatCard
         theme={theme}
-        label="Cycle leader"
-        value={leaderName ?? 'No score yet'}
+        label={t('home.overview.cycleLeader')}
+        value={leaderName ?? t('home.overview.noScoreYet')}
         hint={
           leaderPoints !== undefined
-            ? `${leaderPoints} points this cycle`
-            : 'Complete tasks to start'
+            ? t('home.overview.pointsThisCycle', { count: leaderPoints })
+            : t('home.overview.completeTasksToStart')
         }
       />
     </>
@@ -55,7 +58,7 @@ function StatCard({
   hint?: string;
 }) {
   const styles = createStyles(theme);
-  
+
   return (
     <View style={styles.card}>
       <Text style={styles.kicker}>{label}</Text>

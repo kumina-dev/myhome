@@ -161,6 +161,42 @@ export const en = {
       body: 'Create the first shared note for plans, shopping reminders, or things no one should need to ask twice.',
     },
   },
+  home: {
+    screen: {
+      subtitle:
+        'Private group planning, spending, and chores without needing a resident support engineer.',
+      overview: 'Overview',
+    },
+    overview: {
+      thisMonth: 'This month',
+      thisMonthHint: 'Shared spending for the current month',
+      pinnedNotes: 'Pinned notes',
+      pinnedNotesHint: 'Visible priorities for everyone',
+      cycleLeader: 'Cycle leader',
+      noScoreYet: 'No score yet',
+      pointsThisCycle: '{count} points this cycle',
+      completeTasksToStart: 'Complete tasks to start',
+    },
+    notifications: {
+      title: 'Notifications',
+      markAllRead: 'Mark all read',
+      emptyTitle: 'Quiet for now',
+      emptyBody: 'No unread updates. A rare but welcome condition.',
+      types: {
+        event: 'Event',
+        task: 'Task',
+        note: 'Note',
+        expense: 'Expense',
+        group: 'Group',
+      },
+    },
+    upcoming: {
+      title: 'Upcoming',
+      emptyTitle: 'No upcoming events',
+      emptyBody:
+        'Add plans, reminders, or important dates to keep the group coordinated.',
+    },
+  },
   tasks: {
     screen: {
       currentCycle: 'Current cycle',
@@ -192,6 +228,11 @@ export const en = {
       title: 'No tasks yet',
       body: 'Add the first shared or personal task to make the score cycle do something useful.',
     },
+    scoreboard: {
+      previousCycle: 'Previous cycle',
+      cycleStarted: 'Cycle started {date}',
+      previousScoringWindow: 'Previous scoring window',
+    },
   },
   settings: {
     screen: {
@@ -221,6 +262,7 @@ export const en = {
       defaultTab: 'Default tab',
       light: 'Light',
       dark: 'Dark',
+      currencyPlaceholder: 'EUR',
     },
     group: {
       members: 'Members',
@@ -233,6 +275,7 @@ export const en = {
       removeMemberBody: 'Remove {name} from the group?',
       inviteMember: 'Invite member',
       nameHint: 'Name hint',
+      inviteEmailPlaceholder: 'friend@example.com',
       createInvite: 'Create invite',
       pendingInvites: 'Pending invites',
       code: 'Code: {code}',

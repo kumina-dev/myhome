@@ -157,7 +157,7 @@ export function GroupSettings({
                 label={t('auth.fields.email')}
                 value={inviteEmail}
                 onChangeText={setInviteEmail}
-                placeholder="friend@example.com"
+                placeholder={t('settings.group.inviteEmailPlaceholder')}
               />
               <Field
                 theme={theme}

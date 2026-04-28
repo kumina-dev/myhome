@@ -106,16 +106,6 @@ Persistence must not start until these items are complete. Wiring storage into u
 
 Known cleanup remaining before persistence:
 
-- Localize remaining hard-coded Home screen labels and empty states:
-  - `src/features/home/HomeNotifications.tsx`
-  - `src/features/home/HomeOverview.tsx`
-  - `src/features/home/HomeScreen.tsx`
-  - `src/features/home/HomeUpcoming.tsx`
-- Localize remaining task scoreboard section text in `src/features/tasks/Scoreboard.tsx`.
-- Replace literal placeholder strings still present in settings fields where they are user-facing:
-  - `src/features/settings/sections/AppearanceSettings.tsx`
-  - `src/features/settings/sections/GroupSettings.tsx`
-- Keep selector and validation coverage passing before introducing storage adapters.
 - Add persistence tests only after the development-only security fields are removed or explicitly excluded from persisted state.
 
 ## Styling Direction

@@ -5,6 +5,7 @@ import { Section } from '../../shared/ui/Section';
 import { GroupMember, UserProfile } from '../../store/models';
 import { useDateTimeFormatter } from '../../shared/format/dateTime';
 import { getScoreboard } from '../../store/selectors';
+import { useTranslation } from '../../i18n';
 
 interface ActiveGroupProfile {
   member: GroupMember;
@@ -24,10 +25,11 @@ export function Scoreboard({
 }) {
   const scores =
     mode === 'current' ? scoreboard.currentScores : scoreboard.previousScores;
+  const { t } = useTranslation();
 
   if (mode === 'previous') {
     return (
-      <Section theme={theme} title="Previous cycle">
+      <Section theme={theme} title={t('tasks.scoreboard.previousCycle')}>
         <ScoreCards
           theme={theme}
           scores={scores}
@@ -64,7 +66,8 @@ function ScoreCards({
   showCycleHint: boolean;
 }) {
   const { formatShortDate } = useDateTimeFormatter();
-  
+  const { t } = useTranslation();
+
   return (
     <>
       {scores.map(item => {
@@ -76,12 +79,14 @@ function ScoreCards({
           <StatCard
             key={item.userId}
             theme={theme}
-            label={profile?.displayName ?? 'Unknown'}
+            label={profile?.displayName ?? t('common.states.unknown')}
             value={`${item.points}`}
             hint={
               showCycleHint
-                ? `Cycle started ${formatShortDate(cycleStart)}`
-                : 'Previous scoring window'
+                ? t('tasks.scoreboard.cycleStarted', {
+                    date: formatShortDate(cycleStart),
+                  })
+                : t('tasks.scoreboard.previousScoringWindow')
             }
           />
         );

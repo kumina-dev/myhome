@@ -6,6 +6,7 @@ import { EmptyState } from '../../shared/ui/EmptyState';
 import { Section } from '../../shared/ui/Section';
 import { CalendarEvent } from '../../store/models';
 import { useDateTimeFormatter } from '../../shared/format/dateTime';
+import { useTranslation } from '../../i18n';
 
 export function HomeUpcoming({
   theme,
@@ -16,22 +17,27 @@ export function HomeUpcoming({
 }) {
   const styles = createStyles(theme);
   const { formatDateTime } = useDateTimeFormatter();
+  const { t } = useTranslation();
 
   return (
-    <Section theme={theme} title="Upcoming">
+    <Section theme={theme} title={t('home.upcoming.title')}>
       {upcoming.length ? (
         upcoming.map(event => (
           <Card key={event.id} theme={theme}>
             <Text style={styles.cardTitle}>{event.title}</Text>
-            <Text style={styles.bodyMuted}>{formatDateTime(event.startsAt)}</Text>
-            {event.notes ? <Text style={styles.meta}>{event.notes}</Text> : null}
+            <Text style={styles.bodyMuted}>
+              {formatDateTime(event.startsAt)}
+            </Text>
+            {event.notes ? (
+              <Text style={styles.meta}>{event.notes}</Text>
+            ) : null}
           </Card>
         ))
       ) : (
         <EmptyState
           theme={theme}
-          title="No upcoming events"
-          body="Add plans, reminders, or important dates to keep the group coordinated."
+          title={t('home.upcoming.emptyTitle')}
+          body={t('home.upcoming.emptyBody')}
         />
       )}
     </Section>

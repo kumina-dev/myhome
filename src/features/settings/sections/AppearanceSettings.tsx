@@ -72,7 +72,7 @@ export function AppearanceSettings({
               onUpdateSettings({ currencyCode }).catch(() => undefined);
             }
           }}
-          placeholder="EUR"
+          placeholder={t('settings.appearance.currencyPlaceholder')}
         />
 
         <Kicker theme={theme}>{t('settings.appearance.defaultTab')}</Kicker>

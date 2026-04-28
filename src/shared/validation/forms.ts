@@ -116,9 +116,18 @@ export function combineDateAndTime(
     return null;
   }
 
-  const date = new Date(`${dateIso}T00:00:00`);
+  const [year, month, day] = dateIso.split('-').map(Number);
+  const date = new Date(year, month - 1, day);
 
   if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  if (
+    date.getFullYear() !== year ||
+    date.getMonth() !== month - 1 ||
+    date.getDate() !== day
+  ) {
     return null;
   }
 

@@ -9,6 +9,7 @@ import {
 } from '../../store/selectors';
 import { useAppStore } from '../../store/store';
 import { useCurrencyFormatter } from '../../shared/format/currency';
+import { useTranslation } from '../../i18n';
 import { Theme } from '../../shared/theme/theme';
 import { Screen } from '../../shared/ui/Screen';
 import { Section } from '../../shared/ui/Section';
@@ -20,6 +21,7 @@ import { HomeUpcoming } from './HomeUpcoming';
 export function HomeScreen({ theme }: { theme: Theme }) {
   const { snapshot, markAllNotificationsRead } = useAppStore();
   const { formatCurrency } = useCurrencyFormatter();
+  const { t } = useTranslation();
 
   if (!snapshot) return null;
 
@@ -52,12 +54,12 @@ export function HomeScreen({ theme }: { theme: Theme }) {
       <Section
         theme={theme}
         title={group.groupName}
-        subtitle="Private group planning, spending, and chores without needing a resident support engineer."
+        subtitle={t('home.screen.subtitle')}
       >
         <GroupHeaderCard theme={theme} profiles={profiles} />
       </Section>
 
-      <Section theme={theme} title="Overview">
+      <Section theme={theme} title={t('home.screen.overview')}>
         <HomeOverview
           theme={theme}
           monthlyTotal={monthlyTotal}
