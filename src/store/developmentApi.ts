@@ -4,23 +4,25 @@ import {
   AddExpenseInput,
   AddNoteInput,
   AddTaskInput,
-  AppLockSettings,
-  AppRepositories,
   AppSnapshot,
-  AuthRepository,
   AuthUser,
-  CalendarRepository,
   CreateGroupInput,
-  ExpenseRepository,
-  GroupRepository,
   Invite,
   MemberRole,
-  NotesRepository,
-  SettingsRepository,
   SignInInput,
-  TaskRepository,
   UpdateSettingsInput,
 } from './models';
+import {
+  AppRepositories,
+  AuthRepository,
+  CalendarRepository,
+  ExpenseRepository,
+  GroupRepository,
+  NotesRepository,
+  RepositoryResult,
+  SettingsRepository,
+  TaskRepository,
+} from './repositories';
 import {
   DEVELOPMENT_ONLY_APP_LOCK_PIN,
   DEVELOPMENT_ONLY_SEEDED_PASSWORD,
@@ -47,6 +49,10 @@ function nowIso(): string {
   return new Date().toISOString();
 }
 
+function result(snapshot: AppSnapshot): RepositoryResult {
+  return { snapshot: clone(snapshot) };
+}
+
 class InMemoryDevelopmentApi
   implements
     AuthRepository,
@@ -65,8 +71,8 @@ class InMemoryDevelopmentApi
     ]),
   );
 
-  async bootstrap(): Promise<AppSnapshot> {
-    return clone(this.snapshot);
+  async bootstrap(): Promise<RepositoryResult> {
+    return result(this.snapshot);
   }
 
   private getSessionOrThrow() {
@@ -132,7 +138,7 @@ class InMemoryDevelopmentApi
     };
   }
 
-  async signIn(input: SignInInput): Promise<AppSnapshot> {
+  async signIn(input: SignInInput): Promise<RepositoryResult> {
     const user = this.snapshot.authUsers.find(
       item =>
         item.email.trim().toLowerCase() === input.email.trim().toLowerCase() &&
@@ -150,10 +156,10 @@ class InMemoryDevelopmentApi
     }
 
     this.finishAuth(user, member.groupId);
-    return clone(this.snapshot);
+    return result(this.snapshot);
   }
 
-  async createGroupOwner(input: CreateGroupInput): Promise<AppSnapshot> {
+  async createGroupOwner(input: CreateGroupInput): Promise<RepositoryResult> {
     const userId = makeId('auth');
     const profileId = makeId('profile');
     const groupId = makeId('group');
@@ -202,10 +208,10 @@ class InMemoryDevelopmentApi
       `${input.groupName.trim()} is ready.`,
       'group',
     );
-    return clone(this.snapshot);
+    return result(this.snapshot);
   }
 
-  async acceptInvite(input: AcceptInviteInput): Promise<AppSnapshot> {
+  async acceptInvite(input: AcceptInviteInput): Promise<RepositoryResult> {
     const invite = this.snapshot.invites.find(
       item =>
         item.code.trim().toUpperCase() === input.code.trim().toUpperCase() &&
@@ -265,34 +271,34 @@ class InMemoryDevelopmentApi
       `${input.displayName.trim()} joined the group.`,
       'group',
     );
-    return clone(this.snapshot);
+    return result(this.snapshot);
   }
 
-  async updateGroupName(value: string): Promise<AppSnapshot> {
+  async updateGroupName(value: string): Promise<RepositoryResult> {
     const session = this.getSessionOrThrow();
     const cleaned = value.trim();
 
     if (!cleaned) {
-      return clone(this.snapshot);
+      return result(this.snapshot);
     }
 
     this.snapshot.groups = this.snapshot.groups.map(item =>
       item.id === session.groupId ? { ...item, groupName: cleaned } : item,
     );
 
-    return clone(this.snapshot);
+    return result(this.snapshot);
   }
 
-  async signOut(): Promise<AppSnapshot> {
+  async signOut(): Promise<RepositoryResult> {
     this.snapshot.sessionState = {
       session: null,
       activeProfileId: null,
     };
     this.snapshot.appLockState = { isLocked: false };
-    return clone(this.snapshot);
+    return result(this.snapshot);
   }
 
-  async unlockApp(pin: string): Promise<AppSnapshot> {
+  async unlockApp(pin: string): Promise<RepositoryResult> {
     if (pin !== DEVELOPMENT_ONLY_APP_LOCK_PIN) {
       throw new Error('Incorrect PIN.');
     }
@@ -300,29 +306,29 @@ class InMemoryDevelopmentApi
     this.snapshot.appLockState = {
       isLocked: false,
     };
-    return clone(this.snapshot);
+    return result(this.snapshot);
   }
 
-  async lockApp(): Promise<AppSnapshot> {
+  async lockApp(): Promise<RepositoryResult> {
     this.snapshot.appLockState = {
       isLocked: true,
     };
-    return clone(this.snapshot);
+    return result(this.snapshot);
   }
 
-  async registerBackgroundedAt(timestamp: string): Promise<AppSnapshot> {
+  async registerBackgroundedAt(timestamp: string): Promise<RepositoryResult> {
     this.snapshot.appLockState = {
       ...this.snapshot.appLockState,
       lastBackgroundedAt: timestamp,
     };
-    return clone(this.snapshot);
+    return result(this.snapshot);
   }
 
-  async revalidateAppLock(timestamp: string): Promise<AppSnapshot> {
+  async revalidateAppLock(timestamp: string): Promise<RepositoryResult> {
     const lastBackgroundedAt = this.snapshot.appLockState.lastBackgroundedAt;
 
     if (!lastBackgroundedAt || !this.snapshot.appLockSettings.isEnabled) {
-      return clone(this.snapshot);
+      return result(this.snapshot);
     }
 
     const elapsedMinutes =
@@ -336,13 +342,13 @@ class InMemoryDevelopmentApi
       };
     }
 
-    return clone(this.snapshot);
+    return result(this.snapshot);
   }
 
   async inviteMember(
     email: string,
     profileNameHint: string,
-  ): Promise<AppSnapshot> {
+  ): Promise<RepositoryResult> {
     const session = this.getSessionOrThrow();
     const normalizedEmail = email.trim().toLowerCase();
     const duplicate = this.snapshot.invites.find(
@@ -373,10 +379,10 @@ class InMemoryDevelopmentApi
       `${normalizedEmail} can now join.`,
       'group',
     );
-    return clone(this.snapshot);
+    return result(this.snapshot);
   }
 
-  async revokeInvite(inviteId: string): Promise<AppSnapshot> {
+  async revokeInvite(inviteId: string): Promise<RepositoryResult> {
     this.snapshot.invites = this.snapshot.invites.map(item =>
       item.id === inviteId ? { ...item, revokedAt: nowIso() } : item,
     );
@@ -385,13 +391,13 @@ class InMemoryDevelopmentApi
       'A pending invite was revoked.',
       'group',
     );
-    return clone(this.snapshot);
+    return result(this.snapshot);
   }
 
   async updateMemberRole(
     memberId: string,
     role: MemberRole,
-  ): Promise<AppSnapshot> {
+  ): Promise<RepositoryResult> {
     this.snapshot.members = this.snapshot.members.map(item =>
       item.id === memberId ? { ...item, role } : item,
     );
@@ -400,10 +406,10 @@ class InMemoryDevelopmentApi
       `A member role changed to ${role}.`,
       'group',
     );
-    return clone(this.snapshot);
+    return result(this.snapshot);
   }
 
-  async removeMember(memberId: string): Promise<AppSnapshot> {
+  async removeMember(memberId: string): Promise<RepositoryResult> {
     this.snapshot.members = this.snapshot.members.filter(
       item => item.id !== memberId,
     );
@@ -412,10 +418,10 @@ class InMemoryDevelopmentApi
       'A member was removed from the group.',
       'group',
     );
-    return clone(this.snapshot);
+    return result(this.snapshot);
   }
 
-  async addExpense(input: AddExpenseInput): Promise<AppSnapshot> {
+  async addExpense(input: AddExpenseInput): Promise<RepositoryResult> {
     const session = this.getSessionOrThrow();
     const timestamp = nowIso();
 
@@ -436,10 +442,10 @@ class InMemoryDevelopmentApi
       `${input.title} was logged.`,
       'expense',
     );
-    return clone(this.snapshot);
+    return result(this.snapshot);
   }
 
-  async addNote(input: AddNoteInput): Promise<AppSnapshot> {
+  async addNote(input: AddNoteInput): Promise<RepositoryResult> {
     const session = this.getSessionOrThrow();
     const timestamp = nowIso();
 
@@ -457,10 +463,10 @@ class InMemoryDevelopmentApi
       ...this.snapshot.notes,
     ];
     this.pushNotification('New note', input.title, 'note');
-    return clone(this.snapshot);
+    return result(this.snapshot);
   }
 
-  async toggleNotePinned(noteId: string): Promise<AppSnapshot> {
+  async toggleNotePinned(noteId: string): Promise<RepositoryResult> {
     this.snapshot.notes = this.snapshot.notes.map(item =>
       item.id === noteId
         ? {
@@ -470,10 +476,10 @@ class InMemoryDevelopmentApi
           }
         : item,
     );
-    return clone(this.snapshot);
+    return result(this.snapshot);
   }
 
-  async addEvent(input: AddEventInput): Promise<AppSnapshot> {
+  async addEvent(input: AddEventInput): Promise<RepositoryResult> {
     const session = this.getSessionOrThrow();
     const timestamp = nowIso();
 
@@ -494,10 +500,10 @@ class InMemoryDevelopmentApi
       `${input.title} was added to the calendar.`,
       'event',
     );
-    return clone(this.snapshot);
+    return result(this.snapshot);
   }
 
-  async addTask(input: AddTaskInput): Promise<AppSnapshot> {
+  async addTask(input: AddTaskInput): Promise<RepositoryResult> {
     const session = this.getSessionOrThrow();
     const timestamp = nowIso();
 
@@ -518,13 +524,13 @@ class InMemoryDevelopmentApi
       `${input.title} is now on the board.`,
       'task',
     );
-    return clone(this.snapshot);
+    return result(this.snapshot);
   }
 
   async toggleTaskComplete(
     taskId: string,
     completedByUserId: string,
-  ): Promise<AppSnapshot> {
+  ): Promise<RepositoryResult> {
     const timestamp = nowIso();
 
     this.snapshot.tasks = this.snapshot.tasks.map(item =>
@@ -553,10 +559,10 @@ class InMemoryDevelopmentApi
       );
     }
 
-    return clone(this.snapshot);
+    return result(this.snapshot);
   }
 
-  async updateSettings(input: UpdateSettingsInput): Promise<AppSnapshot> {
+  async updateSettings(input: UpdateSettingsInput): Promise<RepositoryResult> {
     this.snapshot.settings = {
       ...this.snapshot.settings,
       ...input,
@@ -565,14 +571,14 @@ class InMemoryDevelopmentApi
         ...input.notifications,
       },
     };
-    return clone(this.snapshot);
+    return result(this.snapshot);
   }
 
-  async addExpenseCategory(value: string): Promise<AppSnapshot> {
+  async addExpenseCategory(value: string): Promise<RepositoryResult> {
     const cleaned = value.trim();
 
     if (!cleaned) {
-      return clone(this.snapshot);
+      return result(this.snapshot);
     }
 
     const exists = this.snapshot.settings.expenseCategories.some(
@@ -589,10 +595,10 @@ class InMemoryDevelopmentApi
       };
     }
 
-    return clone(this.snapshot);
+    return result(this.snapshot);
   }
 
-  async removeExpenseCategory(value: string): Promise<AppSnapshot> {
+  async removeExpenseCategory(value: string): Promise<RepositoryResult> {
     const nextCategories = this.snapshot.settings.expenseCategories.filter(
       item => item !== value,
     );
@@ -604,25 +610,26 @@ class InMemoryDevelopmentApi
       };
     }
 
-    return clone(this.snapshot);
+    return result(this.snapshot);
   }
 
-  async markAllNotificationsRead(): Promise<AppSnapshot> {
+  async markAllNotificationsRead(): Promise<RepositoryResult> {
     this.snapshot.notifications = this.snapshot.notifications.map(item => ({
       ...item,
       isRead: true,
     }));
-    return clone(this.snapshot);
+    return result(this.snapshot);
   }
 
-  async updateAppLockSettings(
-    input: Partial<AppLockSettings>,
-  ): Promise<AppSnapshot> {
+  async updateAppLockSettings(input: {
+    isEnabled?: boolean;
+    lockAfterMinutes?: number;
+  }): Promise<RepositoryResult> {
     this.snapshot.appLockSettings = {
       ...this.snapshot.appLockSettings,
       ...input,
     };
-    return clone(this.snapshot);
+    return result(this.snapshot);
   }
 }
 

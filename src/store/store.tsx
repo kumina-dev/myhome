@@ -15,7 +15,6 @@ import {
   AddNoteInput,
   AddTaskInput,
   AppPhase,
-  AppRepositories,
   AppSnapshot,
   AuthFlowMode,
   CreateGroupInput,
@@ -25,6 +24,7 @@ import {
   UpdateSettingsInput,
 } from './models';
 import { createDevelopmentRepositories } from './developmentApi';
+import { AppRepositories, RepositoryResult } from './repositories';
 
 interface AppStoreValue {
   phase: AppPhase;
@@ -88,12 +88,12 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
   const [authMode, setAuthMode] = useState<AuthFlowMode>('sign-in');
   const [settingsTab, setSettingsTab] = useState<SettingsTab>('account');
 
-  const run = useCallback(async (work: () => Promise<AppSnapshot>) => {
+  const run = useCallback(async (work: () => Promise<RepositoryResult>) => {
     setError(null);
 
     try {
-      const nextSnapshot = await work();
-      setSnapshot(nextSnapshot);
+      const result = await work();
+      setSnapshot(result.snapshot);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Unexpected error.');
       throw caught;
@@ -107,9 +107,9 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
       setLoading(true);
 
       try {
-        const data = await repositoriesRef.current.authRepository.bootstrap();
+        const result = await repositoriesRef.current.authRepository.bootstrap();
 
-        if (mounted) setSnapshot(data);
+        if (mounted) setSnapshot(result.snapshot);
       } catch (caught) {
         if (mounted) {
           setError(
@@ -136,20 +136,20 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
 
         if (state === 'background') {
           const timestamp = new Date().toISOString();
-          const next =
+          const result =
             await repositoriesRef.current.authRepository.registerBackgroundedAt(
               timestamp,
             );
-          setSnapshot(next);
+          setSnapshot(result.snapshot);
         }
 
         if (state === 'active') {
           const timestamp = new Date().toISOString();
-          const next =
+          const result =
             await repositoriesRef.current.authRepository.revalidateAppLock(
               timestamp,
             );
-          setSnapshot(next);
+          setSnapshot(result.snapshot);
         }
       },
     );
