@@ -43,7 +43,6 @@ export interface BaseRecord {
 export interface AuthUser {
   id: string;
   email: string;
-  developmentPlainTextPassword: string;
   profileId: string;
 }
 
@@ -67,8 +66,6 @@ export interface SessionState {
 
 export interface AppLockSettings {
   isEnabled: boolean;
-  developmentPin: string;
-  biometricEnabled: boolean;
   lockAfterMinutes: number;
 }
 
@@ -191,19 +188,19 @@ export interface CreateGroupInput {
   groupName: string;
   displayName: string;
   email: string;
-  developmentPlainTextPassword: string;
+  password: string;
 }
 
 export interface AcceptInviteInput {
   code: string;
   displayName: string;
   email: string;
-  developmentPlainTextPassword: string;
+  password: string;
 }
 
 export interface SignInInput {
   email: string;
-  developmentPlainTextPassword: string;
+  password: string;
 }
 
 export interface AddExpenseInput {

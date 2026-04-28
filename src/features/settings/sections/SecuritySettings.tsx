@@ -1,17 +1,12 @@
 import React from 'react';
 import { Theme } from '../../../shared/theme/theme';
 import { Card } from '../../../shared/ui/Card';
-import { Field } from '../../../shared/ui/Field';
 import { Section } from '../../../shared/ui/Section';
 import { AppLockSettings, AppSnapshot } from '../../../store/models';
 import { Kicker } from '../SettingsRows';
 import { SegmentedControl } from '../../../shared/ui/SegmentedControl';
 import { ToggleRow } from '../../../shared/ui/ToggleRow';
 import { useTranslation } from '../../../i18n';
-import {
-  isValidPin,
-  normalizePinInput,
-} from '../../../shared/validation/forms';
 
 export function SecuritySettings({
   theme,
@@ -34,31 +29,6 @@ export function SecuritySettings({
           onValueChange={value =>
             onUpdateAppLockSettings({ isEnabled: value }).catch(() => undefined)
           }
-        />
-        <ToggleRow
-          theme={theme}
-          label={t('settings.security.enableBiometricUnlock')}
-          value={snapshot.appLockSettings.biometricEnabled}
-          onValueChange={value =>
-            onUpdateAppLockSettings({ biometricEnabled: value }).catch(
-              () => undefined,
-            )
-          }
-        />
-        <Field
-          theme={theme}
-          label={t('settings.security.appPin')}
-          value={snapshot.appLockSettings.developmentPin}
-          onChangeText={value => {
-            const pin = normalizePinInput(value);
-
-            if (isValidPin(pin)) {
-              onUpdateAppLockSettings({ developmentPin: pin }).catch(
-                () => undefined,
-              );
-            }
-          }}
-          keyboardType="numeric"
         />
         <Kicker theme={theme}>{t('settings.security.lockAfter')}</Kicker>
         <SegmentedControl

@@ -10,18 +10,24 @@ import {
   AuthRepository,
   AuthUser,
   CalendarRepository,
+  CreateGroupInput,
   ExpenseRepository,
   GroupRepository,
   Invite,
   MemberRole,
   NotesRepository,
   SettingsRepository,
+  SignInInput,
   TaskRepository,
   UpdateSettingsInput,
 } from './models';
-import { initialSnapshot } from './seed';
+import {
+  DEVELOPMENT_ONLY_APP_LOCK_PIN,
+  DEVELOPMENT_ONLY_SEEDED_PASSWORD,
+  initialSnapshot,
+} from './seed';
 
-const DEVELOPMENT_INVITE_CODE_PREFIX = 'GROUP';
+const DEVELOPMENT_ONLY_INVITE_CODE_PREFIX = 'GROUP';
 
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
@@ -31,8 +37,8 @@ function makeId(prefix: string): string {
   return `${prefix}-${Date.now()}-${Math.round(Math.random() * 1000)}`;
 }
 
-function makeDevelopmentInviteCode(): string {
-  return `${DEVELOPMENT_INVITE_CODE_PREFIX}-${Math.round(
+function makeDevelopmentOnlyInviteCode(): string {
+  return `${DEVELOPMENT_ONLY_INVITE_CODE_PREFIX}-${Math.round(
     Math.random() * 8999 + 1000,
   )}`;
 }
@@ -52,6 +58,12 @@ class InMemoryDevelopmentApi
     SettingsRepository
 {
   private snapshot = clone(initialSnapshot);
+  private readonly developmentOnlyPasswords = new Map(
+    initialSnapshot.authUsers.map(user => [
+      user.id,
+      DEVELOPMENT_ONLY_SEEDED_PASSWORD,
+    ]),
+  );
 
   async bootstrap(): Promise<AppSnapshot> {
     return clone(this.snapshot);
@@ -120,14 +132,11 @@ class InMemoryDevelopmentApi
     };
   }
 
-  async signIn(input: {
-    email: string;
-    developmentPlainTextPassword: string;
-  }): Promise<AppSnapshot> {
+  async signIn(input: SignInInput): Promise<AppSnapshot> {
     const user = this.snapshot.authUsers.find(
       item =>
         item.email.trim().toLowerCase() === input.email.trim().toLowerCase() &&
-        item.developmentPlainTextPassword === input.developmentPlainTextPassword,
+        this.developmentOnlyPasswords.get(item.id) === input.password,
     );
 
     if (!user) {
@@ -144,12 +153,7 @@ class InMemoryDevelopmentApi
     return clone(this.snapshot);
   }
 
-  async createGroupOwner(input: {
-    groupName: string;
-    displayName: string;
-    email: string;
-    developmentPlainTextPassword: string;
-  }): Promise<AppSnapshot> {
+  async createGroupOwner(input: CreateGroupInput): Promise<AppSnapshot> {
     const userId = makeId('auth');
     const profileId = makeId('profile');
     const groupId = makeId('group');
@@ -158,10 +162,10 @@ class InMemoryDevelopmentApi
     const user: AuthUser = {
       id: userId,
       email: input.email.trim().toLowerCase(),
-      developmentPlainTextPassword: input.developmentPlainTextPassword,
       profileId,
     };
 
+    this.developmentOnlyPasswords.set(userId, input.password);
     this.snapshot.authUsers = [...this.snapshot.authUsers, user];
     this.snapshot.profiles = [
       ...this.snapshot.profiles,
@@ -227,10 +231,10 @@ class InMemoryDevelopmentApi
     const user: AuthUser = {
       id: userId,
       email: input.email.trim().toLowerCase(),
-      developmentPlainTextPassword: input.developmentPlainTextPassword,
       profileId,
     };
 
+    this.developmentOnlyPasswords.set(userId, input.password);
     this.snapshot.authUsers = [...this.snapshot.authUsers, user];
     this.snapshot.profiles = [
       ...this.snapshot.profiles,
@@ -289,7 +293,7 @@ class InMemoryDevelopmentApi
   }
 
   async unlockApp(pin: string): Promise<AppSnapshot> {
-    if (pin !== this.snapshot.appLockSettings.developmentPin) {
+    if (pin !== DEVELOPMENT_ONLY_APP_LOCK_PIN) {
       throw new Error('Incorrect PIN.');
     }
 
@@ -357,7 +361,7 @@ class InMemoryDevelopmentApi
       id: makeId('invite'),
       groupId: session.groupId,
       email: normalizedEmail,
-      code: makeDevelopmentInviteCode(),
+      code: makeDevelopmentOnlyInviteCode(),
       profileNameHint: profileNameHint.trim() || undefined,
       invitedByUserId: session.userId,
       createdAt: nowIso(),

@@ -61,8 +61,6 @@ interface AppStoreValue {
   removeMember: (memberId: string) => Promise<void>;
   updateAppLockSettings: (input: {
     isEnabled?: boolean;
-    developmentPin?: string;
-    biometricEnabled?: boolean;
     lockAfterMinutes?: number;
   }) => Promise<void>;
 }
@@ -81,7 +79,9 @@ export function resolvePhase(
 }
 
 export function AppStoreProvider({ children }: { children: React.ReactNode }) {
-  const repositoriesRef = useRef<AppRepositories>(createDevelopmentRepositories());
+  const repositoriesRef = useRef<AppRepositories>(
+    createDevelopmentRepositories(),
+  );
   const [snapshot, setSnapshot] = useState<AppSnapshot | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -245,7 +245,9 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
         );
       },
       updateGroupName: async groupName => {
-        await run(() => repositoriesRef.current.groupRepository.updateGroupName(groupName));
+        await run(() =>
+          repositoriesRef.current.groupRepository.updateGroupName(groupName),
+        );
       },
       inviteMember: async (email, profileNameHint) => {
         await run(() =>

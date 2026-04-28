@@ -43,19 +43,16 @@ export const initialSnapshot: AppSnapshot = (() => {
       {
         id: ownerUserId,
         email: 'owner@northcircle.app',
-        developmentPlainTextPassword: DEVELOPMENT_ONLY_SEEDED_PASSWORD,
         profileId: ownerProfileId,
       },
       {
         id: secondUserId,
         email: 'elin@northcircle.app',
-        developmentPlainTextPassword: DEVELOPMENT_ONLY_SEEDED_PASSWORD,
         profileId: secondProfileId,
       },
       {
         id: thirdUserId,
         email: 'mika@northcircle.app',
-        developmentPlainTextPassword: DEVELOPMENT_ONLY_SEEDED_PASSWORD,
         profileId: thirdProfileId,
       },
     ],
@@ -70,8 +67,6 @@ export const initialSnapshot: AppSnapshot = (() => {
     },
     appLockSettings: {
       isEnabled: true,
-      developmentPin: DEVELOPMENT_ONLY_APP_LOCK_PIN,
-      biometricEnabled: true,
       lockAfterMinutes: 5,
     },
     appLockState: {
