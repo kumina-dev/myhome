@@ -1,4 +1,4 @@
-package com.myhome
+package com.circl.app
 
 import android.app.Application
 import com.facebook.react.PackageList
