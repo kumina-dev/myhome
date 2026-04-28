@@ -23,8 +23,8 @@ import {
   SignInInput,
   UpdateSettingsInput,
 } from './models';
-import { createDevelopmentRepositories } from './developmentApi';
 import { AppRepositories, RepositoryResult } from './repositories';
+import { createAppRepositories } from './repositoryFactory';
 
 interface AppStoreValue {
   phase: AppPhase;
@@ -80,7 +80,7 @@ export function resolvePhase(
 
 export function AppStoreProvider({ children }: { children: React.ReactNode }) {
   const repositoriesRef = useRef<AppRepositories>(
-    createDevelopmentRepositories(),
+    createAppRepositories(),
   );
   const [snapshot, setSnapshot] = useState<AppSnapshot | null>(null);
   const [loading, setLoading] = useState(true);
