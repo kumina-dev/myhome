@@ -92,6 +92,32 @@ The current repository uses an in-memory development data layer only.
 - Biometric settings are UI state only until native secure auth is implemented.
 - Do not connect persistence to these placeholder security fields as-is.
 
+## Pre-Persistence Reassessment
+
+Persistence must not start until these items are complete. Wiring storage into unstable state shape is how garbage becomes archaeology.
+
+- Keep `groups[].groupName` as the only source of truth for group names.
+- Keep `settings` limited to user and group preferences.
+- Do not persist `developmentPlainTextPassword`; replace it with a real authentication boundary first.
+- Do not persist `developmentPin`; replace it with Android secure storage or remove app-lock persistence from the first storage pass.
+- Do not treat `src/store/developmentApi.ts` as a production repository implementation.
+- Do not reuse development invite-code generation for production invites.
+- Do not persist biometric settings until native secure auth behavior exists.
+
+Known cleanup remaining before persistence:
+
+- Localize remaining hard-coded Home screen labels and empty states:
+  - `src/features/home/HomeNotifications.tsx`
+  - `src/features/home/HomeOverview.tsx`
+  - `src/features/home/HomeScreen.tsx`
+  - `src/features/home/HomeUpcoming.tsx`
+- Localize remaining task scoreboard section text in `src/features/tasks/Scoreboard.tsx`.
+- Replace literal placeholder strings still present in settings fields where they are user-facing:
+  - `src/features/settings/sections/AppearanceSettings.tsx`
+  - `src/features/settings/sections/GroupSettings.tsx`
+- Keep selector and validation coverage passing before introducing storage adapters.
+- Add persistence tests only after the development-only security fields are removed or explicitly excluded from persisted state.
+
 ## Styling Direction
 
 The UI uses a warm graphite foundation, bone-colored surfaces, ember/coral action accents, and green success states. The intent is polished and private, not generic fintech blue and not default React Native starter gray.
