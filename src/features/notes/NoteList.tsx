@@ -63,7 +63,7 @@ export function NoteList({
                 <View style={styles.authorText}>
                   <Text style={styles.cardTitle}>{note.title}</Text>
                   <Text style={styles.meta}>
-                    {profile?.displayName ?? 'Unknown'} ·{' '}
+                    {profile?.displayName ?? t('common.states.unknown')} -{' '}
                     {formatDateTime(note.updatedAt)}
                   </Text>
                 </View>

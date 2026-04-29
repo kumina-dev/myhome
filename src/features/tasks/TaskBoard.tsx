@@ -58,22 +58,35 @@ export function TaskBoard({
                 <Text style={styles.taskTitle}>{task.title}</Text>
                 <Text style={styles.taskMeta}>
                   {task.scope === 'shared'
-                    ? 'Shared task'
-                    : `Personal · ${profile?.displayName ?? 'Unknown'}`}
+                    ? t('tasks.labels.sharedTask')
+                    : t('tasks.labels.personalTask', {
+                        name:
+                          profile?.displayName ?? t('common.states.unknown'),
+                      })}
                 </Text>
                 <Text style={styles.taskMeta}>
-                  {task.points} points
-                  {task.dueAt ? ` · due ${formatShortDate(task.dueAt)}` : ''}
+                  {t('tasks.labels.points', { count: task.points })}
+                  {task.dueAt
+                    ? ` - ${t('tasks.labels.due', {
+                        date: formatShortDate(task.dueAt),
+                      })}`
+                    : ''}
                 </Text>
                 {task.completedAt ? (
                   <Text style={styles.taskDone}>
-                    Completed {formatDateTime(task.completedAt)}
+                    {t('tasks.labels.completed', {
+                      date: formatDateTime(task.completedAt),
+                    })}
                   </Text>
                 ) : null}
               </View>
               <ActionTextButton
                 theme={theme}
-                label={task.completedAt ? 'Undo' : 'Complete'}
+                label={
+                  task.completedAt
+                    ? t('tasks.actions.undo')
+                    : t('tasks.actions.complete')
+                }
                 onPress={() =>
                   onToggleTaskComplete(
                     task.id,

@@ -37,8 +37,10 @@ export const fi = {
     settings: 'Asetukset',
   },
   app: {
+    brandName: 'Circl',
     fallbackGroupName: 'Ryhmä',
     headerSubtitle: 'Yhteinen suunnittelu pienelle luotetulle ryhmälle',
+    splashBody: 'Ladataan yhteistä paikkaa suunnitelmille, tehtäville, muistiinpanoille ja arjen päätöksille.',
     lock: 'Lukitse',
   },
   auth: {
@@ -56,7 +58,7 @@ export const fi = {
       password: 'Salasana',
     },
     placeholders: {
-      groupName: 'North Circle',
+      groupName: 'Koti piiri',
       displayName: 'June',
       inviteCode: 'GROUP-1234',
       email: 'sinä@example.com',
@@ -100,6 +102,8 @@ export const fi = {
   expenses: {
     screen: {
       thisMonth: 'Tämä kuukausi',
+      total: 'Yhteensä',
+      monthlySummaryHint: 'Kategorioittain, jäsenittäin ja viimeisimmän toiminnan mukaan',
       logPurchase: 'Kirjaa ostos',
       logPurchaseSubtitle:
         'Rakenteiset kentät voittavat epämääräiset vapaatekstit.',
@@ -219,6 +223,15 @@ export const fi = {
     },
     actions: {
       addTask: 'Lisää tehtävä',
+      complete: 'Valmis',
+      undo: 'Kumoa',
+    },
+    labels: {
+      sharedTask: 'Yhteinen tehtävä',
+      personalTask: 'Henkilökohtainen - {name}',
+      points: '{count} pistettä',
+      due: 'määräpäivä {date}',
+      completed: 'Valmis {date}',
     },
     validation: {
       invalidTitle: 'Virheellinen tehtävä',

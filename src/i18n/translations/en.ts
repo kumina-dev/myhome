@@ -37,8 +37,11 @@ export const en = {
     settings: 'Settings',
   },
   app: {
+    brandName: 'Circl',
     fallbackGroupName: 'Group',
-    headerSubtitle: 'Shared planning for a small trusted group',
+    headerSubtitle: 'Private coordination for your trusted circle',
+    splashBody:
+      'Loading your shared home for plans, tasks, notes, and everyday decisions.',
     lock: 'Lock',
   },
   auth: {
@@ -46,8 +49,7 @@ export const en = {
     signIn: 'Sign in',
     createGroup: 'Create group',
     acceptInvite: 'Accept invite',
-    subtitle:
-      'Private app, invited members, and an actual path through the flow instead of guesswork.',
+    subtitle: 'Sign in, create a private group, or join one with an invite.',
     fields: {
       groupName: 'Group name',
       displayName: 'Display name',
@@ -56,7 +58,7 @@ export const en = {
       password: 'Password',
     },
     placeholders: {
-      groupName: 'North Circle',
+      groupName: 'Home circle',
       displayName: 'June',
       inviteCode: 'GROUP-1234',
       email: 'you@example.com',
@@ -100,9 +102,11 @@ export const en = {
   expenses: {
     screen: {
       thisMonth: 'This month',
+      total: 'Total',
+      monthlySummaryHint: 'By category, by member, and recent activity',
       logPurchase: 'Log purchase',
       logPurchaseSubtitle:
-        'Structured inputs beat mysterious free-text blobs every time.',
+        'Track shared purchases with clear amounts, dates, and categories.',
     },
     sections: {
       byCategory: 'By category',
@@ -136,8 +140,7 @@ export const en = {
   notes: {
     screen: {
       title: 'Shared notes',
-      subtitle:
-        'Pinned notes stay visible. The rest still remain easy to find without becoming a fake wiki.',
+      subtitle: 'Pinned notes keep important plans and reminders visible.',
       currentNotes: 'Current notes',
     },
     fields: {
@@ -164,7 +167,7 @@ export const en = {
   home: {
     screen: {
       subtitle:
-        'Private group planning, spending, and chores without needing a resident support engineer.',
+        'Private planning, spending, notes, and chores for trusted groups.',
       overview: 'Overview',
     },
     overview: {
@@ -202,7 +205,7 @@ export const en = {
       currentCycle: 'Current cycle',
       newTask: 'New task',
       newTaskSubtitle:
-        'Shared and personal tasks live in the same system, without making everyday use feel like a spreadsheet prison.',
+        'Shared and personal tasks stay together without forcing every routine into the same shape.',
       taskBoard: 'Task board',
     },
     fields: {
@@ -219,6 +222,15 @@ export const en = {
     },
     actions: {
       addTask: 'Add task',
+      complete: 'Complete',
+      undo: 'Undo',
+    },
+    labels: {
+      sharedTask: 'Shared task',
+      personalTask: 'Personal - {name}',
+      points: '{count} points',
+      due: 'due {date}',
+      completed: 'Completed {date}',
     },
     validation: {
       invalidTitle: 'Invalid task',
@@ -237,8 +249,7 @@ export const en = {
   settings: {
     screen: {
       title: 'Settings',
-      subtitle:
-        'Deep enough to be useful, not deep enough to become a support ticket factory.',
+      subtitle: 'Detailed controls for the way your group uses Circl.',
     },
     tabs: {
       account: 'Account',

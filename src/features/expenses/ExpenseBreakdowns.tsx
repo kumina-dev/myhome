@@ -68,7 +68,7 @@ export function ExpenseBreakdowns({
                 ) : null}
                 <View style={styles.memberColumn}>
                   <Text style={styles.cardTitle}>
-                    {profile?.displayName ?? 'Unknown'}
+                    {profile?.displayName ?? t('common.states.unknown')}
                   </Text>
                   <Text style={styles.bodyMuted}>
                     {formatCurrency(item.amountCents)}
@@ -90,8 +90,8 @@ export function ExpenseBreakdowns({
             <Card key={expense.id} theme={theme}>
               <Text style={styles.cardTitle}>{expense.title}</Text>
               <Text style={styles.bodyMuted}>
-                {profile?.displayName ?? 'Unknown'} · {expense.category} ·{' '}
-                {formatShortDate(expense.purchasedAt)}
+                {profile?.displayName ?? t('common.states.unknown')} -{' '}
+                {expense.category} - {formatShortDate(expense.purchasedAt)}
               </Text>
               <Text style={styles.cardValue}>
                 {formatCurrency(expense.amountCents)}

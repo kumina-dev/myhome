@@ -28,10 +28,10 @@ export function ExpensesScreen({ theme }: { theme: Theme }) {
     <Screen theme={theme}>
       <Section theme={theme} title={t('expenses.screen.thisMonth')}>
         <View style={styles.statCard}>
-          <Text style={styles.kicker}>Total</Text>
+          <Text style={styles.kicker}>{t('expenses.screen.total')}</Text>
           <Text style={styles.statValue}>{formatCurrency(summary.total)}</Text>
           <Text style={styles.bodyMuted}>
-            By category, by member, and easy to scan
+            {t('expenses.screen.monthlySummaryHint')}
           </Text>
         </View>
       </Section>

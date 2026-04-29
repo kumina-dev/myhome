@@ -1,17 +1,16 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Theme } from '../shared/theme/theme';
+import { useTranslation } from '../i18n';
 
 export function SplashScreen({ theme }: { theme: Theme }) {
   const styles = createStyles(theme);
+  const { t } = useTranslation();
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>North Circle</Text>
-      <Text style={styles.body}>
-        Loading a private group workspace that behaves like a real app instead
-        of a stack of loose notes.
-      </Text>
+      <Text style={styles.title}>{t('app.brandName')}</Text>
+      <Text style={styles.body}>{t('app.splashBody')}</Text>
     </View>
   );
 }
