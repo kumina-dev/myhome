@@ -6,11 +6,14 @@ import {
 } from '../backend/pocketBaseAuth';
 import {
   BackendAuthUserRecord,
+  BackendCalendarEventRecord,
   BackendExpenseCategoryRecord,
   BackendExpenseRecord,
   BackendGroupMemberRecord,
   BackendGroupRecord,
+  BackendNoteRecord,
   BackendProfileRecord,
+  BackendTaskRecord,
 } from './backendRecords';
 import {
   AcceptInviteInput,
@@ -48,6 +51,9 @@ function emptyResult(): RepositoryResult {
       profiles: [],
       expenseCategories: [],
       expenses: [],
+      notes: [],
+      calendarEvents: [],
+      tasks: [],
     }),
   };
 }
@@ -141,6 +147,33 @@ class PocketBaseWorkspaceReader {
         sort: '-purchasedAt',
       });
 
+    const notes = await this.client
+      .collection('notes')
+      .getFullList<BackendNoteRecord>({
+        filter: this.client.filter('group = {:groupId} && deletedAt = null', {
+          groupId: activeGroup.id,
+        }),
+        sort: '-updated',
+      });
+
+    const calendarEvents = await this.client
+      .collection('calendar_events')
+      .getFullList<BackendCalendarEventRecord>({
+        filter: this.client.filter('group = {:groupId} && deletedAt = null', {
+          groupId: activeGroup.id,
+        }),
+        sort: 'startsAt',
+      });
+
+    const tasks = await this.client
+      .collection('tasks')
+      .getFullList<BackendTaskRecord>({
+        filter: this.client.filter('group = {:groupId} && deletedAt = null', {
+          groupId: activeGroup.id,
+        }),
+        sort: 'dueAt',
+      });
+
     return {
       snapshot: createPocketBaseSnapshot({
         currentUser,
@@ -150,6 +183,9 @@ class PocketBaseWorkspaceReader {
         profiles,
         expenseCategories,
         expenses,
+        notes,
+        calendarEvents,
+        tasks,
       }),
     };
   }
@@ -370,27 +406,101 @@ class PocketBaseFeatureRepository
     return this.authRepository.refresh();
   }
 
-  async addNote(_input: AddNoteInput): Promise<RepositoryResult> {
-    unsupported('PocketBase notes are not wired in Batch 6.');
+  async addNote(input: AddNoteInput): Promise<RepositoryResult> {
+    const client = await this.authRepository.getClient();
+    const session = this.getSession();
+
+    await client.collection('notes').create({
+      group: session.groupId,
+      author: session.userId,
+      title: input.title,
+      body: input.body,
+      isPinned: input.isPinned,
+      createdBy: session.userId,
+      updatedBy: session.userId,
+    });
+
+    return this.authRepository.refresh();
   }
 
-  async toggleNotePinned(_noteId: string): Promise<RepositoryResult> {
-    unsupported('PocketBase notes are not wired in Batch 6.');
+  async toggleNotePinned(noteId: string): Promise<RepositoryResult> {
+    const client = await this.authRepository.getClient();
+    const session = this.getSession();
+    const note = this.authRepository
+      .getSnapshot()
+      .notes.find(item => item.id === noteId);
+
+    if (!note) {
+      throw new Error('Unknown note.');
+    }
+
+    await client.collection('notes').update(noteId, {
+      isPinned: !note.isPinned,
+      updatedBy: session.userId,
+    });
+
+    return this.authRepository.refresh();
   }
 
-  async addEvent(_input: AddEventInput): Promise<RepositoryResult> {
-    unsupported('PocketBase calendar events are not wired in Batch 6.');
+  async addEvent(input: AddEventInput): Promise<RepositoryResult> {
+    const client = await this.authRepository.getClient();
+    const session = this.getSession();
+
+    await client.collection('calendar_events').create({
+      group: session.groupId,
+      title: input.title,
+      startsAt: input.startsAt,
+      endsAt: input.endsAt,
+      colorKey: input.colorKey,
+      notes: input.notes,
+      createdBy: session.userId,
+      updatedBy: session.userId,
+    });
+
+    return this.authRepository.refresh();
   }
 
-  async addTask(_input: AddTaskInput): Promise<RepositoryResult> {
-    unsupported('PocketBase tasks are not wired in Batch 6.');
+  async addTask(input: AddTaskInput): Promise<RepositoryResult> {
+    const client = await this.authRepository.getClient();
+    const session = this.getSession();
+
+    await client.collection('tasks').create({
+      group: session.groupId,
+      title: input.title,
+      scope: input.scope,
+      assignee: input.assigneeUserId,
+      points: input.points,
+      dueAt: input.dueAt,
+      createdBy: session.userId,
+      updatedBy: session.userId,
+    });
+
+    return this.authRepository.refresh();
   }
 
   async toggleTaskComplete(
-    _taskId: string,
-    _completedByUserId: string,
+    taskId: string,
+    completedByUserId: string,
   ): Promise<RepositoryResult> {
-    unsupported('PocketBase tasks are not wired in Batch 6.');
+    const client = await this.authRepository.getClient();
+    const session = this.getSession();
+    const task = this.authRepository
+      .getSnapshot()
+      .tasks.find(item => item.id === taskId);
+
+    if (!task) {
+      throw new Error('Unknown task.');
+    }
+
+    const completedAt = task.completedAt ? undefined : new Date().toISOString();
+
+    await client.collection('tasks').update(taskId, {
+      completedAt,
+      completedBy: completedAt ? completedByUserId : undefined,
+      updatedBy: session.userId,
+    });
+
+    return this.authRepository.refresh();
   }
 
   async updateSettings(_input: UpdateSettingsInput): Promise<RepositoryResult> {

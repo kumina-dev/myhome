@@ -1,18 +1,24 @@
 import {
   BackendAuthUserRecord,
+  BackendCalendarEventRecord,
   BackendExpenseCategoryRecord,
   BackendExpenseRecord,
   BackendGroupMemberRecord,
   BackendGroupRecord,
+  BackendNoteRecord,
   BackendProfileRecord,
+  BackendTaskRecord,
 } from './backendRecords';
 import {
   AppSettings,
   AppSnapshot,
+  CalendarEvent,
   Expense,
   Group,
   GroupMember,
+  Note,
   Session,
+  Task,
   UserProfile,
 } from './models';
 
@@ -105,6 +111,60 @@ export function mapBackendExpense(
   };
 }
 
+export function mapBackendNote(record: BackendNoteRecord): Note {
+  return {
+    id: record.id,
+    groupId: record.group,
+    createdAt: record.created,
+    updatedAt: record.updated,
+    createdByUserId: record.createdBy ?? record.author,
+    updatedByUserId: record.updatedBy ?? record.author,
+    deletedAt: record.deletedAt,
+    authorUserId: record.author,
+    title: record.title,
+    body: record.body,
+    isPinned: record.isPinned,
+  };
+}
+
+export function mapBackendCalendarEvent(
+  record: BackendCalendarEventRecord,
+): CalendarEvent {
+  return {
+    id: record.id,
+    groupId: record.group,
+    createdAt: record.created,
+    updatedAt: record.updated,
+    createdByUserId: record.createdBy ?? '',
+    updatedByUserId: record.updatedBy ?? '',
+    deletedAt: record.deletedAt,
+    title: record.title,
+    startsAt: record.startsAt,
+    endsAt: record.endsAt,
+    colorKey: record.colorKey,
+    notes: record.notes,
+  };
+}
+
+export function mapBackendTask(record: BackendTaskRecord): Task {
+  return {
+    id: record.id,
+    groupId: record.group,
+    createdAt: record.created,
+    updatedAt: record.updated,
+    createdByUserId: record.createdBy ?? '',
+    updatedByUserId: record.updatedBy ?? '',
+    deletedAt: record.deletedAt,
+    title: record.title,
+    scope: record.scope,
+    assigneeUserId: record.assignee,
+    points: record.points,
+    dueAt: record.dueAt,
+    completedAt: record.completedAt,
+    completedByUserId: record.completedBy,
+  };
+}
+
 export function createPocketBaseSnapshot({
   currentUser,
   currentProfile,
@@ -113,6 +173,9 @@ export function createPocketBaseSnapshot({
   profiles,
   expenseCategories = [],
   expenses = [],
+  notes = [],
+  calendarEvents = [],
+  tasks = [],
 }: {
   currentUser: BackendAuthUserRecord | null;
   currentProfile: BackendProfileRecord | null;
@@ -121,6 +184,9 @@ export function createPocketBaseSnapshot({
   profiles: BackendProfileRecord[];
   expenseCategories?: BackendExpenseCategoryRecord[];
   expenses?: BackendExpenseRecord[];
+  notes?: BackendNoteRecord[];
+  calendarEvents?: BackendCalendarEventRecord[];
+  tasks?: BackendTaskRecord[];
 }): AppSnapshot {
   const categoriesById = expenseCategories.reduce<
     Record<string, BackendExpenseCategoryRecord>
@@ -168,9 +234,9 @@ export function createPocketBaseSnapshot({
     expenses: expenses.map(expense =>
       mapBackendExpense(expense, categoriesById),
     ),
-    notes: [],
-    events: [],
-    tasks: [],
+    notes: notes.map(mapBackendNote),
+    events: calendarEvents.map(mapBackendCalendarEvent),
+    tasks: tasks.map(mapBackendTask),
     notifications: [],
     settings: {
       ...createDefaultSettings(),
