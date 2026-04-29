@@ -1,8 +1,6 @@
 import PocketBase, { AsyncAuthStore } from 'pocketbase';
-import {
-  memoryPocketBaseAuthStorage,
-  PocketBaseAuthStorage,
-} from './authStorage';
+import { PocketBaseAuthStorage } from './authStorage';
+import { nativeSecurePocketBaseAuthStorage } from './nativeSecureAuthStorage';
 import { getPocketBaseConfig, PocketBaseConfig } from './pocketBaseConfig';
 
 export interface PocketBaseClientOptions {
@@ -14,7 +12,7 @@ export async function createPocketBaseClient(
   options: PocketBaseClientOptions = {},
 ): Promise<PocketBase> {
   const config = options.config ?? getPocketBaseConfig();
-  const authStorage = options.authStorage ?? memoryPocketBaseAuthStorage;
+  const authStorage = options.authStorage ?? nativeSecurePocketBaseAuthStorage;
 
   const authStore = new AsyncAuthStore({
     initial: authStorage.load(),

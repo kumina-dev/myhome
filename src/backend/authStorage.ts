@@ -21,3 +21,16 @@ export class MemoryPocketBaseAuthStorage implements PocketBaseAuthStorage {
 }
 
 export const memoryPocketBaseAuthStorage = new MemoryPocketBaseAuthStorage();
+
+export function isValidSerializedPocketBaseAuth(
+  value: string | null,
+): value is string {
+  if (!value) return false;
+
+  try {
+    const parsed = JSON.parse(value) as { token?: unknown; record?: unknown };
+    return typeof parsed.token === 'string';
+  } catch {
+    return false;
+  }
+}
