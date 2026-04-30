@@ -40,7 +40,8 @@ export const fi = {
     brandName: 'Circl',
     fallbackGroupName: 'Ryhmä',
     headerSubtitle: 'Yhteinen suunnittelu pienelle luotetulle ryhmälle',
-    splashBody: 'Ladataan yhteistä paikkaa suunnitelmille, tehtäville, muistiinpanoille ja arjen päätöksille.',
+    splashBody:
+      'Ladataan yhteistä paikkaa suunnitelmille, tehtäville, muistiinpanoille ja arjen päätöksille.',
     lock: 'Lukitse',
   },
   auth: {
@@ -48,8 +49,7 @@ export const fi = {
     signIn: 'Kirjaudu',
     createGroup: 'Luo ryhmä',
     acceptInvite: 'Hyväksy kutsu',
-    subtitle:
-      'Yksityinen sovellus kutsutuille jäsenille ja selkeä reitti sisäänkirjautumiseen.',
+    subtitle: 'Yksityinen sovellus kutsutuille jäsenille ja selkeä reitti sisäänkirjautumiseen.',
     fields: {
       groupName: 'Ryhmän nimi',
       displayName: 'Näyttönimi',
@@ -71,22 +71,16 @@ export const fi = {
     errors: {
       failed: 'Kirjautuminen epäonnistui',
     },
-    helper: {
-      seededCredentials:
-        'Paikallisen testauksen tunnukset: owner@northcircle.app / 1234.',
-    },
   },
   appLock: {
     title: 'Sovelluslukko',
-    subtitle:
-      'Istunto on olemassa, mutta käyttö vaatii paikallisen lukituksen.',
+    subtitle: 'Istunto on olemassa, mutta käyttö vaatii paikallisen lukituksen.',
     fields: {
       pin: 'PIN',
     },
     helpers: {
       seededPin: 'Nykyinen testauksen PIN: 2580',
-      nativeBiometric:
-        'Biometristä avausta ei ole kytketty tässä muistissa toimivassa versiossa.',
+      nativeBiometric: 'Biometristä avausta ei ole kytketty tässä muistissa toimivassa versiossa.',
     },
     actions: {
       unlock: 'Avaa',
@@ -105,8 +99,7 @@ export const fi = {
       total: 'Yhteensä',
       monthlySummaryHint: 'Kategorioittain, jäsenittäin ja viimeisimmän toiminnan mukaan',
       logPurchase: 'Kirjaa ostos',
-      logPurchaseSubtitle:
-        'Rakenteiset kentät voittavat epämääräiset vapaatekstit.',
+      logPurchaseSubtitle: 'Rakenteiset kentät voittavat epämääräiset vapaatekstit.',
     },
     sections: {
       byCategory: 'Kategorioittain',
@@ -133,15 +126,13 @@ export const fi = {
     },
     empty: {
       noSpendingTitle: 'Ei kuluja vielä',
-      noSpendingBody:
-        'Lisää ensimmäinen ostos, niin kuukausinäkymä alkaa olla hyödyllinen.',
+      noSpendingBody: 'Lisää ensimmäinen ostos, niin kuukausinäkymä alkaa olla hyödyllinen.',
     },
   },
   notes: {
     screen: {
       title: 'Yhteiset muistiinpanot',
-      subtitle:
-        'Kiinnitetyt muistiinpanot pysyvät näkyvillä. Muut löytyvät silti helposti.',
+      subtitle: 'Kiinnitetyt muistiinpanot pysyvät näkyvillä. Muut löytyvät silti helposti.',
       currentNotes: 'Nykyiset muistiinpanot',
     },
     fields: {
@@ -167,8 +158,7 @@ export const fi = {
   },
   home: {
     screen: {
-      subtitle:
-        'Yksityinen ryhmän suunnittelu, kulut ja tehtävät ilman turhaa säätöä.',
+      subtitle: 'Yksityinen ryhmän suunnittelu, kulut ja tehtävät ilman turhaa säätöä.',
       overview: 'Yhteenveto',
     },
     overview: {
@@ -197,8 +187,7 @@ export const fi = {
     upcoming: {
       title: 'Tulossa',
       emptyTitle: 'Ei tulevia tapahtumia',
-      emptyBody:
-        'Lisää suunnitelmia, muistutuksia tai tärkeitä päivämääriä ryhmän koordinointiin.',
+      emptyBody: 'Lisää suunnitelmia, muistutuksia tai tärkeitä päivämääriä ryhmän koordinointiin.',
     },
   },
   tasks: {
@@ -338,8 +327,7 @@ export const fi = {
     },
     screen: {
       title: 'Yhteinen kalenteri',
-      subtitle:
-        'Kuukausinäkymä kokonaisuuteen ja agenda selkeään arjen seurantaan.',
+      subtitle: 'Kuukausinäkymä kokonaisuuteen ja agenda selkeään arjen seurantaan.',
       currentGroup: 'Nykyinen ryhmä: {groupName}',
       eventsOn: 'Tapahtumat päivänä {date}',
     },
@@ -380,8 +368,7 @@ export const fi = {
       dayBody:
         'Valitse päivä tai lisää tapahtuma, jotta yhteisestä kalenterista tulee hyödyllinen.',
       agendaTitle: 'Agenda on tyhjä',
-      agendaBody:
-        'Lisää ensimmäinen tapahtuma, niin agenda alkaa näyttää sisältöä.',
+      agendaBody: 'Lisää ensimmäinen tapahtuma, niin agenda alkaa näyttää sisältöä.',
     },
     eventDetails: {
       title: 'Tapahtuman tiedot',

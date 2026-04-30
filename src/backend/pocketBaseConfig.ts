@@ -1,7 +1,4 @@
-export type PocketBaseEnvironment =
-  | 'android-emulator'
-  | 'physical-device'
-  | 'production';
+export type PocketBaseEnvironment = 'android-emulator' | 'physical-device' | 'production';
 
 export interface PocketBaseConfig {
   baseUrl: string;
@@ -24,7 +21,7 @@ const productionConfig: PocketBaseConfig = {
 };
 
 export function getPocketBaseConfig(
-  environment: PocketBaseEnvironment = 'android-emulator',
+  environment: PocketBaseEnvironment = 'physical-device',
 ): PocketBaseConfig {
   if (environment === 'physical-device') {
     return physicalDeviceConfig;

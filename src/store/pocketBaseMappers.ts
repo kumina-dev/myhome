@@ -5,9 +5,12 @@ import {
   BackendExpenseRecord,
   BackendGroupMemberRecord,
   BackendGroupRecord,
+  BackendGroupSettingsRecord,
   BackendNoteRecord,
+  BackendNotificationItemRecord,
   BackendProfileRecord,
   BackendTaskRecord,
+  BackendUserSettingsRecord,
 } from './backendRecords';
 import {
   AppSettings,
@@ -17,6 +20,7 @@ import {
   Group,
   GroupMember,
   Note,
+  NotificationItem,
   Session,
   Task,
   UserProfile,
@@ -73,9 +77,7 @@ export function mapBackendGroup(record: BackendGroupRecord): Group {
   };
 }
 
-export function mapBackendGroupMember(
-  record: BackendGroupMemberRecord,
-): GroupMember {
+export function mapBackendGroupMember(record: BackendGroupMemberRecord): GroupMember {
   return {
     id: record.id,
     groupId: record.group,
@@ -90,9 +92,7 @@ export function mapBackendExpense(
   record: BackendExpenseRecord,
   categoriesById: Record<string, BackendExpenseCategoryRecord>,
 ): Expense {
-  const categoryName = record.category
-    ? categoriesById[record.category]?.name
-    : undefined;
+  const categoryName = record.category ? categoriesById[record.category]?.name : undefined;
 
   return {
     id: record.id,
@@ -127,9 +127,7 @@ export function mapBackendNote(record: BackendNoteRecord): Note {
   };
 }
 
-export function mapBackendCalendarEvent(
-  record: BackendCalendarEventRecord,
-): CalendarEvent {
+export function mapBackendCalendarEvent(record: BackendCalendarEventRecord): CalendarEvent {
   return {
     id: record.id,
     groupId: record.group,
@@ -165,35 +163,105 @@ export function mapBackendTask(record: BackendTaskRecord): Task {
   };
 }
 
+export function mapBackendNotification(record: BackendNotificationItemRecord): NotificationItem {
+  return {
+    id: record.id,
+    groupId: record.group,
+    createdAt: record.created,
+    updatedAt: record.updated,
+    createdByUserId: record.createdBy ?? '',
+    updatedByUserId: record.updatedBy ?? '',
+    type: record.type,
+    title: record.title,
+    body: record.body,
+    isRead: record.isRead,
+  };
+}
+
+function parseScoreCycleDays(value: number | string | undefined) {
+  if (typeof value === 'number') return value;
+
+  if (typeof value === 'string') {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : undefined;
+  }
+
+  return undefined;
+}
+
+export function mapBackendSettings({
+  userSettings,
+  groupSettings,
+  expenseCategories,
+}: {
+  userSettings: BackendUserSettingsRecord | null;
+  groupSettings: BackendGroupSettingsRecord | null;
+  expenseCategories: BackendExpenseCategoryRecord[];
+}): AppSettings {
+  const defaults = createDefaultSettings();
+
+  return {
+    ...defaults,
+    themeMode: userSettings?.themeMode ?? defaults.themeMode,
+    defaultTab: userSettings?.defaultTab ?? defaults.defaultTab,
+    localePreference: userSettings?.localePreference ?? defaults.localePreference,
+    currencyCode: userSettings?.currencyCode ?? defaults.currencyCode,
+    calendarDefaultView: userSettings?.calendarDefaultView ?? defaults.calendarDefaultView,
+    expenseCategories: expenseCategories.map((category) => category.name),
+    scoreCycleDays: parseScoreCycleDays(groupSettings?.scoreCycleDays) ?? defaults.scoreCycleDays,
+    scoreCycleAnchor: groupSettings?.scoreCycleAnchor ?? defaults.scoreCycleAnchor,
+    weekStartsOn: groupSettings?.weekStartsOn ?? defaults.weekStartsOn,
+    showCompletedTasks: groupSettings?.showCompletedTasks ?? defaults.showCompletedTasks,
+    showPersonalTasksOnHome:
+      groupSettings?.showPersonalTasksOnHome ?? defaults.showPersonalTasksOnHome,
+    notifications: {
+      ...defaults.notifications,
+      eventReminders: groupSettings?.eventReminders ?? defaults.notifications.eventReminders,
+      taskReminders: groupSettings?.taskReminders ?? defaults.notifications.taskReminders,
+      noteAlerts: groupSettings?.noteAlerts ?? defaults.notifications.noteAlerts,
+      expenseAlerts: groupSettings?.expenseAlerts ?? defaults.notifications.expenseAlerts,
+      sharedTaskBroadcasts:
+        groupSettings?.sharedTaskBroadcasts ?? defaults.notifications.sharedTaskBroadcasts,
+    },
+  };
+}
+
 export function createPocketBaseSnapshot({
   currentUser,
   currentProfile,
   activeGroup,
   members,
   profiles,
+  userSettings = null,
+  groupSettings = null,
   expenseCategories = [],
   expenses = [],
   notes = [],
   calendarEvents = [],
   tasks = [],
+  notifications = [],
 }: {
   currentUser: BackendAuthUserRecord | null;
   currentProfile: BackendProfileRecord | null;
   activeGroup: BackendGroupRecord | null;
   members: BackendGroupMemberRecord[];
   profiles: BackendProfileRecord[];
+  userSettings?: BackendUserSettingsRecord | null;
+  groupSettings?: BackendGroupSettingsRecord | null;
   expenseCategories?: BackendExpenseCategoryRecord[];
   expenses?: BackendExpenseRecord[];
   notes?: BackendNoteRecord[];
   calendarEvents?: BackendCalendarEventRecord[];
   tasks?: BackendTaskRecord[];
+  notifications?: BackendNotificationItemRecord[];
 }): AppSnapshot {
-  const categoriesById = expenseCategories.reduce<
-    Record<string, BackendExpenseCategoryRecord>
-  >((acc, category) => {
-    acc[category.id] = category;
-    return acc;
-  }, {});
+  const categoriesById = expenseCategories.reduce<Record<string, BackendExpenseCategoryRecord>>(
+    (acc, category) => {
+      acc[category.id] = category;
+      return acc;
+    },
+    {},
+  );
 
   const authUsers = currentUser
     ? [
@@ -231,16 +299,15 @@ export function createPocketBaseSnapshot({
     groups: activeGroup ? [mapBackendGroup(activeGroup)] : [],
     members: members.map(mapBackendGroupMember),
     invites: [],
-    expenses: expenses.map(expense =>
-      mapBackendExpense(expense, categoriesById),
-    ),
+    expenses: expenses.map((expense) => mapBackendExpense(expense, categoriesById)),
     notes: notes.map(mapBackendNote),
     events: calendarEvents.map(mapBackendCalendarEvent),
     tasks: tasks.map(mapBackendTask),
-    notifications: [],
-    settings: {
-      ...createDefaultSettings(),
-      expenseCategories: expenseCategories.map(category => category.name),
-    },
+    notifications: notifications.map(mapBackendNotification),
+    settings: mapBackendSettings({
+      userSettings,
+      groupSettings,
+      expenseCategories,
+    }),
   };
 }

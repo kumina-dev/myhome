@@ -40,8 +40,7 @@ export const en = {
     brandName: 'Circl',
     fallbackGroupName: 'Group',
     headerSubtitle: 'Private coordination for your trusted circle',
-    splashBody:
-      'Loading your shared home for plans, tasks, notes, and everyday decisions.',
+    splashBody: 'Loading your shared home for plans, tasks, notes, and everyday decisions.',
     lock: 'Lock',
   },
   auth: {
@@ -71,22 +70,16 @@ export const en = {
     errors: {
       failed: 'Auth failed',
     },
-    helper: {
-      seededCredentials:
-        'Seeded credentials for local testing: owner@northcircle.app / 1234.',
-    },
   },
   appLock: {
     title: 'App lock',
-    subtitle:
-      'The session exists, but access still requires the local device lock.',
+    subtitle: 'The session exists, but access still requires the local device lock.',
     fields: {
       pin: 'PIN',
     },
     helpers: {
       seededPin: 'Current seeded PIN: 2580',
-      nativeBiometric:
-        'Native biometric unlock is not wired in this in-memory build.',
+      nativeBiometric: 'Native biometric unlock is not wired in this in-memory build.',
     },
     actions: {
       unlock: 'Unlock',
@@ -105,8 +98,7 @@ export const en = {
       total: 'Total',
       monthlySummaryHint: 'By category, by member, and recent activity',
       logPurchase: 'Log purchase',
-      logPurchaseSubtitle:
-        'Track shared purchases with clear amounts, dates, and categories.',
+      logPurchaseSubtitle: 'Track shared purchases with clear amounts, dates, and categories.',
     },
     sections: {
       byCategory: 'By category',
@@ -133,8 +125,7 @@ export const en = {
     },
     empty: {
       noSpendingTitle: 'No spending yet',
-      noSpendingBody:
-        'Add the first purchase and the monthly view will start making sense.',
+      noSpendingBody: 'Add the first purchase and the monthly view will start making sense.',
     },
   },
   notes: {
@@ -166,8 +157,7 @@ export const en = {
   },
   home: {
     screen: {
-      subtitle:
-        'Private planning, spending, notes, and chores for trusted groups.',
+      subtitle: 'Private planning, spending, notes, and chores for trusted groups.',
       overview: 'Overview',
     },
     overview: {
@@ -196,8 +186,7 @@ export const en = {
     upcoming: {
       title: 'Upcoming',
       emptyTitle: 'No upcoming events',
-      emptyBody:
-        'Add plans, reminders, or important dates to keep the group coordinated.',
+      emptyBody: 'Add plans, reminders, or important dates to keep the group coordinated.',
     },
   },
   tasks: {
@@ -278,8 +267,7 @@ export const en = {
     group: {
       members: 'Members',
       groupName: 'Group name',
-      groupNameHelper:
-        'Covers family, flatmates, close friends, and other private groups.',
+      groupNameHelper: 'Covers family, flatmates, close friends, and other private groups.',
       makeOwner: 'Make owner',
       makeMember: 'Make member',
       removeMemberTitle: 'Remove member',
@@ -376,11 +364,9 @@ export const en = {
     },
     empty: {
       dayTitle: 'Nothing scheduled',
-      dayBody:
-        'Select a day or add an event to start building a usable shared calendar.',
+      dayBody: 'Select a day or add an event to start building a usable shared calendar.',
       agendaTitle: 'Agenda is empty',
-      agendaBody:
-        'Add the first event and the agenda view will start doing actual work.',
+      agendaBody: 'Add the first event and the agenda view will start doing actual work.',
     },
     eventDetails: {
       title: 'Event details',

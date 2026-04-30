@@ -1,21 +1,16 @@
 import React, { useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from '../../i18n';
-import {
-  AcceptInviteInput,
-  AuthFlowMode,
-  CreateGroupInput,
-  SignInInput,
-} from '../../store/models';
 import { Theme } from '../../shared/theme/theme';
 import { Button } from '../../shared/ui/Button';
 import { Field } from '../../shared/ui/Field';
-import { authOptions } from './authOptions';
 import {
   normalizeEmail,
   normalizeInviteCode,
   normalizeRequiredText,
 } from '../../shared/validation/forms';
+import { AcceptInviteInput, AuthFlowMode, CreateGroupInput, SignInInput } from '../../store/models';
+import { authOptions } from './authOptions';
 
 export function AuthForm({
   theme,
@@ -39,8 +34,13 @@ export function AuthForm({
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [inviteCode, setInviteCode] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   async function handleSubmit() {
+    if (submitting) return;
+
+    setSubmitting(true);
+
     try {
       const normalizedEmail = normalizeEmail(email);
       const cleanedPassword = normalizeRequiredText(password);
@@ -92,19 +92,31 @@ export function AuthForm({
         password: cleanedPassword,
       });
     } catch (caught) {
+      const error = caught as {
+        message?: string;
+        data?: unknown;
+        response?: unknown;
+        status?: number;
+      };
+
       Alert.alert(
         t('auth.errors.failed'),
-        caught instanceof Error
-          ? caught.message
-          : t('validation.unexpectedError'),
+        [
+          error.message ?? t('validation.unexpectedError'),
+          `status: ${error.status ?? 'unknown'}`,
+          `data: ${JSON.stringify(error.data ?? null, null, 2)}`,
+          `response: ${JSON.stringify(error.response ?? null, null, 2)}`,
+        ].join('\n\n'),
       );
+    } finally {
+      setSubmitting(false);
     }
   }
 
   return (
     <>
       <View style={styles.modeTabs}>
-        {authOptions.map(option => {
+        {authOptions.map((option) => {
           const selected = authMode === option.key;
 
           return (
@@ -113,12 +125,7 @@ export function AuthForm({
               onPress={() => onAuthModeChange(option.key)}
               style={[styles.modeTab, selected ? styles.modeTabSelected : null]}
             >
-              <Text
-                style={[
-                  styles.modeTabText,
-                  selected ? styles.modeTabTextSelected : null,
-                ]}
-              >
+              <Text style={[styles.modeTabText, selected ? styles.modeTabTextSelected : null]}>
                 {t(option.labelKey)}
               </Text>
             </Pressable>
@@ -176,7 +183,6 @@ export function AuthForm({
         label={t('common.actions.continue')}
         onPress={() => handleSubmit().catch(() => undefined)}
       />
-      <Text style={styles.helper}>{t('auth.helper.seededCredentials')}</Text>
     </>
   );
 }
@@ -211,10 +217,5 @@ const createStyles = (theme: Theme) =>
     },
     modeTabTextSelected: {
       color: theme.text,
-    },
-    helper: {
-      color: theme.textMuted,
-      fontSize: 12,
-      lineHeight: 18,
     },
   });

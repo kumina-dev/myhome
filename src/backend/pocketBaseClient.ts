@@ -16,9 +16,12 @@ export async function createPocketBaseClient(
 
   const authStore = new AsyncAuthStore({
     initial: authStorage.load(),
-    save: serializedAuth => authStorage.save(serializedAuth),
+    save: (serializedAuth) => authStorage.save(serializedAuth),
     clear: () => authStorage.clear(),
   });
 
-  return new PocketBase(config.baseUrl, authStore);
+  const client = new PocketBase(config.baseUrl, authStore);
+  client.autoCancellation(false);
+
+  return client;
 }

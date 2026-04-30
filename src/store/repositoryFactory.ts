@@ -3,7 +3,7 @@ import { AppRepositories } from './repositories';
 
 type RepositoryBackendMode = 'development' | 'pocketbase-auth';
 
-const repositoryBackendMode: RepositoryBackendMode = 'development';
+const repositoryBackendMode: RepositoryBackendMode = 'pocketbase-auth';
 
 export function createAppRepositories(): AppRepositories {
   if (repositoryBackendMode === 'pocketbase-auth') {

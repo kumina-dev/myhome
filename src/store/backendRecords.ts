@@ -129,25 +129,25 @@ export interface BackendNotificationItemRecord extends BackendRecordBase {
 
 export interface BackendUserSettingsRecord extends BackendRecordBase {
   user: string;
-  themeMode: ThemeMode;
-  localePreference: LocalePreference;
-  defaultTab: AppTab;
-  currencyCode: string;
-  calendarDefaultView: CalendarViewMode;
+  themeMode?: ThemeMode;
+  localePreference?: LocalePreference;
+  defaultTab?: AppTab;
+  currencyCode?: string;
+  calendarDefaultView?: CalendarViewMode;
 }
 
 export interface BackendGroupSettingsRecord extends BackendRecordBase {
   group: string;
-  scoreCycleDays: number;
-  scoreCycleAnchor: string;
-  weekStartsOn: WeekStart;
-  showCompletedTasks: boolean;
-  showPersonalTasksOnHome: boolean;
-  eventReminders: boolean;
-  taskReminders: boolean;
-  noteAlerts: boolean;
-  expenseAlerts: boolean;
-  sharedTaskBroadcasts: boolean;
+  scoreCycleDays?: number | string;
+  scoreCycleAnchor?: string;
+  weekStartsOn?: WeekStart;
+  showCompletedTasks?: boolean;
+  showPersonalTasksOnHome?: boolean;
+  eventReminders?: boolean;
+  taskReminders?: boolean;
+  noteAlerts?: boolean;
+  expenseAlerts?: boolean;
+  sharedTaskBroadcasts?: boolean;
 }
 
 export interface BackendWorkspaceRecords {
